@@ -1,6 +1,8 @@
 ## module load gdal
 ## module load proj
 
+# charlotte's version
+
 #setwd("/projectnb/dietzelab/dietze/CARB/")
 
 #install.packages("DBI",repos = "https://cloud.r-project.org")
@@ -8,6 +10,7 @@
 library(sf)
 
 ## read NA SDA ensemble
+# test version 2021 AGB:
 agb <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/AbvGrndWood_2021/mean_2021_AbvGrndWood.tiff")
 terra::plot(agb)
 terra::crs(agb)
