@@ -2,7 +2,6 @@
 ## module load proj
 
 # charlotte's version
-#let's try again
 
 #setwd("/projectnb/dietzelab/dietze/CARB/")
 
@@ -55,7 +54,8 @@ fromClass = paste0(landClass$CLASS,landClass$SUBCLASS)
 fromClass = sub("NA","",fromClass)
 reClass = data.frame(from=fromClass,to=landClass$CLASS)
 
-foo = terra::classify(landRast,reClass)
+reClass$ref <- as.numeric(as.factor(reClass$to))  # reference for making numeric to do classify
+foo = terra::classify(landRast,reClass$ref)  # this one requires numeric not character entry for classify
 terra::plot(foo)
 maps::map("state",add=TRUE)
 
@@ -143,7 +143,7 @@ terra::plot(Co,"crop_ensAGB_SD",legend="topright",breaks=breaks,col=palatte)
 terra::plot(Co,"crop_TotAGB_SD",legend="topright",breaks=breaks,col=palatte)
 #range=c(0,500),
 
-* Repeat for SoilC
+#* Repeat for SoilC
 
 
 
