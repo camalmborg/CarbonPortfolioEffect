@@ -19,15 +19,20 @@ terra::crs(agb)
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
-run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts"
-# get directories:
-dirs <- list.dirs(paste0(ens, run))[grep("07-15", list.dirs(paste0(ens, run)))]
+run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/"
+# get directories that include tiff files:
+dirs <- list.dirs(paste0(ens, run))[-grep("07-15", list.dirs(paste0(ens, run)))]
 # choose variable:
 var <- "TotSoilCarb_"
 # load list of files:
-dirs <- list.dirs(paste0(ens,run))[grep(var, list.dirs(paste0(ens, run)))]
-files <- list.files(dirs)[grep(".tiff", list.files(dirs))]
-soc <- terra::rast()
+varfiles <- dirs[grep(var, dirs)]
+
+# load first example:
+year <- 2021
+findfile <- paste0(ens, run, var, as.character(year))
+findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
+tiff <- paste0(findfile, "/", findtiff[1])
+soc <- terra::rast(tiff)
 
 
 ## read LandIQ
