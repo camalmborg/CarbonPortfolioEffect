@@ -12,8 +12,8 @@ library(terra)
 ## Read NA SDA ensemble
 # test version 2021 AGB:
 agb <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/AbvGrndWood_2021/mean_2021_AbvGrndWood.tiff")
-terra::plot(agb)
-terra::crs(agb)
+#terra::plot(agb)
+#terra::crs(agb)
 
 ## Loading data
 # navigate to Dongchen's North America runs:
@@ -27,38 +27,31 @@ var <- "TotSoilCarb_"
 # load list of files:
 varfiles <- dirs[grep(var, dirs)]
 
-# load first example:
+# load first example - 6/10 testing with one tiff, can be put into loop
+# choose year:
 year <- 2021
+# choose file by year:
 findfile <- paste0(ens, run, var, as.character(year))
 findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
 tiff <- paste0(findfile, "/", findtiff[1])
 soc <- terra::rast(tiff)
+terra::plot(soc)
 
-
-## read LandIQ
-#land = sf::st_read("/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/")
-#st_crs(land)
-#ggplot() + 
-#  geom_sf(data = land,fill="lightgreen") + 
-#  ggtitle("LandIQ") + 
-#  coord_sf()
-#ggplot() + 
-#  geom_sf(data = land,aes(fill = MAIN_CROP)) + 
-#  ggtitle("LandIQ") + 
-#  coord_sf()
-#sf::plot_sf(land["MAIN_CROP"])
-
-## alt load of landIQ
+# load LandIQ:
 v <- terra::vect("/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15_Crop_Mapping_2021.shp")
-v <- terra::project(v,agb)
-#terra::plot(v,"MAIN_CROP")
+# match projection with tiff:
+v <- terra::project(v, soc)
 
 ## Crop SDA to LandIQ
 agbCA = terra::crop(agb,v)
 terra::plot(agbCA)
 maps::map("state",add=TRUE)
+# crop California:
+socCA <- terra::crop(soc, v)
+terra::plot(socCA)
+maps::map("state", add = T)
 
-## align LandIQ to SDA
+# align LandIQ to SDA:
 landClass = read.table("https://raw.githubusercontent.com/ccmmf/rs-sandbox/refs/heads/main/code_snippets/landiq_crop_mapping_codes.tsv",
                        header=TRUE,sep="\t")
 
@@ -67,6 +60,10 @@ v["CF"] = as.factor(v["MAIN_CROP"])
 landRast = terra::rasterize(v,agbCA,"MAIN_CROP")
 terra::plot(landRast)
 maps::map("state",add=TRUE)
+
+landRast <- terra::rasterize(v, socCA, "MAIN_CROP")
+terra::plot(landRast)
+maps::map("state", add =T)
 
 ## code to reclassify land classes
 fromClass = paste0(landClass$CLASS,landClass$SUBCLASS)
