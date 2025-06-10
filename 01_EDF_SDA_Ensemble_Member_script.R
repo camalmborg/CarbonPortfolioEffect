@@ -1,19 +1,33 @@
-## module load gdal
-## module load proj
-
+### Code for EDF uncertainty analyses ###
 # charlotte's version
 
-#setwd("/projectnb/dietzelab/dietze/CARB/")
+# set working directory
+setwd("/projectnb/dietzelab/malmborg/EDF/")
 
 #install.packages("DBI",repos = "https://cloud.r-project.org")
-##install.packages("sf",repos = "https://cloud.r-project.org", type = "source", configure.args = "--with-gdal-config=/share/pkg.8/gdal/3.8.4/install/bin/gdal-config")
+#install.packages("sf",repos = "https://cloud.r-project.org", type = "source", configure.args = "--with-gdal-config=/share/pkg.8/gdal/3.8.4/install/bin/gdal-config")
 library(sf)
+library(terra)
 
-## read NA SDA ensemble
+## Read NA SDA ensemble
 # test version 2021 AGB:
 agb <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/AbvGrndWood_2021/mean_2021_AbvGrndWood.tiff")
 terra::plot(agb)
 terra::crs(agb)
+
+## Loading data
+# navigate to Dongchen's North America runs:
+ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
+# choose run:
+run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts"
+# get directories:
+dirs <- list.dirs(paste0(ens, run))[grep("07-15", list.dirs(paste0(ens, run)))]
+# choose variable:
+var <- "TotSoilCarb_"
+# load list of files:
+dirs <- list.dirs(paste0(ens,run))[grep(var, list.dirs(paste0(ens, run)))]
+files <- list.files(dirs)[grep(".tiff", list.files(dirs))]
+soc <- terra::rast()
 
 
 ## read LandIQ
