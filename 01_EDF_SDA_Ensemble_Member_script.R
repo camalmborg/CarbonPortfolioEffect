@@ -122,10 +122,13 @@ Co[["cropSOC"]] <- CoCropSOC$mean
 #terra::plot(Co,"cropAGB",legend="topright")
 terra::plot(Co, "cropSOC", legend = "topright")
 
-CoCropTotAGB = terra::extract(cropAGB*100/1000000,Co,fun=sum,na.rm=TRUE) #Mg/ha -> Tg
-Co[["cropTotAGB"]] <- CoCropTotAGB$mean
+#CoCropTotAGB = terra::extract(cropAGB*100/1000000,Co,fun=sum,na.rm=TRUE) #Mg/ha -> Tg
+CoCropTotSOC <- terra::extract(cropSOC*100/1000000, Co, fun = sum, na.rm = TRUE)
+#Co[["cropTotAGB"]] <- CoCropTotAGB$mean
+Co[["cropTotSOC"]] <- CoCropTotSOC$mean
 palatte = c('#edf8e9','#bae4b3','#74c476','#31a354','#006d2c')
-terra::plot(Co,"cropTotAGB",legend="topright",col=palatte)
+#terra::plot(Co,"cropTotAGB",legend="topright",col=palatte)
+terra::plot(Co, "cropTotSOC", legend = "topright", col = palatte)
 
 ## NAIVE uncertainty calculation: Sum independent Var
 # * load SD map
@@ -133,15 +136,26 @@ terra::plot(Co,"cropTotAGB",legend="topright",col=palatte)
 # * extract
 # * add sqrt to df
 agbSD <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/downscale_maps/AbvGrndWood_2021/std_2021_AbvGrndWood.tiff")
-agbSDCA = terra::crop(agbSD,v)
-cropVar = isCrop * agbSDCA^2
-CoCropTotVar = terra::extract(cropVar,Co,fun=sum,na.rm=TRUE)
-Co[["crop_TotAGB_CV"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000000/CoCropTotAGB$mean*100 ## percent
-Co[["crop_TotAGB_SD"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000 ## Gg
+# find sd file:
+sdtiff <- paste0(findfile, "/", findtiff[grep("std", findtiff)])
+socSD <- terra::rast(sdtiff)
+#agbSDCA = terra::crop(agbSD,v)
+socSDCA <- terra::crop(socSD, v)
+#cropVar = isCrop * agbSDCA^2
+cropVar <- isCrop*socSDCA^2
+CoCropTotVar = terra::extract(cropVar, Co, fun = sum, na.rm = TRUE)
+#Co[["crop_TotAGB_CV"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000000/CoCropTotAGB$mean*100 ## percent
+#Co[["crop_TotAGB_SD"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000 ## Gg
+Co[["crop_TotSOC_CV"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000000/CoCropTotSOC$mean*100
+Co[["crop_TotSOC_SD"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000
 
-terra::plot(agbSDCA,legend="topright")
-terra::plot(Co,"crop_TotAGB_CV",legend="topright")
-terra::plot(Co,"crop_TotAGB_SD",legend="topright")
+#terra::plot(agbSDCA,legend="topright")
+terra::plot(socSDCA, legend = "topright")
+maps::map("state", add = TRUE)
+#terra::plot(Co,"crop_TotAGB_CV",legend="topright")
+terra::plot(Co, "crop_TotSOC_CV", legend = "topright")
+#terra::plot(Co,"crop_TotAGB_SD",legend="topright")
+terra::plot(Co, "crop_TotSOC_SD", legend = "topright")
 
 ## ENSEMBLE uncertainty calculation:
  # Calc sum for different ensembles, then calc SD
@@ -153,7 +167,8 @@ terra::plot(Co,"crop_TotAGB_SD",legend="topright")
  #  * calc SD over df
  #  * add to Co map
 ne = 25
-ensAGB = as.data.frame(matrix(NA,nrow=58,ncol=ne))
+#ensAGB = as.data.frame(matrix(NA,nrow=58,ncol=ne))
+ensSOC = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
 for (e in 1:ne) {
   print(e)
   ## load & clip ensemble member
