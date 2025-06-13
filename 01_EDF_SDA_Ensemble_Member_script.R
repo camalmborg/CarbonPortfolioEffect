@@ -11,7 +11,7 @@ library(terra)
 
 ## Read NA SDA ensemble
 # test version 2021 AGB:
-agb <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/AbvGrndWood_2021/mean_2021_AbvGrndWood.tiff")
+#agb <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/AbvGrndWood_2021/mean_2021_AbvGrndWood.tiff")
 #terra::plot(agb)
 #terra::crs(agb)
 
@@ -43,9 +43,9 @@ v <- terra::vect("/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15
 v <- terra::project(v, soc)
 
 ## Crop SDA to LandIQ
-agbCA = terra::crop(agb,v)
-terra::plot(agbCA)
-maps::map("state",add=TRUE)
+# agbCA = terra::crop(agb,v)
+# terra::plot(agbCA)
+# maps::map("state",add=TRUE)
 # crop California:
 socCA <- terra::crop(soc, v)
 terra::plot(socCA)
@@ -57,38 +57,39 @@ landClass = read.table("https://raw.githubusercontent.com/ccmmf/rs-sandbox/refs/
 
 v["CF"] = as.factor(v["MAIN_CROP"])
 
-landRast = terra::rasterize(v,agbCA,"MAIN_CROP")
-terra::plot(landRast)
-maps::map("state",add=TRUE)
+# landRast = terra::rasterize(v,agbCA,"MAIN_CROP")
+# terra::plot(landRast)
+# maps::map("state",add=TRUE)
 
 landRast <- terra::rasterize(v, socCA, "MAIN_CROP")
 terra::plot(landRast)
-maps::map("state", add =T)
+maps::map("state", add = TRUE)
 
 ## code to reclassify land classes
-fromClass = paste0(landClass$CLASS,landClass$SUBCLASS)
-fromClass = sub("NA","",fromClass)
-reClass = data.frame(from=fromClass,to=landClass$CLASS)
+fromClass <- paste0(landClass$CLASS,landClass$SUBCLASS)
+fromClass <- sub("NA","",fromClass)
+reClass <- data.frame(from = fromClass, 
+                      to = landClass$CLASS)
 
 reClass$ref <- as.numeric(as.factor(reClass$to))  # reference for making numeric to do classify
-foo = terra::classify(landRast,reClass$ref)  # this one requires numeric not character entry for classify
-terra::plot(foo)
+classed = terra::classify(landRast, reClass$ref)  # this one requires numeric not character entry for classify
+terra::plot(classed)
 maps::map("state",add=TRUE)
 
 
-
-
 ## Aggregate by crop type
-landDF = as.data.frame(landRast) %>% tibble::rownames_to_column()
-agbDF  = as.data.frame(agbCA) %>% tibble::rownames_to_column()
-join = dplyr::inner_join(landDF,agbDF,by="rowname")
-join = dplyr::inner_join(join,reClass,by=dplyr::join_by("MAIN_CROP" == "from"))
+landDF <- as.data.frame(landRast) %>% tibble::rownames_to_column()
+#agbDF  <- as.data.frame(agbCA) %>% tibble::rownames_to_column()
+socDF  <- as.data.frame(socCA) %>% tibble::rownames_to_column()
+#join <- dplyr::inner_join(landDF,agbDF,by="rowname")
+join <- dplyr::inner_join(landDF, socDF, by = "rowname")
+join <- dplyr::inner_join(join, reClass, by = dplyr::join_by("MAIN_CROP" == "from"))
 
-tapply(join$mean,join$MAIN_CROP,mean,na.rm=TRUE)
-tapply(join$mean,join$MAIN_CROP,sum,na.rm=TRUE)
+tapply(join$mean, join$MAIN_CROP, mean ,na.rm=TRUE)
+tapply(join$mean, join$MAIN_CROP,sum,na.rm=TRUE)
 
-tapply(join$mean,join$to,mean,na.rm=TRUE)
-tapply(join$mean,join$to,sum,na.rm=TRUE)
+tapply(join$mean, join$to, mean, na.rm=TRUE)
+tapply(join$mean, join$to, sum, na.rm=TRUE)
 
 
 
