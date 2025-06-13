@@ -11,9 +11,9 @@ library(terra)
 
 ## Read NA SDA ensemble
 # test version 2021 AGB:
-#agb <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/AbvGrndWood_2021/mean_2021_AbvGrndWood.tiff")
-#terra::plot(agb)
-#terra::crs(agb)
+# agb <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/AbvGrndWood_2021/mean_2021_AbvGrndWood.tiff")
+# terra::plot(agb)
+# terra::crs(agb)
 
 ## Loading data
 # navigate to Dongchen's North America runs:
@@ -33,7 +33,7 @@ year <- 2021
 # choose file by year:
 findfile <- paste0(ens, run, var, as.character(year))
 findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
-tiff <- paste0(findfile, "/", findtiff[1])
+tiff <- paste0(findfile, "/", findtiff[26])
 soc <- terra::rast(tiff)
 terra::plot(soc)
 
@@ -43,7 +43,7 @@ v <- terra::vect("/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15
 v <- terra::project(v, soc)
 
 ## Crop SDA to LandIQ
-# agbCA = terra::crop(agb,v)
+#agbCA = terra::crop(agb,v)
 # terra::plot(agbCA)
 # maps::map("state",add=TRUE)
 # crop California:
@@ -57,7 +57,7 @@ landClass = read.table("https://raw.githubusercontent.com/ccmmf/rs-sandbox/refs/
 
 v["CF"] = as.factor(v["MAIN_CROP"])
 
-# landRast = terra::rasterize(v,agbCA,"MAIN_CROP")
+#landRast = terra::rasterize(v,agbCA,"MAIN_CROP")
 # terra::plot(landRast)
 # maps::map("state",add=TRUE)
 
@@ -85,8 +85,10 @@ socDF  <- as.data.frame(socCA) %>% tibble::rownames_to_column()
 join <- dplyr::inner_join(landDF, socDF, by = "rowname")
 join <- dplyr::inner_join(join, reClass, by = dplyr::join_by("MAIN_CROP" == "from"))
 
-tapply(join$mean, join$MAIN_CROP, mean ,na.rm=TRUE)
+tapply(join$mean, join$MAIN_CROP, mean ,na.rm=TRUE)  # for non-mean ensembles the column to site is "lyr.1"
 tapply(join$mean, join$MAIN_CROP,sum,na.rm=TRUE)
+
+#tapply(join$lyr.1, join$MAIN_CROP, mean, na.rm = TRUE)
 
 tapply(join$mean, join$to, mean, na.rm=TRUE)
 tapply(join$mean, join$to, sum, na.rm=TRUE)
@@ -95,21 +97,30 @@ tapply(join$mean, join$to, sum, na.rm=TRUE)
 
 ## Calculate by county for just cropland
 CoORIG = terra::vect("/projectnb/dietzelab/dietze/CARB/CA_Counties.shp")
-Co = terra::project(CoORIG,agbCA)
+#Co = terra::project(CoORIG,agbCA)
+Co <- terra::project(CoORIG, socCA)
 terra::plot(Co)
-CoAGB = terra::extract(agbCA,Co,fun=mean,na.rm=TRUE)
+#CoAGB = terra::extract(agbCA,Co,fun=mean,na.rm=TRUE)
+CoSOC <- terra::extract(socCA, Co, fun = mean, na.rm = TRUE)
 #CoAGB = exactextractr::exact_extract(agbCA,Co,fun=mean,na.rm=TRUE)
-Co[["agb"]] <- CoAGB$mean
+#Co[["agb"]] <- CoAGB$mean
+Co[["soc"]] <- CoSOC$mean
 
-terra::plot(Co,"agb")
+#terra::plot(Co,"agb")
+terra::plot(Co, "soc")
 
 isCrop = !is.na(landRast)
 terra::plot(isCrop)
+maps::map("state",add=TRUE)
 
-cropAGB = agbCA*isCrop
-CoCropAGB = terra::extract(cropAGB,Co,fun=mean,na.rm=TRUE)
-Co[["cropAGB"]] <- CoCropAGB$mean
-terra::plot(Co,"cropAGB",legend="topright")
+#cropAGB = agbCA*isCrop
+cropSOC = socCA*isCrop
+#CoCropAGB = terra::extract(cropAGB,Co,fun=mean,na.rm=TRUE)
+CoCropSOC <- terra::extract(cropSOC, Co, fun = mean, na.rm = TRUE)
+#Co[["cropAGB"]] <- CoCropAGB$mean
+Co[["cropSOC"]] <- CoCropSOC$mean
+#terra::plot(Co,"cropAGB",legend="topright")
+terra::plot(Co, "cropSOC", legend = "topright")
 
 CoCropTotAGB = terra::extract(cropAGB*100/1000000,Co,fun=sum,na.rm=TRUE) #Mg/ha -> Tg
 Co[["cropTotAGB"]] <- CoCropTotAGB$mean
