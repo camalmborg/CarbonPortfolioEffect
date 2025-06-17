@@ -9,13 +9,7 @@ setwd("/projectnb/dietzelab/malmborg/EDF/")
 library(sf)
 library(terra)
 
-## Read NA SDA ensemble
-# test version 2021 AGB:
-# agb <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/AbvGrndWood_2021/mean_2021_AbvGrndWood.tiff")
-# terra::plot(agb)
-# terra::crs(agb)
-
-## Loading data
+## Loading SDA ensemble data
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
@@ -33,9 +27,9 @@ year <- 2021
 # choose file by year:
 findfile <- paste0(ens, run, var, as.character(year))
 findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
-tiff <- paste0(findfile, "/", findtiff[26])
+tiff <- paste0(findfile, "/", findtiff[5])
 soc <- terra::rast(tiff)
-terra::plot(soc)
+#terra::plot(soc)
 
 # load LandIQ:
 v <- terra::vect("/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15_Crop_Mapping_2021.shp")
@@ -43,91 +37,80 @@ v <- terra::vect("/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15
 v <- terra::project(v, soc)
 
 ## Crop SDA to LandIQ
-#agbCA = terra::crop(agb,v)
-# terra::plot(agbCA)
-# maps::map("state",add=TRUE)
 # crop California:
 socCA <- terra::crop(soc, v)
-terra::plot(socCA)
-maps::map("state", add = T)
+#terra::plot(socCA)
+#maps::map("state", add = T)
 
 # align LandIQ to SDA:
 landClass = read.table("https://raw.githubusercontent.com/ccmmf/rs-sandbox/refs/heads/main/code_snippets/landiq_crop_mapping_codes.tsv",
                        header=TRUE,sep="\t")
 
 v["CF"] = as.factor(v["MAIN_CROP"])
-
-#landRast = terra::rasterize(v,agbCA,"MAIN_CROP")
-# terra::plot(landRast)
-# maps::map("state",add=TRUE)
-
 landRast <- terra::rasterize(v, socCA, "MAIN_CROP")
-terra::plot(landRast)
-maps::map("state", add = TRUE)
+#terra::plot(landRast)
+#maps::map("state", add = TRUE)
 
 ## code to reclassify land classes
 fromClass <- paste0(landClass$CLASS,landClass$SUBCLASS)
 fromClass <- sub("NA","",fromClass)
 reClass <- data.frame(from = fromClass, 
                       to = landClass$CLASS)
-
 reClass$ref <- as.numeric(as.factor(reClass$to))  # reference for making numeric to do classify
 classed = terra::classify(landRast, reClass$ref)  # this one requires numeric not character entry for classify
-terra::plot(classed)
-maps::map("state",add=TRUE)
+#terra::plot(classed)
+#maps::map("state",add=TRUE)
 
 
 ## Aggregate by crop type
 landDF <- as.data.frame(landRast) %>% tibble::rownames_to_column()
-#agbDF  <- as.data.frame(agbCA) %>% tibble::rownames_to_column()
 socDF  <- as.data.frame(socCA) %>% tibble::rownames_to_column()
-#join <- dplyr::inner_join(landDF,agbDF,by="rowname")
+# change lyr.1 column name if single emsemble member and not ensemble mean tiff:
+if ("lyr.1" %in% colnames(socDF) == TRUE){
+  socDF <- socDF %>% dplyr::rename("mean" = "lyr.1")
+}
 join <- dplyr::inner_join(landDF, socDF, by = "rowname")
 join <- dplyr::inner_join(join, reClass, by = dplyr::join_by("MAIN_CROP" == "from"))
 
-tapply(join$mean, join$MAIN_CROP, mean ,na.rm=TRUE)  # for non-mean ensembles the column to site is "lyr.1"
-tapply(join$mean, join$MAIN_CROP,sum,na.rm=TRUE)
-
-#tapply(join$lyr.1, join$MAIN_CROP, mean, na.rm = TRUE)
-
-tapply(join$mean, join$to, mean, na.rm=TRUE)
-tapply(join$mean, join$to, sum, na.rm=TRUE)
-
+# tapply(join$mean, join$MAIN_CROP, mean, na.rm=TRUE)  # for non-mean ensembles the column to site is "lyr.1"
+# tapply(join$mean, join$MAIN_CROP, sum, na.rm=TRUE)
+# 
+# tapply(join$mean, join$to, mean, na.rm=TRUE)
+# tapply(join$mean, join$to, sum, na.rm=TRUE)
 
 
 ## Calculate by county for just cropland
 CoORIG = terra::vect("/projectnb/dietzelab/dietze/CARB/CA_Counties.shp")
-#Co = terra::project(CoORIG,agbCA)
 Co <- terra::project(CoORIG, socCA)
-terra::plot(Co)
-#CoAGB = terra::extract(agbCA,Co,fun=mean,na.rm=TRUE)
+#terra::plot(Co)
 CoSOC <- terra::extract(socCA, Co, fun = mean, na.rm = TRUE)
-#CoAGB = exactextractr::exact_extract(agbCA,Co,fun=mean,na.rm=TRUE)
-#Co[["agb"]] <- CoAGB$mean
+# change lyr.1 column name if single emsemble member and not ensemble mean tiff:
+if ("lyr.1" %in% colnames(CoSOC) == TRUE){
+  CoSOC <- CoSOC %>% dplyr::rename("mean" = "lyr.1")
+}
 Co[["soc"]] <- CoSOC$mean
-
-#terra::plot(Co,"agb")
-terra::plot(Co, "soc")
+#terra::plot(Co, "soc")
 
 isCrop = !is.na(landRast)
 terra::plot(isCrop)
 maps::map("state",add=TRUE)
 
-#cropAGB = agbCA*isCrop
 cropSOC = socCA*isCrop
-#CoCropAGB = terra::extract(cropAGB,Co,fun=mean,na.rm=TRUE)
 CoCropSOC <- terra::extract(cropSOC, Co, fun = mean, na.rm = TRUE)
-#Co[["cropAGB"]] <- CoCropAGB$mean
+# change lyr.1 column name if single emsemble member and not ensemble mean tiff:
+if ("lyr.1" %in% colnames(CoCropSOC) == TRUE){
+  CoCropSOC <- CoCropSOC %>% dplyr::rename("mean" = "lyr.1")
+}
 Co[["cropSOC"]] <- CoCropSOC$mean
-#terra::plot(Co,"cropAGB",legend="topright")
 terra::plot(Co, "cropSOC", legend = "topright")
 
-#CoCropTotAGB = terra::extract(cropAGB*100/1000000,Co,fun=sum,na.rm=TRUE) #Mg/ha -> Tg
 CoCropTotSOC <- terra::extract(cropSOC*100/1000000, Co, fun = sum, na.rm = TRUE)
-#Co[["cropTotAGB"]] <- CoCropTotAGB$mean
-Co[["cropTotSOC"]] <- CoCropTotSOC$mean
+# change lyr.1 column name if single emsemble member and not ensemble mean tiff:
+if ("lyr.1" %in% colnames(CoCropTotSOC) == TRUE){
+  CoCropTotSOC <- CoCropTotSOC %>% dplyr::rename("mean" = "lyr.1")
+}
+Co[["cropTotSOC"]] <- CoCropTotSOC$sum
 palatte = c('#edf8e9','#bae4b3','#74c476','#31a354','#006d2c')
-#terra::plot(Co,"cropTotAGB",legend="topright",col=palatte)
 terra::plot(Co, "cropTotSOC", legend = "topright", col = palatte)
 
 ## NAIVE uncertainty calculation: Sum independent Var
@@ -135,26 +118,18 @@ terra::plot(Co, "cropTotSOC", legend = "topright", col = palatte)
 # * calc SD*SD*isCrop
 # * extract
 # * add sqrt to df
-agbSD <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/downscale_maps/AbvGrndWood_2021/std_2021_AbvGrndWood.tiff")
-# find sd file:
+# for SDA ensemble members' sd files:
 sdtiff <- paste0(findfile, "/", findtiff[grep("std", findtiff)])
 socSD <- terra::rast(sdtiff)
-#agbSDCA = terra::crop(agbSD,v)
 socSDCA <- terra::crop(socSD, v)
-#cropVar = isCrop * agbSDCA^2
 cropVar <- isCrop*socSDCA^2
 CoCropTotVar = terra::extract(cropVar, Co, fun = sum, na.rm = TRUE)
-#Co[["crop_TotAGB_CV"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000000/CoCropTotAGB$mean*100 ## percent
-#Co[["crop_TotAGB_SD"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000 ## Gg
 Co[["crop_TotSOC_CV"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000000/CoCropTotSOC$mean*100
 Co[["crop_TotSOC_SD"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000
 
-#terra::plot(agbSDCA,legend="topright")
 terra::plot(socSDCA, legend = "topright")
 maps::map("state", add = TRUE)
-#terra::plot(Co,"crop_TotAGB_CV",legend="topright")
 terra::plot(Co, "crop_TotSOC_CV", legend = "topright")
-#terra::plot(Co,"crop_TotAGB_SD",legend="topright")
 terra::plot(Co, "crop_TotSOC_SD", legend = "topright")
 
 ## ENSEMBLE uncertainty calculation:
@@ -167,7 +142,6 @@ terra::plot(Co, "crop_TotSOC_SD", legend = "topright")
  #  * calc SD over df
  #  * add to Co map
 ne = 25
-#ensAGB = as.data.frame(matrix(NA,nrow=58,ncol=ne))
 ensSOC = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
 for (e in 1:ne) {
   print(e)
@@ -186,7 +160,25 @@ terra::plot(Co,"crop_ensAGB_SD",legend="topright",breaks=breaks,col=palatte)
 terra::plot(Co,"crop_TotAGB_SD",legend="topright",breaks=breaks,col=palatte)
 #range=c(0,500),
 
+
+### making a function to change "lyr.1" to "mean" for column names repeatedly:
+switch_col_name <- function(df){
+  # change lyr.1 column name if single emsemble member and not ensemble mean tiff:
+  if ("lyr.1" %in% colnames(df) == TRUE){
+    df <- df %>% dplyr::rename("mean" = "lyr.1")
+    return(df)
+  }
+}
+
+test <- data.frame(x = c(1:5), 
+                   lyr.1 = c(10:14))
+out <- switch_col_name(test)
+
 #* Repeat for SoilC
+
+
+
+
 
 
 
