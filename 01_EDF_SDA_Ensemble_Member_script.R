@@ -27,6 +27,7 @@ year <- 2021
 # choose file by year:
 findfile <- paste0(ens, run, var, as.character(year))
 findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
+# getting specific tiff:
 tiff <- paste0(findfile, "/", findtiff[5])
 soc <- terra::rast(tiff)
 #terra::plot(soc)
@@ -91,6 +92,7 @@ if ("lyr.1" %in% colnames(CoSOC) == TRUE){
 Co[["soc"]] <- CoSOC$mean
 #terra::plot(Co, "soc")
 
+
 isCrop = !is.na(landRast)
 terra::plot(isCrop)
 maps::map("state",add=TRUE)
@@ -107,9 +109,20 @@ terra::plot(Co, "cropSOC", legend = "topright")
 CoCropTotSOC <- terra::extract(cropSOC*100/1000000, Co, fun = sum, na.rm = TRUE)
 # change lyr.1 column name if single emsemble member and not ensemble mean tiff:
 if ("lyr.1" %in% colnames(CoCropTotSOC) == TRUE){
-  CoCropTotSOC <- CoCropTotSOC %>% dplyr::rename("mean" = "lyr.1")
+  CoCropTotSOC <- CoCropTotSOC %>% dplyr::rename("sum" = "lyr.1")
 }
 Co[["cropTotSOC"]] <- CoCropTotSOC$sum
+terra::plot(Co, "cropTotSOC", legend = "topright")
+
+CoCropSOCsd <- terra::extract(cropSOC, Co, fun = sd, na.rm = TRUE)
+# change lyr.1 column name if single emsemble member and not ensemble mean tiff:
+if ("lyr.1" %in% colnames(CoCropSOCsd) == TRUE){
+  CoCropSOCsd <- CoCropSOCsd %>% dplyr::rename("sd" = "lyr.1")
+}
+Co[["cropSOCsd"]] <- CoCropSOCsd$sd
+terra::plot(Co, "cropSOCsd", legend = "topright")
+
+
 palatte = c('#edf8e9','#bae4b3','#74c476','#31a354','#006d2c')
 terra::plot(Co, "cropTotSOC", legend = "topright", col = palatte)
 
@@ -162,17 +175,20 @@ terra::plot(Co,"crop_TotAGB_SD",legend="topright",breaks=breaks,col=palatte)
 
 
 ### making a function to change "lyr.1" to "mean" for column names repeatedly:
-switch_col_name <- function(df){
+#'@param df = dataframe object
+#'@param oldname = Character: old column name to be changed
+#'@param newname = Character: new column name
+switch_col_name <- function(df, oldname, newname){
   # change lyr.1 column name if single emsemble member and not ensemble mean tiff:
   if ("lyr.1" %in% colnames(df) == TRUE){
-    df <- df %>% dplyr::rename("mean" = "lyr.1")
+    df <- df %>% dplyr::rename(newname = oldname)
     return(df)
   }
 }
 
 test <- data.frame(x = c(1:5), 
                    lyr.1 = c(10:14))
-out <- switch_col_name(test)
+out <- switch_col_name(test, "lyr.1", "new")
 
 #* Repeat for SoilC
 
