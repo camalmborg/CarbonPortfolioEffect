@@ -28,7 +28,7 @@ year <- 2021
 findfile <- paste0(ens, run, var, as.character(year))
 findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
 # getting specific tiff:
-tiff <- paste0(findfile, "/", findtiff[5])
+tiff <- paste0(findfile, "/", findtiff[1])
 soc <- terra::rast(tiff)
 #terra::plot(soc)
 
@@ -92,7 +92,6 @@ if ("lyr.1" %in% colnames(CoSOC) == TRUE){
 Co[["soc"]] <- CoSOC$mean
 #terra::plot(Co, "soc")
 
-
 isCrop = !is.na(landRast)
 terra::plot(isCrop)
 maps::map("state",add=TRUE)
@@ -114,13 +113,13 @@ if ("lyr.1" %in% colnames(CoCropTotSOC) == TRUE){
 Co[["cropTotSOC"]] <- CoCropTotSOC$sum
 terra::plot(Co, "cropTotSOC", legend = "topright")
 
-CoCropSOCsd <- terra::extract(cropSOC, Co, fun = sd, na.rm = TRUE)
-# change lyr.1 column name if single emsemble member and not ensemble mean tiff:
-if ("lyr.1" %in% colnames(CoCropSOCsd) == TRUE){
-  CoCropSOCsd <- CoCropSOCsd %>% dplyr::rename("sd" = "lyr.1")
-}
-Co[["cropSOCsd"]] <- CoCropSOCsd$sd
-terra::plot(Co, "cropSOCsd", legend = "topright")
+# CoCropSOCsd <- terra::extract(cropSOC, Co, fun = sd, na.rm = TRUE)
+# # change lyr.1 column name if single emsemble member and not ensemble mean tiff:
+# if ("lyr.1" %in% colnames(CoCropSOCsd) == TRUE){
+#   CoCropSOCsd <- CoCropSOCsd %>% dplyr::rename("sd" = "lyr.1")
+# }
+# Co[["cropSOCsd"]] <- CoCropSOCsd$sd
+# terra::plot(Co, "cropSOCsd", legend = "topright")
 
 
 palatte = c('#edf8e9','#bae4b3','#74c476','#31a354','#006d2c')
