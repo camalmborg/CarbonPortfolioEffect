@@ -41,6 +41,9 @@ reg <- "/projectnb/dietzelab/dietze/CARB/CA_Counties.shp"
 classes <- read.table("https://raw.githubusercontent.com/ccmmf/rs-sandbox/refs/heads/main/code_snippets/landiq_crop_mapping_codes.tsv",
                       header=TRUE, sep="\t")
 
+# information for saving maps and output:
+map_dir <- ""
+
 
 ## Function for running analyses ##
 # inputs for running analyses in chosen location and scale:
@@ -106,4 +109,17 @@ compare_C_uncertainty <- function(yr_mean,
   r[["crop_Tot_CV"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000000/RegCropTot$mean*100
   r[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
   
+  # ensemble uncertainty:
+  ne = 
+  ensAGB = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
+  for (e in 1:ne) {
+    print(e)
+    ## load & clip ensemble member
+    fname = paste0("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/downscale_maps/AbvGrndWood_2021/ensemble_",
+                   e,"_2021_AbvGrndWood.tiff")
+    eagb <- terra::crop(terra::rast(fname),v) * isCrop
+    ensTotCropAGB = terra::extract(eagb,Co,fun=sum,na.rm=TRUE)
+    ensAGB[,e] = ensTotCropAGB[,2]*100/1000000 ## Mg/ha -> Tg
+  }
+  Co[["crop_ensAGB_SD"]] <- apply(ensAGB,1,sd)*1000 #Gg 
 }
