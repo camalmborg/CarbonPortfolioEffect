@@ -123,6 +123,7 @@ terra::plot(Co, "cropTotSOC", legend = "topright")
 
 
 palatte = c('#edf8e9','#bae4b3','#74c476','#31a354','#006d2c')
+terra::plot(Co, "cropSOC", legend = "topright", col = palatte)
 terra::plot(Co, "cropTotSOC", legend = "topright", col = palatte)
 
 ## NAIVE uncertainty calculation: Sum independent Var
@@ -136,7 +137,7 @@ socSD <- terra::rast(sdtiff)
 socSDCA <- terra::crop(socSD, v)
 cropVar <- isCrop*socSDCA^2
 CoCropTotVar = terra::extract(cropVar, Co, fun = sum, na.rm = TRUE)
-Co[["crop_TotSOC_CV"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000000/CoCropTotSOC$mean*100
+Co[["crop_TotSOC_CV"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000000/CoCropTotSOC$sum*100
 Co[["crop_TotSOC_SD"]] <- sqrt(CoCropTotVar$MAIN_CROP)*100/1000
 
 terra::plot(socSDCA, legend = "topright")
@@ -154,7 +155,7 @@ terra::plot(Co, "crop_TotSOC_SD", legend = "topright")
  #  * calc SD over df
  #  * add to Co map
 ne = 25
-ensSOC = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
+ensAGB = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
 for (e in 1:ne) {
   print(e)
   ## load & clip ensemble member
