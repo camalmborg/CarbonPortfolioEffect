@@ -8,6 +8,7 @@ setwd(wd)
 # load libraries:
 library(sf)
 library(terra)
+library(dplyr)
 
 ## Loading Files ##
 # navigate to Dongchen's North America runs:
@@ -61,34 +62,20 @@ compare_C_uncertainty <- function(yr_mean,
   yr_mean <- terra::rast(yr_mean)
   yr_std <- terra::rast(yr_std)
   # load vector file for crop and reproject to match rasters:
-  c <- terra::vect(crops)
-  c <- terra::project(c, yr_mean)
+  cv <- terra::vect(crops)
+  cv <- terra::project(cv, yr_mean)
   # load vector for aggregate region and reproject to match rasters:
   r <- terra::vect(reg)
   r <- terra::project(r, yr_mean)
   
   # crop variable rasters to crop lands:
-  crop_mean <- terra::crop(yr_mean, c) 
-  crop_std <- terra::crop(yr_std, c)
+  crop_mean <- terra::crop(yr_mean, cv) 
+  crop_std <- terra::crop(yr_std, cv)
   
   # match crops to crop classes
   landClass <- classes
-  c["CF"] = as.factor(c["MAIN_CROP"])
-  landRast <- terra::rasterize(c, crop_mean, "MAIN_CROP")
-  
-  # reclassify land classes:
-  fromClass <- paste0(landClass$CLASS,landClass$SUBCLASS)
-  fromClass <- sub("NA","",fromClass)
-  reClass <- data.frame(from = fromClass, 
-                        to = landClass$CLASS)
-  reClass$ref <- as.numeric(as.factor(reClass$to))  # reference for making numeric to do classify
-  classed <- terra::classify(landRast, reClass$ref)  # this one requires numeric not character entry for classify
-  
-  # Aggregate by crop type:
-  landDF <- as.data.frame(landRast) %>% tibble::rownames_to_column()
-  cropDF  <- as.data.frame(crop_mean) %>% tibble::rownames_to_column()
-  join <- dplyr::inner_join(landDF, cropDF, by = "rowname")
-  join <- dplyr::inner_join(join, reClass, by = dplyr::join_by("MAIN_CROP" == "from"))
+  cv["CF"] = as.factor(cv["MAIN_CROP"])
+  landRast <- terra::rasterize(cv, crop_mean, "MAIN_CROP")
   
   # Aggregate by region mean and total:
   RegCrop <- terra::extract(crop_mean, r, fun = mean, na.rm = TRUE)
@@ -110,8 +97,8 @@ compare_C_uncertainty <- function(yr_mean,
   r[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
   
   # ensemble uncertainty:
-  ne = 
-  ensAGB = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
+  ne = 25
+  ensAGB = as.data.frame(matrix(NA, nrow = 58, ncol = ne)) # 58 is probably the number of counties in California
   for (e in 1:ne) {
     print(e)
     ## load & clip ensemble member
@@ -121,5 +108,52 @@ compare_C_uncertainty <- function(yr_mean,
     ensTotCropAGB = terra::extract(eagb,Co,fun=sum,na.rm=TRUE)
     ensAGB[,e] = ensTotCropAGB[,2]*100/1000000 ## Mg/ha -> Tg
   }
-  Co[["crop_ensAGB_SD"]] <- apply(ensAGB,1,sd)*1000 #Gg 
+  Co[["crop_ensAGB_SD"]] <- apply(ensAGB, 1, sd)*1000 #Gg 
 }
+
+
+### ARCHIVE ###
+
+countyRast <- rasterize(r, isCrop, field = "NAME")
+countyTable <- freq(countyRast)
+rast_poly <- as.polygons(isCrop)
+test_crop <- intersect(rast_poly, r)
+# there is already a shape_area function lol
+terra::zonal(isCrop, r, fun = "sum")  # I think this is pixel numbers?
+zonal_test <- terra::zonal(test_crop, r, fun = "sum") # this doesn't look right to me when I plot
+
+cell_area <- cellSize(isCrop)
+
+r_masked <- mask(isCrop, r)
+area_masked <- mask(cell_areas, v)
+
+rastPoints <- as.points(isCrop)
+rastCounties <- extract(r, rastPoints)
+
+reclass_iscrop <- as.factor(isCrop)
+#reclass_iscrop <- classify(reclass_iscrop, rcl = matrix(c(0, NA), ncol = 2, byrow = TRUE))
+reclass_iscrop <- ifel(isCrop == 1, 1, NA)
+rast_poly <- as.polygons(reclass_iscrop)
+test_crop <- intersect(r, rast_poly)
+#zonal_test <- terra::zonal(rast_poly, r, fun = "sum")
+
+overlap <- terra::intersect(r, rast_poly)
+overlap$area_m2 <- terra::expanse(overlap, unit="m")
+overlap <- as.data.frame(overlap) %>%
+  group_by(NAME) %>%              
+  summarise(overlap_area_m2 = sum(area_m2, na.rm=TRUE))
+
+
+# # reclassify land classes:
+# fromClass <- paste0(landClass$CLASS,landClass$SUBCLASS)
+# fromClass <- sub("NA","",fromClass)
+# reClass <- data.frame(from = fromClass, 
+#                       to = landClass$CLASS)
+# reClass$ref <- as.numeric(as.factor(reClass$to))  # reference for making numeric to do classify
+# classed <- terra::classify(landRast, reClass$ref)  # this one requires numeric not character entry for classify
+# 
+# # Aggregate by crop type:
+# landDF <- as.data.frame(landRast) %>% tibble::rownames_to_column()
+# cropDF  <- as.data.frame(crop_mean) %>% tibble::rownames_to_column()
+# join <- dplyr::inner_join(landDF, cropDF, by = "rowname")
+# join <- dplyr::inner_join(join, reClass, by = dplyr::join_by("MAIN_CROP" == "from"))
