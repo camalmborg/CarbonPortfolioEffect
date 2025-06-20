@@ -143,6 +143,21 @@ overlap <- as.data.frame(overlap) %>%
   group_by(NAME) %>%              
   summarise(overlap_area_m2 = sum(area_m2, na.rm=TRUE))
 
+# # Create a mask raster: keep 1s, set others to NA
+# r_masked <- classify(r, cbind(0, NA))  # keeps 1s, 0 → NA
+# 
+# # Calculate cell area raster (in m²)
+# cell_areas <- cellSize(r, unit="m")
+# 
+# # Multiply masked raster by cell area to get per-cell area where condition is true
+# area_raster <- r_masked * cell_areas
+# 
+# # Use zonal() to sum area in m² by county
+# area_by_county <- zonal(area_raster, zones, fun="sum", na.rm=TRUE)
+# 
+# # area_by_county is a data.frame with county ID and total area in m²
+# print(area_by_county)
+
 
 # # reclassify land classes:
 # fromClass <- paste0(landClass$CLASS,landClass$SUBCLASS)
