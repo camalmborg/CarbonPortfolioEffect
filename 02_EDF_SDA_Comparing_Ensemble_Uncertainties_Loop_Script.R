@@ -68,7 +68,24 @@ process_ensemble_members <- function(dir, var, year, reg){
     crop <- terra::crop(rast, vec)
     ens_rast[[findtiff[i]]] <- crop
   }
+  return(ens_rast)
 }
+
+## Function for identifying crop regions:
+# inputs:
+#'@param crops = vector shapefile of croplands
+#'@param classes = table of crop classes for identifying croplands
+#'@param reg = vector shapefile of study region
+is_crop <- function(crops, classes, reg, ){
+  # load crops as vector:
+  cv <- terra::vect(crops)
+  # load classes
+  landClass <- classes
+  cv["CF"] = as.factor(cv["MAIN_CROP"])
+  landRast <- terra::rasterize(cv, crop_mean, "MAIN_CROP")
+  
+}
+
 
 ## Function for running analyses ##
 # inputs for running analyses in chosen location and scale:
@@ -116,7 +133,7 @@ compare_C_uncertainty <- function(yr_mean,
   
   # naive uncertainty:
   cropVar <- isCrop*crop_std^2
-  RegCropTotVar = terra::extract(cropVar, r, fun = sum, na.rm = TRUE)
+  RegCropTotVar = terra::extract(cropVar, v_reg, fun = sum, na.rm = TRUE)
   v_reg[["crop_Tot_CV"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000000/RegCropTot$mean*100
   v_reg[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
   
