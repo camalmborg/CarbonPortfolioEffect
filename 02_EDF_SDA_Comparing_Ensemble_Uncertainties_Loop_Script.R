@@ -61,9 +61,12 @@ process_ensemble_members <- function(dir, var, year, reg){
   
   # loop for processing and making list of rasters:
   ens_rast <- list()
-  for (i in length(findtiff)){
-    tiff <- findtiff[i]
-    
+  for (i in 1:length(findtiff)){
+    tiff <- paste0(findfile, "/", findtiff[i])
+    rast <- terra::rast(tiff)
+    vec <- terra::project(vec, rast)
+    crop <- terra::crop(rast, vec)
+    ens_rast[[findtiff[i]]] <- crop
   }
 }
 
