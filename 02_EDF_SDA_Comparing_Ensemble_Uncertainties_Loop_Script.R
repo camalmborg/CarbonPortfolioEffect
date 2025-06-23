@@ -1,22 +1,21 @@
 #### EDF PROJECT SCRIPT FOR SDA PRODUCT ANALYSES IN CALIFORNIA ####
 
 ## Prepare workspace ##
-# set working directory:
-wd <- "/projectnb/dietzelab/malmborg/EDF/"
-setwd(wd)
-
 # load libraries:
 library(sf)
 library(terra)
 library(dplyr)
+# set working directory:
+wd <- "/projectnb/dietzelab/malmborg/EDF/"
+setwd(wd)
 
 ## Loading Files ##
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
 run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/"
-# get directories that include tiff files:
-dirs <- list.dirs(paste0(ens, run))[-grep("07-15", list.dirs(paste0(ens, run)))]
+# # get directories that include tiff files:
+# dirs <- list.dirs(paste0(ens, run))[-grep("07-15", list.dirs(paste0(ens, run)))]
 
 # C variables:
 agb <- "AbvGrndWood_"
@@ -27,24 +26,46 @@ soc <- "TotSoilCarb_"
 # choose analysis run variables:
 var <- soc
 year <- 2021
-# choose file by year:
-findfile <- paste0(ens, run, var, as.character(year))
-findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
-# identify where to find those files:
-varfiles <- dirs[grep(var, dirs)]
-# getting specific tiffs for the ensemble means and std devs:
-yr_mean <- paste0(findfile, "/", findtiff[grep("mean", findtiff)])
-yr_std <- paste0(findfile, "/", findtiff[grep("std", findtiff)])
+dir <- paste0(ens, run)
+# # choose file by year:
+# findfile <- paste0(ens, run, var, as.character(year))
+# findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
+# # identify where to find those files:
+# varfiles <- dirs[grep(var, dirs)]
+# # getting specific tiffs for the ensemble means and std devs:
+# yr_mean <- paste0(findfile, "/", findtiff[grep("mean", findtiff)])
+# yr_std <- paste0(findfile, "/", findtiff[grep("std", findtiff)])
 
 # load information for region and aggregation scale:
-crops <- "/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15_Crop_Mapping_2021.shp"
 reg <- "/projectnb/dietzelab/dietze/CARB/CA_Counties.shp"
+crops <- "/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15_Crop_Mapping_2021.shp"
 classes <- read.table("https://raw.githubusercontent.com/ccmmf/rs-sandbox/refs/heads/main/code_snippets/landiq_crop_mapping_codes.tsv",
                       header=TRUE, sep="\t")
 
 # information for saving maps and output:
 map_dir <- ""
 
+## Function for processing each tif file
+# inputs:
+#'@param dir = Character vector: file where tiffs can be found
+#'@param var = variable of interest for each analysis; e.g. soc
+#'@param year = numeric: data year of ensemble members
+#'@param reg = vector: shapefile for study region to crop rasters
+process_ensemble_members <- function(dir, var, year, reg){
+  # choose file by year:
+  findfile <- paste0(dir, var, as.character(year))
+  findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
+  
+  # load vector for region:
+  vec <- terra::vect(reg)
+  
+  # loop for processing and making list of rasters:
+  ens_rast <- list()
+  for (i in length(findtiff)){
+    tiff <- findtiff[i]
+    
+  }
+}
 
 ## Function for running analyses ##
 # inputs for running analyses in chosen location and scale:
@@ -65,8 +86,8 @@ compare_C_uncertainty <- function(yr_mean,
   cv <- terra::vect(crops)
   cv <- terra::project(cv, yr_mean)
   # load vector for aggregate region and reproject to match rasters:
-  r <- terra::vect(reg)
-  r <- terra::project(r, yr_mean)
+  v_reg <- terra::vect(reg)
+  v_reg <- terra::project(v_reg, yr_mean)
   
   # crop variable rasters to crop lands:
   crop_mean <- terra::crop(yr_mean, cv) 
@@ -78,23 +99,23 @@ compare_C_uncertainty <- function(yr_mean,
   landRast <- terra::rasterize(cv, crop_mean, "MAIN_CROP")
   
   # Aggregate by region mean and total:
-  RegCrop <- terra::extract(crop_mean, r, fun = mean, na.rm = TRUE)
+  RegCrop <- terra::extract(crop_mean, v_reg, fun = mean, na.rm = TRUE)
   RegCrop[["mean"]] <- RegCrop$mean
   # aggregation based on cropland in region:
   isCrop <- !is.na(landRast)
   cropMean <- crop_mean*isCrop
   # mean of selected SDA variable:
-  RegCropMean <- terra::extract(cropMean, r, fun = mean, na.rm = TRUE)
-  r[["cropMean"]] <- RegCropMean$mean
+  RegCropMean <- terra::extract(cropMean, v_reg, fun = mean, na.rm = TRUE)
+  v_reg[["cropMean"]] <- RegCropMean$mean
   # total of selected SDA variable in each region grouping:
-  RegCropTot <- terra::extract(cropMean*100/1000000, r, fun = sum, na.rm = TRUE)
-  r[["cropTot"]] <- RegCropTot$mean
+  RegCropTot <- terra::extract(cropMean*100/1000000, v_reg, fun = sum, na.rm = TRUE)
+  v_reg[["cropTot"]] <- RegCropTot$mean
   
   # naive uncertainty:
   cropVar <- isCrop*crop_std^2
   RegCropTotVar = terra::extract(cropVar, r, fun = sum, na.rm = TRUE)
-  r[["crop_Tot_CV"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000000/RegCropTot$mean*100
-  r[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
+  v_reg[["crop_Tot_CV"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000000/RegCropTot$mean*100
+  v_reg[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
   
   # ensemble uncertainty:
   ne = 25
