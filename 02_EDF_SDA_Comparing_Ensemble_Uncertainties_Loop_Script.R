@@ -76,7 +76,8 @@ process_ensemble_members <- function(dir, var, year, reg){
 #'@param crops = vector shapefile of croplands
 #'@param classes = table of crop classes for identifying croplands
 #'@param reg = vector shapefile of study region
-is_crop <- function(crops, classes, reg, ){
+is_crop <- function(rast, crops, classes, reg, ){
+  
   # load crops as vector:
   cv <- terra::vect(crops)
   # load classes
