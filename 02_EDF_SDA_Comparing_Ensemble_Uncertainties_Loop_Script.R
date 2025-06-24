@@ -98,18 +98,18 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
   ens_std <- ens_rast[[names(ens_rast)[grep("std", names(ens_rast))]]]
   
   # Calculate by county:
-  RegORIG = terra::vect(region)
-  Reg = terra::project(RegORIG, ens_mean)
-  RegVar = terra::extract(ens_mean, Reg, fun = mean, na.rm = TRUE)
+  RegORIG <- terra::vect(region)
+  Reg <- terra::project(RegORIG, ens_mean)
+  RegVar <- terra::extract(ens_mean, Reg, fun = mean, na.rm = TRUE)
   Reg[["mean"]] <- RegVar$mean
   
   # means for area that is just cropland:
-  cropMean = ens_mean*is_crop
-  RegCropMean = terra::extract(cropMean, Reg, fun = mean, na.rm = TRUE)
+  cropMean <- ens_mean*is_crop
+  RegCropMean <- terra::extract(cropMean, Reg, fun = mean, na.rm = TRUE)
   Reg[["cropVarMean"]] <- RegCropMean$mean
   
   # totals for area that is just cropland:
-  RegCropTotMean = terra::extract(cropVar*100/1000000, Reg, fun=sum, na.rm = TRUE) #Mg/ha -> Tg
+  RegCropTotMean <- terra::extract(cropMean*100/1000000, Reg, fun=sum, na.rm = TRUE) #Mg/ha -> Tg
   Reg[["cropTotVar"]] <- RegCropTotMean$mean
 
   # naive uncertainty:
@@ -128,13 +128,13 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
 #'@param n_regions numeric: number of divisions in regions for aggregating, e.g. number of counties
 #'@param is_crop Raster: cropland selection raster from is_crop function
 #'@param Reg region variable from previous function
-ensemble_C_uncertainty <- function(ens_rast, n_regions){
+ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
   # separate ensemble members from mean and std rasters:
   ensems <- ens_rast[names(ens_rast)[grep("ensemble", names(ens_rast))]]
   
   # loop for extracting ensemble member sums:
   ne = length(ensems)
-  ens_mems <- as.data.frame(matrix, NA, nrow = n_regions, ncol = ne)
+  ens_mems <- as.data.frame(matrix(NA, nrow = n_regions, ncol = ne))
   
   # Calculate sum for different ensembles, then calculate SD
   ne = 25
@@ -162,14 +162,22 @@ n_regions <- length(unique(agg_reg$NAME))
 # test functions:
 ens_rast <- process_ensemble_members(dir, soc, 2021, crops)
 is_crop <- get_crop(ens_rast[[1]], crops)
-naive_C_uncertainty(ens_rast, is_crop, region)
-ensemble_C_uncertainty(ens_rast, n_regions)  # still need to find a good way to deal with number of counties/aggregate regions
+Reg <- naive_C_uncertainty(ens_rast, is_crop, region)
+Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)  # still need to find a good way to deal with number of counties/aggregate regions
+
+# test with different variable and year:
+ens_rast <- process_ensemble_members(dir, agb, 2022, crops)
+is_crop <- get_crop(ens_rast[[1]], crops)
+Reg_agb <- naive_C_uncertainty(ens_rast, is_crop, region)
+Reg_agb <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
 
 # when I have to make plots
 terra::plot(Reg,"cropVarMean",legend="topright")
 terra::plot(Reg, "crop_Tot_SD", legend = "topright")
 terra::plot(Reg, "crop_ensVar_SD", legend = "topright")
 
+terra::plot(Reg_agb, "crop_Tot_SD", legend = "topright")
+terra::plot(Reg_agb, "crop_ensVar_SD", legend = "topright")
 
 
 
