@@ -102,38 +102,22 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
   Reg[["mean"]] <- RegVar$mean
   
   # means for area that is just cropland:
-  cropVar = ens_mean*is_crop
-  RegCropVar = terra::extract(cropVar, Reg, fun = mean, na.rm = TRUE)
-  Reg[["cropVarMean"]] <- RegCropVar$mean
+  cropMean = ens_mean*is_crop
+  RegCropMean = terra::extract(cropMean, Reg, fun = mean, na.rm = TRUE)
+  Reg[["cropVarMean"]] <- RegCropMean$mean
   
   # totals for area that is just cropland:
-  RegCropTotVar = terra::extract(cropVar*100/1000000, Reg, fun=sum, na.rm = TRUE) #Mg/ha -> Tg
-  Co[["cropTotAGB"]] <- CoCropTotAGB$mean
-  
-  # load vector for region:
-  vec <- terra::vect(region)
-  vec <- terra::project(vec, ens_mean)
-  #cv <- terra::vect(crops)
-  
-  # Aggregate by region mean and total:
-  crop_mean <- terra::extract(ens_mean, vec, fun = mean, na.rm = TRUE)
-  crop_mean[["mean"]] <- crop_mean$mean
-  cropMean <- ens_mean*is_crop
-  # mean of selected SDA variable:
-  RegCropMean <- terra::extract(cropMean, vec, fun = mean, na.rm = TRUE)
-  vec[["cropMean"]] <- RegCropMean$mean
-  # total of selected SDA variable in each region grouping:
-  RegCropTot <- terra::extract(cropMean*100/1000000, vec, fun = sum, na.rm = TRUE)
-  vec[["cropTot"]] <- RegCropTot$mean
-  
+  RegCropTotMean = terra::extract(cropVar*100/1000000, Reg, fun=sum, na.rm = TRUE) #Mg/ha -> Tg
+  Reg[["cropTotVar"]] <- RegCropTotMean$mean
+
   # naive uncertainty:
-  cropVar <- is_crop*crop_ens_std^2
-  RegCropTotVar = terra::extract(cropVar, vec, fun = sum, na.rm = TRUE)
-  vec[["crop_Tot_CV"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000000/RegCropTot$mean*100
-  vec[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
+  cropVar <- is_crop*ens_std^2
+  RegCropTotVar = terra::extract(cropVar, Reg, fun = sum, na.rm = TRUE)
+  Reg[["crop_Tot_CV"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000000/RegCropTotMean$mean*100
+  Reg[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
   
   # return data for making maps:
-  return(vec)
+  return(Reg)
 }
 
 
@@ -172,6 +156,7 @@ ensemble_C_uncertainty <- function(ens_rast){
 
 # when I have to make plots
 terra::plot(Reg,"cropVarMean",legend="topright")
+terra::plot(Reg, "crop_Tot_SD", legend = "topright")
 
 
 ### ARCHIVE ###
