@@ -54,6 +54,7 @@ process_ensemble_members <- function(dir, var, year, crops){
   # loop for processing and making list of rasters:
   ens_rast <- list()
   for (i in 1:length(findtiff)){
+    print(i)
     tiff <- paste0(findfile, "/", findtiff[i])
     rast <- terra::rast(tiff)
     vec <- terra::project(vec, rast)
@@ -64,21 +65,22 @@ process_ensemble_members <- function(dir, var, year, crops){
   return(ens_rast)
 }
 
+
 ## Function for identifying crop regions:
 # inputs:
 #'@param rast = example raster for making object for sorting where crops are/aren't
 #'@param crops = vector shapefile of croplands
+# can be added later when sorting by crop types:
 #'@param classes = table of crop classes for identifying croplands
-is_crop <- function(rast, crops, classes){
-  rast <- rast
+get_crop <- function(rast, crops){
   # load crops as vector and reproject:
   cv <- terra::vect(crops)
   cv <- terra::project(cv, rast)
   # crop example raster to croplands:
   crop_rast <- terra::crop(rast, cv) 
   # load crop classes
-  landClass <- classes
-  cv["CF"] = as.factor(cv["MAIN_CROP"])
+  #landClass <- classes
+  #cv["CF"] = as.factor(cv["MAIN_CROP"])  # this line throws an error that doesn't prevent the code from running but does seem to stop the function
   landRast <- terra::rasterize(cv, crop_rast, "MAIN_CROP")
   is_crop <- !is.na(landRast)
   return(is_crop)
@@ -123,40 +125,52 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
 
 ## Function for ensemble uncertainty calculations:
 #'@param ens_rast List: list of raster objects from processing function
-ensemble_C_uncertainty <- function(ens_rast){
+#'@param n_regions numeric: number of divisions in regions for aggregating, e.g. number of counties
+#'@param is_crop Raster: cropland selection raster from is_crop function
+#'@param Reg region variable from previous function
+ensemble_C_uncertainty <- function(ens_rast, n_regions){
   # separate ensemble members from mean and std rasters:
   ensems <- ens_rast[names(ens_rast)[grep("ensemble", names(ens_rast))]]
   
   # loop for extracting ensemble member sums:
   ne = length(ensems)
-  ens_mems <- as.data.frame(matrix, NA, nrow = , ncol = ne)
+  ens_mems <- as.data.frame(matrix, NA, nrow = n_regions, ncol = ne)
   
-  # Calc sum for different ensembles, then calc SD
-  #  * load each ensemble
-  #  * clip to CA
-  #  * multiply by isCrop
-  #  * extract
-  #  * add to df
-  #  * calc SD over df
-  #  * add to Co map
+  # Calculate sum for different ensembles, then calculate SD
   ne = 25
-  ensAGB = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
+  ensVar = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
   for (e in 1:ne) {
     print(e)
-    ## load & clip ensemble member
-    fname = paste0("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/downscale_maps/AbvGrndWood_2021/ensemble_",
-                   e,"_2021_AbvGrndWood.tiff")
-    eagb <- terra::crop(terra::rast(fname),v) * isCrop
-    ensTotCropAGB = terra::extract(eagb,Co,fun=sum,na.rm=TRUE)
-    ensAGB[,e] = ensTotCropAGB[,2]*100/1000000 ## Mg/ha -> Tg
+    # load ensemble member:
+    tiff <- ens_rast[[e]]
+    # clip the ensemble member for crops:
+    ens_var <- tiff * is_crop
+    # extract for region of aggregation:
+    ensTotCropVar <- terra::extract(ens_var, Reg, fun = sum, na.rm = TRUE)
+    # add to data frame + Tg conversion:
+    ensVar[,e] <- ensTotCropVar[,2]*100/1000000 ## Mg/ha -> Tg
   }
-  Co[["crop_ensAGB_SD"]] <- apply(ensAGB,1,sd)*1000 #Gg 
+  # calculate sd over dataframe
+  Reg[["crop_ensVar_SD"]] <- apply(ensVar, 1, sd)*1000 #Gg 
+  return(Reg)
 }
 
+# number of aggregate regions (e.g. counties): this runs for California, would need to be fixed for each place
+agg_reg <- vect(region)
+n_regions <- length(unique(agg_reg$NAME))
+
+# test functions:
+ens_rast <- process_ensemble_members(dir, soc, 2021, crops)
+is_crop <- get_crop(ens_rast[[1]], crops)
+naive_C_uncertainty(ens_rast, is_crop, region)
+ensemble_C_uncertainty(ens_rast, n_regions)  # still need to find a good way to deal with number of counties/aggregate regions
 
 # when I have to make plots
 terra::plot(Reg,"cropVarMean",legend="topright")
 terra::plot(Reg, "crop_Tot_SD", legend = "topright")
+terra::plot(Reg, "crop_ensVar_SD", legend = "topright")
+
+
 
 
 ### ARCHIVE ###
