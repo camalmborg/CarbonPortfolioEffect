@@ -165,50 +165,46 @@ is_crop <- get_crop(ens_rast[[1]], crops)
 Reg <- naive_C_uncertainty(ens_rast, is_crop, region)
 Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)  # still need to find a good way to deal with number of counties/aggregate regions
 
-# test with different variable and year:
-ens_rast <- process_ensemble_members(dir, agb, 2022, crops)
-is_crop <- get_crop(ens_rast[[1]], crops)
-Reg_agb <- naive_C_uncertainty(ens_rast, is_crop, region)
-Reg_agb <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
+# # test with different variable and year:
+# ens_rast <- process_ensemble_members(dir, agb, 2022, crops)
+# is_crop <- get_crop(ens_rast[[1]], crops)
+# Reg_agb <- naive_C_uncertainty(ens_rast, is_crop, region)
+# Reg_agb <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
 
 # when I have to make plots
 terra::plot(Reg,"cropVarMean",legend="topright")
 terra::plot(Reg, "crop_Tot_SD", legend = "topright")
 terra::plot(Reg, "crop_ensVar_SD", legend = "topright")
 
-terra::plot(Reg_agb, "crop_Tot_SD", legend = "topright")
-terra::plot(Reg_agb, "crop_ensVar_SD", legend = "topright")
+# terra::plot(Reg_agb, "crop_Tot_SD", legend = "topright")
+# terra::plot(Reg_agb, "crop_ensVar_SD", legend = "topright")
+
+
+## SD vs aggregation area plots
 
 
 
 ### ARCHIVE ###
-
-countyRast <- rasterize(r, isCrop, field = "NAME")
+r <- terra::vect(region)
+r <- project(r, ens_rast[[1]])
+r$area_m2 <- terra::expanse(r, unit = "m")
+countyRast <- rasterize(r, is_crop, field = "NAME")
 countyTable <- freq(countyRast)
-rast_poly <- as.polygons(isCrop)
-test_crop <- intersect(rast_poly, r)
-# there is already a shape_area function lol
-terra::zonal(isCrop, r, fun = "sum")  # I think this is pixel numbers?
-zonal_test <- terra::zonal(test_crop, r, fun = "sum") # this doesn't look right to me when I plot
+rast_poly <- as.polygons(is_crop)
 
-cell_area <- cellSize(isCrop)
+county_sort <- as.data.frame(r) %>%
+  arrange(NAME)
 
-r_masked <- mask(isCrop, r)
-area_masked <- mask(cell_areas, v)
-
-rastPoints <- as.points(isCrop)
-rastCounties <- extract(r, rastPoints)
-
-reclass_iscrop <- as.factor(isCrop)
+reclass_iscrop <- as.factor(is_crop)
 #reclass_iscrop <- classify(reclass_iscrop, rcl = matrix(c(0, NA), ncol = 2, byrow = TRUE))
-reclass_iscrop <- ifel(isCrop == 1, 1, NA)
+reclass_iscrop <- ifel(is_crop == 1, 1, NA)
 rast_poly <- as.polygons(reclass_iscrop)
-test_crop <- intersect(r, rast_poly)
+test_crop <- terra::intersect(r, rast_poly)
 #zonal_test <- terra::zonal(rast_poly, r, fun = "sum")
 
 overlap <- terra::intersect(r, rast_poly)
 overlap$area_m2 <- terra::expanse(overlap, unit="m")
-overlap <- as.data.frame(overlap) %>%
+agg_areas <- as.data.frame(overlap) %>%
   group_by(NAME) %>%              
   summarise(overlap_area_m2 = sum(area_m2, na.rm=TRUE))
 
@@ -304,3 +300,17 @@ overlap <- as.data.frame(overlap) %>%
 #   v_reg[["crop_Tot_CV"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000000/RegCropTot$mean*100
 #   v_reg[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
   
+
+# # dealing with county areas:
+# test_crop <- intersect(rast_poly, r)
+# # there is already a shape_area function lol
+# terra::zonal(is_crop, r, fun = "sum")  # I think this is pixel numbers?
+# #zonal_test <- terra::zonal(test_crop, r, fun = "sum") # this doesn't look right to me when I plot
+# 
+# cell_area <- cellSize(is_crop)
+# 
+# r_masked <- mask(is_crop, r)
+# area_masked <- mask(cell_areas, v)
+# 
+# rastPoints <- as.points(is_crop)
+# rastCounties <- extract(r, rastPoints)
