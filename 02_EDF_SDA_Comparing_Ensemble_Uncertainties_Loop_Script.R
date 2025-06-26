@@ -151,7 +151,7 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
     ensVar[,e] <- ensTotCropVar[,2]*100/1000000 ## Mg/ha -> Tg
   }
   # calculate sd over dataframe
-  Reg[["crop_ensVar_SD"]] <- apply(ensVar, 1, sd)*1000 #Gg 
+  Reg[["crop_ensVar_SD"]] <- apply(ensVar, 1, sd)#*1000 #Gg 
   return(Reg)
 }
 
@@ -181,32 +181,55 @@ terra::plot(Reg, "crop_ensVar_SD", legend = "topright")
 
 
 ## SD vs aggregation area plots
+# find county areas in m^2:
+Reg$county_area_m2 <- terra::expanse(Reg, unit = "m")
+
+# reclass is_crop raster object to prepare for convert to polygon:
+reclass_iscrop <- as.factor(is_crop)
+reclass_iscrop <- ifel(is_crop == 1, 1, NA)
+# convert to polygons
+rast_poly <- as.polygons(reclass_iscrop)
+
+# find overlap between crop polygons and counties:
+overlap <- terra::intersect(Reg, rast_poly)
+# calculate overlap areas:
+Reg$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+
+# plot crop area by county vs SD:
+plot(Reg$crops_area_m2, Reg$crop_Tot_SD, pch = 16, col = "red",
+     xlab = "total crop area per county (m^2)", ylab = "SD")
+points(Reg$crops_area_m2, Reg$crop_ensVar_SD, pch = 16, col = "blue")
+
 
 
 
 ### ARCHIVE ###
-r <- terra::vect(region)
-r <- project(r, ens_rast[[1]])
-r$area_m2 <- terra::expanse(r, unit = "m")
-countyRast <- rasterize(r, is_crop, field = "NAME")
-countyTable <- freq(countyRast)
-rast_poly <- as.polygons(is_crop)
+# r <- terra::vect(region)
+# r <- project(r, ens_rast[[1]])
+# r$area_m2 <- terra::expanse(r, unit = "m")
+# countyRast <- rasterize(r, is_crop, field = "NAME")
+# countyTable <- freq(countyRast)
+# rast_poly <- as.polygons(is_crop)
+# 
+# county_sort <- as.data.frame(r) %>%
+#   arrange(NAME)
+# 
+# reclass_iscrop <- as.factor(is_crop)
+# #reclass_iscrop <- classify(reclass_iscrop, rcl = matrix(c(0, NA), ncol = 2, byrow = TRUE))
+# reclass_iscrop <- ifel(is_crop == 1, 1, NA)
+# rast_poly <- as.polygons(reclass_iscrop)
+# test_crop <- terra::intersect(r, rast_poly)
+# #zonal_test <- terra::zonal(rast_poly, r, fun = "sum")
 
-county_sort <- as.data.frame(r) %>%
-  arrange(NAME)
+# overlap <- terra::intersect(r, rast_poly)
+# overlap$area_m2 <- terra::expanse(overlap, unit="m")
+# agg_areas <- as.data.frame(overlap) %>%
+#   group_by(NAME) %>%              
+#   summarise(overlap_area_m2 = sum(area_m2, na.rm=TRUE))
 
-reclass_iscrop <- as.factor(is_crop)
-#reclass_iscrop <- classify(reclass_iscrop, rcl = matrix(c(0, NA), ncol = 2, byrow = TRUE))
-reclass_iscrop <- ifel(is_crop == 1, 1, NA)
-rast_poly <- as.polygons(reclass_iscrop)
-test_crop <- terra::intersect(r, rast_poly)
-#zonal_test <- terra::zonal(rast_poly, r, fun = "sum")
-
-overlap <- terra::intersect(r, rast_poly)
-overlap$area_m2 <- terra::expanse(overlap, unit="m")
-agg_areas <- as.data.frame(overlap) %>%
-  group_by(NAME) %>%              
-  summarise(overlap_area_m2 = sum(area_m2, na.rm=TRUE))
+# # sort by alphabetical order:
+# county_sort <- as.data.frame(Reg) %>%
+#   arrange(NAME)
 
 # # Create a mask raster: keep 1s, set others to NA
 # r_masked <- classify(r, cbind(0, NA))  # keeps 1s, 0 → NA
@@ -252,11 +275,6 @@ agg_areas <- as.data.frame(overlap) %>%
 
 ### original function code:
 # inputs for running analyses in chosen location and scale:
-#'@param yr_mean = raster: mean 25-ensemble member tiff file
-#'@param yr_std = raster: std 25-ensemble member tiff file
-#'@param crop = vector: cropland shapefile
-#'@param reg = vector: aggregation scale region, e.g. county
-#'@param classes = dataframe: table of crop classes for aligning to SDA
 # compare_C_uncertainty <- function(yr_mean,
 #                                   yr_std,
 #                                   crops,
