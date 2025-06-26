@@ -146,10 +146,10 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
     # extract for region of aggregation:
     ensTotCropVar <- terra::extract(ens_var, Reg, fun = sum, na.rm = TRUE)
     # add to data frame + Tg conversion:
-    ensVar[,e] <- ensTotCropVar[,2]*100/1000000 ## Mg/ha -> Tg
+    ens_mems[,e] <- ensTotCropVar[,2]*100/1000000 ## Mg/ha -> Tg
   }
   # calculate sd over dataframe
-  Reg[["crop_ensVar_SD"]] <- apply(ensVar, 1, sd)#*1000 #Gg 
+  Reg[["crop_ensVar_SD"]] <- apply(ens_mems, 1, sd)#*1000 #Gg 
   return(Reg)
 }
 
