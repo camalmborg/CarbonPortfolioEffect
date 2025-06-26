@@ -136,9 +136,7 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
   ne = length(ensems)
   ens_mems <- as.data.frame(matrix(NA, nrow = n_regions, ncol = ne))
   
-  # Calculate sum for different ensembles, then calculate SD
-  ne = 25
-  ensVar = as.data.frame(matrix(NA, nrow = 58, ncol = ne))
+  # Calculate sum for different ensembles, then calculate SD:
   for (e in 1:ne) {
     print(e)
     # load ensemble member:
