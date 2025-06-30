@@ -106,11 +106,11 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
   # means for area that is just cropland:
   cropMean <- ens_mean*is_crop
   RegCropMean <- terra::extract(cropMean, Reg, fun = mean, na.rm = TRUE)
-  Reg[["cropVarMean"]] <- RegCropMean$mean
+  Reg[["cropMean"]] <- RegCropMean$mean
   
   # totals for area that is just cropland:
-  RegCropTotMean <- terra::extract(cropMean*100/1000000, Reg, fun=sum, na.rm = TRUE) #Mg/ha -> Tg
-  Reg[["cropTotVar"]] <- RegCropTotMean$mean
+  RegCropTotMean <- terra::extract(cropMean*100/1000000, Reg, fun = sum, na.rm = TRUE) #Mg/ha -> Tg
+  Reg[["cropTot"]] <- RegCropTotMean$mean
 
   # naive uncertainty:
   cropVar <- is_crop*ens_std^2
@@ -149,7 +149,7 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
     ens_mems[,e] <- ensTotCropVar[,2]*100/1000000 ## Mg/ha -> Tg
   }
   # calculate sd over dataframe
-  Reg[["crop_ensVar_SD"]] <- apply(ens_mems, 1, sd)#*1000 #Gg 
+  Reg[["crop_ensVar_SD"]] <- apply(ens_mems, 1, sd)*1000 #Gg 
   return(Reg)
 }
 
@@ -158,7 +158,7 @@ agg_reg <- vect(region)
 n_regions <- length(unique(agg_reg$NAME))
 
 # test functions:
-ens_rast <- process_ensemble_members(dir, soc, 2021, crops)
+ens_rast <- process_ensemble_members(dir, agb, 2021, crops)
 is_crop <- get_crop(ens_rast[[1]], crops)
 Reg <- naive_C_uncertainty(ens_rast, is_crop, region)
 Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)  # still need to find a good way to deal with number of counties/aggregate regions
@@ -170,9 +170,11 @@ Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)  # still need to find a 
 # Reg_agb <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
 
 # when I have to make plots
-terra::plot(Reg,"cropVarMean",legend="topright")
-terra::plot(Reg, "crop_Tot_SD", legend = "topright")
-terra::plot(Reg, "crop_ensVar_SD", legend = "topright")
+palatte = c('#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000')
+breaks = c(0,10^seq(0,log10(1000),length=9))
+terra::plot(Reg,"cropMean",legend="topright", breaks = breaks, col = palatte)
+terra::plot(Reg, "crop_Tot_SD", legend = "topright", breaks = breaks, col = palatte)
+terra::plot(Reg, "crop_ensVar_SD", legend = "topright", breaks = breaks, col = palatte)
 
 # terra::plot(Reg_agb, "crop_Tot_SD", legend = "topright")
 # terra::plot(Reg_agb, "crop_ensVar_SD", legend = "topright")
