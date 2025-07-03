@@ -157,11 +157,31 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
 agg_reg <- vect(region)
 n_regions <- length(unique(agg_reg$NAME))
 
-# test functions:
-ens_rast <- process_ensemble_members(dir, agb, 2021, crops)
-is_crop <- get_crop(ens_rast[[1]], crops)
-Reg <- naive_C_uncertainty(ens_rast, is_crop, region)
-Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)  # still need to find a good way to deal with number of counties/aggregate regions
+# # test functions:
+# ens_rast <- process_ensemble_members(dir, agb, 2021, crops)
+# is_crop <- get_crop(ens_rast[[1]], crops)
+# Reg <- naive_C_uncertainty(ens_rast, is_crop, region)
+# Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)  # still need to find a good way to deal with number of counties/aggregate regions
+
+### run a loop to save the outputs:
+# object of variables:
+c_vars <- c(agb, soc, lai, smf)
+# empty list to fill:
+vec_list <- list()
+# run for 2021:
+for (i in c_vars){
+  print(i)
+  ens_rast <- process_ensemble_members(dir, i, 2021, crops)
+  is_crop <- get_crop(ens_rast[[1]], crops)
+  Reg <- naive_C_uncertainty(ens_rast, is_crop, region)
+  Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
+  name <- paste0("Reg_", i)
+  vec_list[name] <- Reg
+  # filename <- paste0("SDA_Uncert_Outputs/",Sys.Date(), "_CA_crops_county_SDA_uncert_",
+  #                    i, year, ".shp")
+  # writeVector(Reg, filename)
+  # write.csv(Reg, filename)
+}
 
 # # test with different variable and year:
 # ens_rast <- process_ensemble_members(dir, agb, 2022, crops)
@@ -169,37 +189,15 @@ Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)  # still need to find a 
 # Reg_agb <- naive_C_uncertainty(ens_rast, is_crop, region)
 # Reg_agb <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
 
-# when I have to make plots
-palatte = c('#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000')
-breaks = c(0,10^seq(0,log10(1000),length=9))
-terra::plot(Reg,"cropMean",legend="topright", breaks = breaks, col = palatte)
-terra::plot(Reg, "crop_Tot_SD", legend = "topright", breaks = breaks, col = palatte)
-terra::plot(Reg, "crop_ensVar_SD", legend = "topright", breaks = breaks, col = palatte)
+# # when I have to make plots
+# palatte = c('#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000')
+# breaks = c(0,10^seq(0,log10(1000),length=9))
+# #terra::plot(Reg,"cropMean",legend="topright", breaks = breaks, col = palatte)
+# terra::plot(Reg, "crop_Tot_SD", legend = "topright", breaks = breaks, col = palatte)
+# terra::plot(Reg, "crop_ensVar_SD", legend = "topright", breaks = breaks, col = palatte)
 
 # terra::plot(Reg_agb, "crop_Tot_SD", legend = "topright")
 # terra::plot(Reg_agb, "crop_ensVar_SD", legend = "topright")
-
-
-## SD vs aggregation area plots
-# find county areas in m^2:
-Reg$county_area_m2 <- terra::expanse(Reg, unit = "m")
-
-# reclass is_crop raster object to prepare for convert to polygon:
-reclass_iscrop <- as.factor(is_crop)
-reclass_iscrop <- ifel(is_crop == 1, 1, NA)
-# convert to polygons
-rast_poly <- as.polygons(reclass_iscrop)
-
-# find overlap between crop polygons and counties:
-overlap <- terra::intersect(Reg, rast_poly)
-# calculate overlap areas:
-Reg$crops_area_m2 <- terra::expanse(overlap, unit = "m")
-
-# plot crop area by county vs SD:
-plot(Reg$crops_area_m2, Reg$crop_Tot_SD, pch = 16, col = "red",
-     xlab = "total crop area per county (m^2)", ylab = "SD")
-points(Reg$crops_area_m2, Reg$crop_ensVar_SD, pch = 16, col = "blue")
-
 
 
 
