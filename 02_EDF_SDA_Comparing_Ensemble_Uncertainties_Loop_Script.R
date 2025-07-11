@@ -4,6 +4,7 @@
 # load libraries:
 library(sf)
 library(terra)
+terraOptions(thread = 16)
 library(dplyr)
 # set working directory:
 wd <- "/projectnb/dietzelab/malmborg/EDF/"
@@ -29,7 +30,9 @@ year <- 2021
 dir <- paste0(ens, run)
 
 # load information for region and aggregation scale:
-region <- "/projectnb/dietzelab/dietze/CARB/CA_Counties.shp"
+#region <- "/projectnb/dietzelab/dietze/CARB/CA_Counties.shp"
+region <- "/projectnb/dietzelab/malmborg/CARB/ca_towns/California_City_Boundaries_and_Identifiers.shp"
+region <- "/projectnb/dietzelab/malmborg/CARB/LandIQ_shps/i15_Crop_Mapping_2021_SHP/LandIQ_2021_hydr_reg_aggregate.shp"
 crops <- "/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15_Crop_Mapping_2021.shp"
 classes <- read.table("https://raw.githubusercontent.com/ccmmf/rs-sandbox/refs/heads/main/code_snippets/landiq_crop_mapping_codes.tsv",
                       header=TRUE, sep="\t")
@@ -98,7 +101,8 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
   ens_std <- ens_rast[[names(ens_rast)[grep("std", names(ens_rast))]]]
   
   # Calculate by county:
-  RegORIG <- terra::vect(region)
+  #RegORIG <- terra::vect(region)
+  RegORIG <- region  # vector shapefile SpatVector object
   Reg <- terra::project(RegORIG, ens_mean)
   RegVar <- terra::extract(ens_mean, Reg, fun = mean, na.rm = TRUE)
   Reg[["mean"]] <- RegVar$mean
@@ -155,7 +159,9 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
 
 # number of aggregate regions (e.g. counties): this runs for California, would need to be fixed for each place
 agg_reg <- vect(region)
-n_regions <- length(unique(agg_reg$NAME))
+agg_reg <- agg_reg[is.na(agg_reg$OFFSHORE),] # only need townships and not marine buffer regions
+#n_regions <- length(unique(agg_reg$NAME))  # for counties
+n_regions <- length(unique(agg_reg$CDTFA_CITY))
 
 # # test functions:
 # ens_rast <- process_ensemble_members(dir, agb, 2021, crops)
@@ -173,7 +179,7 @@ for (i in c_vars){
   print(i)
   ens_rast <- process_ensemble_members(dir, i, 2021, crops)
   is_crop <- get_crop(ens_rast[[1]], crops)
-  Reg <- naive_C_uncertainty(ens_rast, is_crop, region)
+  Reg <- naive_C_uncertainty(ens_rast, is_crop, agg_reg)
   Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
   name <- paste0("Reg_", i)
   vec_list[name] <- Reg
