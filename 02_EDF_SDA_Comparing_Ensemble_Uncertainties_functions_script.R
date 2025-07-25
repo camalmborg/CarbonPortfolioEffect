@@ -8,7 +8,7 @@ library(terra)
 library(dplyr)
 
 
-## Function for processing each tif file
+## 1. Function for processing each tif file
 # inputs:
 #'@param dir = Character vector: file where tiffs can be found
 #'@param var = variable of interest for each analysis; e.g. soc
@@ -37,7 +37,7 @@ process_ensemble_members <- function(dir, var, year, crops){
 }
 
 
-## Function for identifying crop regions:
+## 2. Function for identifying crop regions:
 # inputs:
 #'@param rast = example raster for making object for sorting where crops are/aren't
 #'@param crops = vector shapefile of croplands
@@ -58,7 +58,7 @@ get_crop <- function(rast, crops){
 }
 
 
-## Function for running analyses ##
+## 3. Function for running analyses ##
 # inputs for running analyses in chosen location and scale:
 #'@param ens_rast List: list of tiff files from processing function
 #'@param is_crop Raster: cropland selection raster from is_crop function
@@ -95,7 +95,7 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
 }
 
 
-## Function for ensemble uncertainty calculations:
+## 4. Function for ensemble uncertainty calculations:
 #'@param ens_rast List: list of raster objects from processing function
 #'@param n_regions numeric: number of divisions in regions for aggregating, e.g. number of counties
 #'@param is_crop Raster: cropland selection raster from is_crop function
@@ -125,40 +125,23 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
   return(Reg)
 }
 
-# number of aggregate regions (e.g. counties): this runs for California, would need to be fixed for each place
-agg_reg <- vect(region)
-agg_reg <- agg_reg[is.na(agg_reg$OFFSHORE),] # only need townships and not marine buffer regions
-#n_regions <- length(unique(agg_reg$NAME))  # for counties
-n_regions <- length(unique(agg_reg$CDTFA_CITY))
-#n_regions <- length(unique(agg_reg$HYDRO_RGN))
 
-# # test functions:
-# ens_rast <- process_ensemble_members(dir, agb, 2021, crops)
-# is_crop <- get_crop(ens_rast[[1]], crops)
-# Reg <- naive_C_uncertainty(ens_rast, is_crop, region)
-# Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)  # still need to find a good way to deal with number of counties/aggregate regions
-
-### run a loop to save the outputs:
-# object of variables:
-c_vars <- c(soc)
-# empty list to fill:
-vec_list <- list()
-# run for 2021:
-for (i in c_vars){
-  print(i)
-  ens_rast <- process_ensemble_members(dir, i, 2021, crops)
+## Function wrapper for outputting vectors for maps and plots
+# inputs:
+#'@param dir = Character vector: file where tiffs can be found
+#'@param var = character: variable of interest for each analysis; e.g. soc
+#'@param year = numeric: data year of ensemble members
+#'@param crops = vector: shapefile for croplands to crop rasters
+#'@param agg_reg = vector: shapefile for aggregate region; e.g. county map
+#'@param n_regions = numeric: number of aggregate units; e.g. number of counties
+carbon_uncertainty_wrapper <- function(dir, var, year, crops, agg_reg, n_regions){
+  ens_rast <- process_ensemble_members(dir, var, year, crops)
   is_crop <- get_crop(ens_rast[[1]], crops)
   Reg <- naive_C_uncertainty(ens_rast, is_crop, agg_reg)
   Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
-  name <- paste0("Reg_", i)
-  vec_list[name] <- Reg
-  # filename <- paste0("SDA_Uncert_Outputs/",Sys.Date(), "_CA_crops_county_SDA_uncert_",
-  #                    i, year, ".shp")
-  # writeVector(Reg, filename)
-  # write.csv(Reg, filename)
+  # name <- paste0("Reg_", var)
+  # vec_list[name] <- Reg
+  return(Reg)
 }
 
-#county <- vec_list
-twnshp <- vec_list
-#hydr_reg <- vec_list
-
+# Last update: 7/25/2025
