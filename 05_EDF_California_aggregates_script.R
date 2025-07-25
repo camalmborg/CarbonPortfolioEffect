@@ -74,24 +74,4 @@ for (i in c_vars){
   # write.csv(Reg, filename)
 }
 
-#county <- vec_list
-twnshp <- vec_list
-#hydr_reg <- vec_list
-
-
-
-
-# save as shapefiles for easy loading:
-# cty <- county[[1]]
-# file_name <- "shapefiles/ca_county_shp.shp"
-# writeVector(cty, filename = file_name, overwrite = TRUE)
-
-# twn <- twnshp[[1]]
-# file_name <- "shapefiles/ca_twnshp.shp"
-# writeVector(twn, filename = file_name, overwrite = TRUE)
-
-# # test with different variable and year:
-# ens_rast <- process_ensemble_members(dir, agb, 2022, crops)
-# is_crop <- get_crop(ens_rast[[1]], crops)
-# Reg_agb <- naive_C_uncertainty(ens_rast, is_crop, region)
-# Reg_agb <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
+# Last update: 7/25/2025
