@@ -1,15 +1,23 @@
-# Midwest region data
+#### EDF PROJECT SCRIPT FOR SDA PRODUCT ANALYSES IN THE MIDWEST ####
+# note: specifically for Illinois, Indiana, Iowa
+
+## Prepare workspace ##
+# load libraries:
+library(sf)
+library(terra)
+library(dplyr)
+library(tidyverse)
+library(tigris)
+
+# source functions:
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/02_EDF_SDA_Comparing_Ensemble_Uncertainties_functions_script.R")
 
 # set directory
 dir <- "/projectnb/dietzelab/malmborg/EDF/"
 setwd(dir)
 
-# load libraries
-library(terra)
-library(sf)
-library(tidyverse)
-library(dplyr)
-library(tigris)
+# load raster for crops:
+crop_rast <- ""
 
 # load shapefile for counties:
 filename <- "shapefiles/tl_2024_us_county.shp"
