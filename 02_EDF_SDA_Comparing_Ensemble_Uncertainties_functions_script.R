@@ -103,7 +103,7 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
 #'@param n_regions numeric: number of divisions in regions for aggregating, e.g. number of counties
 #'@param is_crop Raster: cropland selection raster from is_crop function
 #'@param Reg region variable from previous function
-ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
+ensemble_C_uncertainty <- function(ens_rast, n_regions, is_crop, Reg){
   # separate ensemble members from mean and std rasters:
   ensems <- ens_rast[names(ens_rast)[grep("ensemble", names(ens_rast))]]
   
@@ -144,7 +144,7 @@ carbon_uncertainty_wrapper <- function(dir, var, year, crops, agg_reg, n_regions
   ens_rast <- process_ensemble_members(dir, var, year, crops)
   is_crop <- get_crop(ens_rast[[1]], crops)
   Reg <- naive_C_uncertainty(ens_rast, is_crop, agg_reg)
-  Reg <- ensemble_C_uncertainty(ens_rast, n_regions, Reg)
+  Reg <- ensemble_C_uncertainty(ens_rast, n_regions, is_crop, Reg)
   # name <- paste0("Reg_", var)
   # vec_list[name] <- Reg
   return(Reg)
