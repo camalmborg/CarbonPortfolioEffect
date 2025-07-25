@@ -68,6 +68,8 @@ ca_towns <- carbon_uncertainty_wrapper(dir = dir,
                                        agg_reg = agg_towns,
                                        n_regions = n_towns)
 
+
+### ARCHIVE ###
 # # test functions:
 # ens_rast <- process_ensemble_members(dir, agb, 2021, crops)
 # is_crop <- get_crop(ens_rast[[1]], crops)
