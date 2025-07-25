@@ -17,7 +17,7 @@ dir <- "/projectnb/dietzelab/malmborg/EDF/"
 setwd(dir)
 
 # load raster for crops:
-crop_rast <- ""
+rasters <- list.files(paste0(dir, "rasters/"))
 
 # load shapefile for counties:
 filename <- "shapefiles/tl_2024_us_county.shp"
