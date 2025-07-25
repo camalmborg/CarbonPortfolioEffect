@@ -22,6 +22,9 @@ process_ensemble_members <- function(dir, var, year, crops){
   # load vector for region:
   vec <- terra::vect(crops)
   
+  # print progress message:
+  print("processing ensemble member rasters")
+  
   # loop for processing and making list of rasters:
   ens_rast <- list()
   for (i in 1:length(findtiff)){
@@ -107,6 +110,9 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, Reg){
   # loop for extracting ensemble member sums:
   ne = length(ensems)
   ens_mems <- as.data.frame(matrix(NA, nrow = n_regions, ncol = ne))
+  
+  # print progress message:
+  print("calculating ensemble member uncertainty")
   
   # Calculate sum for different ensembles, then calculate SD:
   for (e in 1:ne) {
