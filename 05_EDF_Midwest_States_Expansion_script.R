@@ -17,7 +17,10 @@ dir <- "/projectnb/dietzelab/malmborg/EDF/"
 setwd(dir)
 
 # load raster for crops:
+# note: 2 = cropland areas
 rasters <- list.files(paste0(dir, "rasters/"))
+rast <- terra::rast(paste0(dir, "/rasters/", rasters[1]))
+crs(rast)
 
 # load shapefile for counties:
 filename <- "shapefiles/tl_2024_us_county.shp"
