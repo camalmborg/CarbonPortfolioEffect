@@ -87,3 +87,4 @@ SD_vs_area
 # plot(vec$crops_area_m2, vec$crop_ensVar_SD, pch = 16, col = "blue",
 #      xlab = "total crop area per county (m^2)", ylab = "SD")
 # points(vec$crops_area_m2, vec$crop_Tot_SD, pch = 16, col = "red")
+
