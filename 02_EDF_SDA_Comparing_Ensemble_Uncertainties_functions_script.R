@@ -40,7 +40,7 @@ process_ensemble_members <- function(dir, var, year, crops){
 }
 
 
-## 2. Function for identifying crop regions:
+## 2a. Function for identifying crop regions:
 # inputs:
 #'@param rast = example raster for making object for sorting where crops are/aren't
 #'@param crops = vector shapefile of croplands
@@ -55,8 +55,14 @@ get_crop <- function(rast, crops){
   # load crop classes
   #landClass <- classes
   #cv["CF"] = as.factor(cv["MAIN_CROP"])  # this line throws an error that doesn't prevent the code from running but does seem to stop the function
-  landRast <- terra::rasterize(cv, crop_rast, "MAIN_CROP")
+  landRast <- terra::rasterize(cv, crop_rast)#, "MAIN_CROP")
   is_crop <- !is.na(landRast)
+  return(is_crop)
+}
+
+## 2b. Function for making is_crop object if croplands is a raster object:
+get_is_crop <- function(crops){
+  is_crop <- !is.na(crops)
   return(is_crop)
 }
 
