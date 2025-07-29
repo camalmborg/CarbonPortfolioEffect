@@ -55,7 +55,7 @@ get_crop <- function(rast, crops){
   # load crop classes
   #landClass <- classes
   #cv["CF"] = as.factor(cv["MAIN_CROP"])  # this line throws an error that doesn't prevent the code from running but does seem to stop the function
-  landRast <- terra::rasterize(cv, crop_rast)#, "MAIN_CROP")
+  landRast <- terra::rasterize(cv, crop_rast, "MAIN_CROP")
   is_crop <- !is.na(landRast)
   return(is_crop)
 }
