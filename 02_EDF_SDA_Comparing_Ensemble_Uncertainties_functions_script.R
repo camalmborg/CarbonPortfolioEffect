@@ -20,7 +20,7 @@ process_ensemble_members <- function(dir, var, year, crops){
   findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
   
   # load vector for region:
-  vec <- terra::vect(crops)
+  vec <- crops
   
   # print progress message:
   print("processing ensemble member rasters")
@@ -48,14 +48,14 @@ process_ensemble_members <- function(dir, var, year, crops){
 #'@param classes = table of crop classes for identifying croplands
 get_crop <- function(rast, crops){
   # load crops as vector and reproject:
-  cv <- terra::vect(crops)
+  cv <- crops
   cv <- terra::project(cv, rast)
   # crop example raster to croplands:
   crop_rast <- terra::crop(rast, cv) 
   # load crop classes
   #landClass <- classes
   #cv["CF"] = as.factor(cv["MAIN_CROP"])  # this line throws an error that doesn't prevent the code from running but does seem to stop the function
-  landRast <- terra::rasterize(cv, crop_rast, "MAIN_CROP")
+  landRast <- terra::rasterize(cv, crop_rast)#, "MAIN_CROP")
   is_crop <- !is.na(landRast)
   return(is_crop)
 }
@@ -148,7 +148,8 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, is_crop, Reg){
 #'@param n_regions = numeric: number of aggregate units; e.g. number of counties
 carbon_uncertainty_wrapper <- function(dir, var, year, crops, agg_reg, n_regions){
   ens_rast <- process_ensemble_members(dir, var, year, crops)
-  is_crop <- get_crop(ens_rast[[1]], crops)
+  #is_crop <- get_crop(ens_rast[[1]], crops)
+  is_crop <- get_is_crop(crops)
   Reg <- naive_C_uncertainty(ens_rast, is_crop, agg_reg)
   Reg <- ensemble_C_uncertainty(ens_rast, n_regions, is_crop, Reg)
   # name <- paste0("Reg_", var)
