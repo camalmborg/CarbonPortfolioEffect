@@ -33,10 +33,50 @@ rast_crops_mask <- terra::mask(rast_crops, cornbelt)
 rast_crops_mask[rast_crops_mask != 2] <- NA
 rast_crops_mask[rast_crops_mask == 2] <- 1
 # save for later:
-writeRaster(rast_crops_mask, "rasters/midwest_crops_classed.tif")
+#writeRaster(rast_crops_mask, "rasters/midwest_crops_classed.tif")
+#rast_poly <- as.polygons(rast_crops_mask, dissolve = FALSE). # raster too large error
+test <- aggregate(rast_crops_mask, fact = 2)
+rast_poly <- as.polygons(rast_crops_mask, dissolve = FALSE)
 
 # test is_crop function:
-test <- get_is_crop(rast_crops_mask)
+#test <- get_is_crop(rast_crops_mask)
+
+## Loading Files ##
+# navigate to Dongchen's North America runs:
+ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
+# choose run:
+run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/"
+
+# test functions on Midwest counties
+## Preparing for running selected variable and year across aggregate regions:
+# C variables:
+agb <- "AbvGrndWood_"
+lai <- "LAI_"
+smf <- "SoilMoistFrac_"
+soc <- "TotSoilCarb_"
+
+# choose analysis run variables:
+var <- soc
+year <- 2021
+dir <- paste0(ens, run)
+
+## Areas for calculating carbon uncertainty
+# county group:
+agg_counties <- cornbelt
+n_counties <- length(unique(cornbelt$GEOID))
+
+# croplands:
+crops <- rast_crops_mask
+
+## Running to get plot and map vectors:
+# run for counties:
+mw_county <- carbon_uncertainty_wrapper(dir = dir,
+                                        var = var,
+                                        year = 2021,
+                                        crops = crops,
+                                        agg_reg = agg_counties, 
+                                        n_regions = n_counties)
+
 
 # ### Merging croplans raster tiles for Midwest region
 # # load raster for crops:
