@@ -52,6 +52,9 @@ agg_towns <- vect(twnshps)
 agg_towns <- agg_towns[is.na(agg_towns$OFFSHORE),]
 n_towns <- length(agg_towns$CDTFA_CITY)
 
+# crops vector:
+crops <- vect(crops)
+
 ## Running to get plot and map vectors:
 # run for counties:
 ca_county <- carbon_uncertainty_wrapper(dir = dir,
@@ -67,6 +70,43 @@ ca_towns <- carbon_uncertainty_wrapper(dir = dir,
                                        crops = crops,
                                        agg_reg = agg_towns,
                                        n_regions = n_towns)
+
+
+
+## Making larger regions from CA counties:
+# county_sort <- function(counties, names) {
+#   out <- counties[counties$NAME %in% names]
+#   return(out)
+# } didn't work but it was worth a try
+
+# select counties for each region:
+Sac_Vall_poly <- agg_counties[agg_counties$NAME %in% c("Modoc", "Lassen", "Siskiyou", "Shasta", 
+                                                  "Tehama","Glenn", "Butte", "Colusa", "Sutter", 
+                                                  "Yuba", "Yolo","Sacramento", "Solano")]
+San_Joaq_poly <- agg_counties[agg_counties$NAME %in% c("Plumas", "Sierra", "Nevada", "Placer", 
+                                                  "El Dorado", "Alpine", "Amador", "Calaveras", 
+                                                  "Mono", "Inyo", "Tulare", "Kern", "Kings", 
+                                                  "Fresno", "Madera", "Merced", "Stanislaus", 
+                                                  "Mariposa", "Tuolumne", "San Joaquin")]
+South_CA_poly <- agg_counties[agg_counties$NAME %in% c("San Bernardino", "Riverside", "Imperial", 
+                                                  "San Diego", "Orange", "Los Angeles")]
+Bay_Coast_poly <- agg_counties[agg_counties$NAME %in% c("Contra Costa", "Alameda", "San Mateo", 
+                                                   "Santa Clara", "Santa Cruz", "San Benito", 
+                                                   "Monterey", "San Luis Obispo", "Santa Barbara", 
+                                                   "Ventura")]
+Nor_Coast_poly <- agg_counties[agg_counties$NAME %in% c("Del Norte", "Humboldt", "Trinity", 
+                                                   "Mendocino", "Lake", "Napa", "Sonoma", 
+                                                   "Marin")]
+
+# aggregate them by dissolving:
+Sac_Vall <- aggregate(Sac_Vall_poly, dissolve = TRUE)
+San_Joaq <- aggregate(San_Joaq_poly, dissolve = TRUE)
+South_CA <- aggregate(South_CA_poly, dissolve = TRUE)
+Bay_Coast <- aggregate(Bay_Coast_poly, dissolve = TRUE)
+Nor_Coast <- aggregate(Nor_Coast_poly, dissolve = TRUE)
+
+# join them to be one polygon vector object:
+agregions <- rbind(Sac_Vall, San_Joaq, South_CA, Bay_Coast, Nor_Coast)
 
 
 ### ARCHIVE ###
