@@ -20,10 +20,13 @@ setwd(dir)
 rast_crops <- rast("rasters/midwest_croplands.tif")
 rast_crops <- project(rast_crops, "EPSG:3857")
 
-# testing tigris:
+# tigris counties:
 cornbelt <- vect(tigris::counties(c("Illinois", "Indiana", "Iowa"))) # Note FIPS codes for states: 17 = Illinois, 18 = Indiana, 19 = Iowa
 # reproject:
 cornbelt <- terra::project(cornbelt, rast_crops)
+
+# tigris townships (towns, villages, etc):
+corntowns <- vect(tigris::places(state = c("Illinois", "Indiana", "Iowa"), cb = FALSE))
 
 # crop the raster to study area:
 rast_crops <- terra::crop(rast_crops, cornbelt)
