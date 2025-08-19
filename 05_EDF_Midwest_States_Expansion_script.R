@@ -35,8 +35,8 @@ rast_crops_mask[rast_crops_mask == 2] <- 1
 # save for later:
 #writeRaster(rast_crops_mask, "rasters/midwest_crops_classed.tif")
 #rast_poly <- as.polygons(rast_crops_mask, dissolve = FALSE). # raster too large error
-test <- aggregate(rast_crops_mask, fact = 2)
-rast_poly <- as.polygons(rast_crops_mask, dissolve = FALSE)
+test <- aggregate(rast_crops_mask, fact = 5)  # gathering 5 pixels together
+rast_poly <- as.polygons(test, dissolve = TRUE)
 
 # test is_crop function:
 #test <- get_is_crop(rast_crops_mask)
@@ -66,7 +66,8 @@ agg_counties <- cornbelt
 n_counties <- length(unique(cornbelt$GEOID))
 
 # croplands:
-crops <- rast_crops_mask
+#crops <- rast_crops_mask
+crops <- rast_poly
 
 ## Running to get plot and map vectors:
 # run for counties:
