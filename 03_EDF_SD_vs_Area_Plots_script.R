@@ -16,10 +16,10 @@ library(ggplot2)
 var_names <- c("AGB", "SOC", "LAI", "SMF")
 
 # choose vector object with naive and ensemble data:
-var <- 1
+#var <- 1
 #vec <- vec_list[[var]]
-cty <- county[[var]]
-twn <- twnshp[[var]]
+cty <- mw_county#[[var]]
+#twn <- twnshp[[var]]
 #hyd <- hydr_reg[[var]]
 
 plot_var_name <- var_names[2]
@@ -28,11 +28,11 @@ plot_var_name <- var_names[2]
 # find county areas in m^2:
 #vec$county_area_m2 <- terra::expanse(vec, unit = "m")
 cty$area_m2 <- terra::expanse(cty, unit = "m")
-twn$area_m2 <- terra::expanse(twn, unit = "m")
+#twn$area_m2 <- terra::expanse(twn, unit = "m")
 
 # add what each is:
 cty$type <- "county"
-twn$type <- "township"
+#twn$type <- "township"
 
 # reclass is_crop raster object to prepare for convert to polygon:
 reclass_iscrop <- as.factor(is_crop)
@@ -42,11 +42,11 @@ rast_poly <- as.polygons(reclass_iscrop)
 
 # find overlap between crop polygons and counties:
 #overlap <- terra::intersect(vec, rast_poly)
-#overlap <- terra::intersect(cty, rast_poly)
-overlap <- terra::intersect(twn, rast_poly)
+overlap <- terra::intersect(cty, rast_poly)
+#overlap <- terra::intersect(twn, rast_poly)
 # calculate overlap areas:
-#cty$crops_area_m2 <- terra::expanse(overlap, unit = "m")
-twn$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+cty$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+#twn$crops_area_m2 <- terra::expanse(overlap, unit = "m")
 
 same_cols <- intersect(names(cty), names(twn))
 vec <- rbind(cty[same_cols], twn[same_cols])
@@ -84,7 +84,7 @@ SD_vs_area <- ggplot(plot_data, aes(area_m2, value, color = variable, fill = var
 # view:
 SD_vs_area
 
-# plot(vec$crops_area_m2, vec$crop_ensVar_SD, pch = 16, col = "blue",
-#      xlab = "total crop area per county (m^2)", ylab = "SD")
-# points(vec$crops_area_m2, vec$crop_Tot_SD, pch = 16, col = "red")
+plot(cty$crops_area_m2, cty$crop_ensVar_SD, pch = 16, col = "blue",
+     xlab = "total crop area per county (m^2)", ylab = "SD")
+points(cty$crops_area_m2, cty$crop_Tot_SD, pch = 16, col = "red")
 

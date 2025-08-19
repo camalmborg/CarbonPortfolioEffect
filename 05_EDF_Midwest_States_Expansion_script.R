@@ -45,7 +45,8 @@ rast_poly <- as.polygons(test, dissolve = TRUE)
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
-run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/"
+#run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/"
+run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_GEDI_rf/"
 
 # test functions on Midwest counties
 ## Preparing for running selected variable and year across aggregate regions:

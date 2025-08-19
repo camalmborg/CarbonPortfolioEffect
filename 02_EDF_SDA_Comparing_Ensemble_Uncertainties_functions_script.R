@@ -79,7 +79,7 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
   
   # Calculate by county:
   #RegORIG <- terra::vect(region)
-  RegORIG <- region  # vector shapefile SpatVector object
+  RegORIG <- agg_reg  # vector shapefile SpatVector object
   Reg <- terra::project(RegORIG, ens_mean)
   RegVar <- terra::extract(ens_mean, Reg, fun = mean, na.rm = TRUE)
   Reg[["mean"]] <- RegVar$mean
@@ -96,8 +96,8 @@ naive_C_uncertainty <- function(ens_rast, is_crop, region){
   # naive uncertainty:
   cropVar <- is_crop*ens_std^2
   RegCropTotVar = terra::extract(cropVar, Reg, fun = sum, na.rm = TRUE)
-  Reg[["crop_Tot_CV"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000000/RegCropTotMean$mean*100
-  Reg[["crop_Tot_SD"]] <- sqrt(RegCropTotVar$MAIN_CROP)*100/1000
+  Reg[["crop_Tot_CV"]] <- sqrt(RegCropTotVar[2])*100/1000000/RegCropTotMean$mean*100
+  Reg[["crop_Tot_SD"]] <- sqrt(RegCropTotVar[2])*100/1000
   
   # return data for making maps:
   return(Reg)
