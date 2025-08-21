@@ -27,6 +27,7 @@ cornbelt <- terra::project(cornbelt, rast_crops)
 
 # tigris townships (towns, villages, etc):
 corntowns <- vect(tigris::places(state = c("Illinois", "Indiana", "Iowa"), cb = FALSE))
+corntowns <- terra::project(corntowns, rast_crops)
 
 # crop the raster to study area:
 rast_crops <- terra::crop(rast_crops, cornbelt)
@@ -37,9 +38,11 @@ rast_crops_mask[rast_crops_mask != 2] <- NA
 rast_crops_mask[rast_crops_mask == 2] <- 1
 # save for later:
 #writeRaster(rast_crops_mask, "rasters/midwest_crops_classed.tif")
-#rast_poly <- as.polygons(rast_crops_mask, dissolve = FALSE). # raster too large error
-test <- aggregate(rast_crops_mask, fact = 5)  # gathering 5 pixels together
-rast_poly <- as.polygons(test, dissolve = TRUE)
+# make a crop layer vector:
+rast_agg <- aggregate(rast_crops_mask, fact = 5)  # gathering 5 pixels together
+rast_poly <- as.polygons(rast_agg, dissolve = TRUE)
+# save for later:
+#writeVector(rast_poly, "shapefiles/midwest_crops_vec.shp")
 
 # test is_crop function:
 #test <- get_is_crop(rast_crops_mask)
@@ -68,6 +71,8 @@ dir <- paste0(ens, run)
 # county group:
 agg_counties <- cornbelt
 n_counties <- length(unique(cornbelt$GEOID))
+agg_twn <- corntowns
+n_towns <- length(unique(corntowns$GEOID))
 
 # croplands:
 #crops <- rast_crops_mask
@@ -81,6 +86,13 @@ mw_county <- carbon_uncertainty_wrapper(dir = dir,
                                         crops = crops,
                                         agg_reg = agg_counties, 
                                         n_regions = n_counties)
+
+mw_towns <- carbon_uncertainty_wrapper(dir = dir,
+                                       var = var,
+                                       year = 2021,
+                                       crops = crops,
+                                       agg_reg = agg_twn,
+                                       n_regions = n_towns)
 
 
 # ### Merging croplans raster tiles for Midwest region
