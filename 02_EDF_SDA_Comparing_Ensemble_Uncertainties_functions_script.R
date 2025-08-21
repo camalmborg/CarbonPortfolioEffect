@@ -71,8 +71,8 @@ get_is_crop <- function(crops){
 # inputs for running analyses in chosen location and scale:
 #'@param ens_rast List: list of tiff files from processing function
 #'@param is_crop Raster: cropland selection raster from is_crop function
-#'@param region shapefile: vector shapefile for aggregation region, e.g. county
-naive_C_uncertainty <- function(ens_rast, is_crop, region){
+#'@param agg_reg shapefile: vector shapefile for aggregation region, e.g. county
+naive_C_uncertainty <- function(ens_rast, is_crop, agg_reg){
   # separate mean/std tiffs and ensemble members:
   ens_mean <- ens_rast[[names(ens_rast)[grep("mean", names(ens_rast))]]]
   ens_std <- ens_rast[[names(ens_rast)[grep("std", names(ens_rast))]]]
