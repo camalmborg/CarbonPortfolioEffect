@@ -16,7 +16,7 @@ source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/02_EDF_SDA_Compari
 dir <- "/projectnb/dietzelab/malmborg/EDF/"
 setwd(dir)
 
-# load midwestern croplands from USGS 30m croplands extent layer:
+# # load midwestern croplands from USGS 30m croplands extent layer:
 rast_crops <- rast("rasters/midwest_croplands.tif")
 rast_crops <- project(rast_crops, "EPSG:3857")
 
@@ -29,30 +29,42 @@ cornbelt <- terra::project(cornbelt, rast_crops)
 corntowns <- vect(tigris::places(state = c("Illinois", "Indiana", "Iowa"), cb = FALSE))
 corntowns <- terra::project(corntowns, rast_crops)
 
-# crop the raster to study area:
-rast_crops <- terra::crop(rast_crops, cornbelt)
-# apply mask:
-rast_crops_mask <- terra::mask(rast_crops, cornbelt)
-# make a croplands area raster:
-rast_crops_mask[rast_crops_mask != 2] <- NA
-rast_crops_mask[rast_crops_mask == 2] <- 1
-# save for later:
-#writeRaster(rast_crops_mask, "rasters/midwest_crops_classed.tif")
-# make a crop layer vector:
-rast_agg <- aggregate(rast_crops_mask, fact = 5)  # gathering 5 pixels together
-rast_poly <- as.polygons(rast_agg, dissolve = TRUE)
-# save for later:
-#writeVector(rast_poly, "shapefiles/midwest_crops_vec.shp")
+# tigris states:
+cornstates_sf <- tigris::states() %>%
+  filter(NAME %in% c("Illinois", "Indiana", "Iowa"))
+cornstates <- vect(cornstates_sf)
+rm(cornstates_sf)
+cornstates <- terra::project(cornstates, rast_crops)
+
+# aggregate and dissolve to get outline of states:
+cornregion <- aggregate(cornstates, dissolve = TRUE)
+
+# # crop the raster to study area:
+# rast_crops <- terra::crop(rast_crops, cornbelt)
+# # apply mask:
+# rast_crops_mask <- terra::mask(rast_crops, cornbelt)
+# # make a croplands area raster:
+# rast_crops_mask[rast_crops_mask != 2] <- NA
+# rast_crops_mask[rast_crops_mask == 2] <- 1
+# # save for later:
+# #writeRaster(rast_crops_mask, "rasters/midwest_crops_classed.tif")
+# # make a crop layer vector:
+# rast_agg <- aggregate(rast_crops_mask, fact = 5)  # gathering 5 pixels together
+# rast_poly <- as.polygons(rast_agg, dissolve = TRUE)
+# # save for later:
+# #writeVector(rast_poly, "shapefiles/midwest_crops_vec.shp")
 
 # test is_crop function:
 #test <- get_is_crop(rast_crops_mask)
+#test <- get_is_crop(mw_rast_crops)
 
 ## Loading Files ##
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
 #run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/"
-run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_GEDI_rf/"
+#run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_GEDI_rf/"
+run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf"
 
 # test functions on Midwest counties
 ## Preparing for running selected variable and year across aggregate regions:
@@ -68,17 +80,32 @@ year <- 2021
 dir <- paste0(ens, run)
 
 ## Areas for calculating carbon uncertainty
+# town group:
+agg_twn <- corntowns
+n_towns <- length(unique(corntowns$GEOID))
 # county group:
 agg_counties <- cornbelt
 n_counties <- length(unique(cornbelt$GEOID))
-agg_twn <- corntowns
-n_towns <- length(unique(corntowns$GEOID))
+# state group:
+agg_states <- cornstates
+n_states <- length(unique(cornstates$GEOID))
+# region group:
+agg_region <- cornregion
+n_reg <- 1
+
 
 # croplands:
-#crops <- rast_crops_mask
-crops <- rast_poly
+mw_rast_crops <- terra::rast("rasters/midwest_crops_classed.tif")
+crops <- terra::vect("shapefiles/midwest_crops_vec.shp")
 
 ## Running to get plot and map vectors:
+# run for towns:
+mw_towns <- carbon_uncertainty_wrapper(dir = dir,
+                                       var = var,
+                                       year = 2021,
+                                       crops = crops,
+                                       agg_reg = agg_twn,
+                                       n_regions = n_towns)
 # run for counties:
 mw_county <- carbon_uncertainty_wrapper(dir = dir,
                                         var = var,
@@ -86,13 +113,24 @@ mw_county <- carbon_uncertainty_wrapper(dir = dir,
                                         crops = crops,
                                         agg_reg = agg_counties, 
                                         n_regions = n_counties)
-
-mw_towns <- carbon_uncertainty_wrapper(dir = dir,
+# run for state:
+mw_state <- carbon_uncertainty_wrapper(dir = dir,
                                        var = var,
                                        year = 2021,
                                        crops = crops,
-                                       agg_reg = agg_twn,
-                                       n_regions = n_towns)
+                                       agg_reg = agg_states,
+                                       n_regions = n_states)
+# run for region:
+mw_region <- carbon_uncertainty_wrapper(dir = dir,
+                                        var = var,
+                                        year = 2021,
+                                        crops = crops,
+                                        agg_reg = agg_region,
+                                        n_regions = n_reg)
+
+# Before moving to plots/maps you should have:
+# 1 - a SpatVector for each regional aggregation (town, county, state, region)
+# 2 - a rast_crops 
 
 
 # ### Merging croplans raster tiles for Midwest region
