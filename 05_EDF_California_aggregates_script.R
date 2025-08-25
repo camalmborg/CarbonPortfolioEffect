@@ -18,7 +18,8 @@ setwd(wd)
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
-run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/"
+run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf"
+#run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/" # deprec.
 # # get directories that include tiff files:
 # dirs <- list.dirs(paste0(ens, run))[-grep("07-15", list.dirs(paste0(ens, run)))]
 
@@ -52,51 +53,25 @@ agg_towns <- vect(twnshps)
 agg_towns <- agg_towns[is.na(agg_towns$OFFSHORE),]
 n_towns <- length(agg_towns$CDTFA_CITY)
 
-# crops vector:
-crops <- vect(crops)
-
-## Running to get plot and map vectors:
-# run for counties:
-ca_county <- carbon_uncertainty_wrapper(dir = dir,
-                                        var = var,
-                                        year = 2021,
-                                        crops = crops,
-                                        agg_reg = agg_counties, 
-                                        n_regions = n_counties)
-
-ca_towns <- carbon_uncertainty_wrapper(dir = dir,
-                                       var = var,
-                                       year = 2021,
-                                       crops = crops,
-                                       agg_reg = agg_towns,
-                                       n_regions = n_towns)
-
-
-
-## Making larger regions from CA counties:
-# county_sort <- function(counties, names) {
-#   out <- counties[counties$NAME %in% names]
-#   return(out)
-# } didn't work but it was worth a try
-
+# region group:
 # select counties for each region:
 Sac_Vall_poly <- agg_counties[agg_counties$NAME %in% c("Modoc", "Lassen", "Siskiyou", "Shasta", 
-                                                  "Tehama","Glenn", "Butte", "Colusa", "Sutter", 
-                                                  "Yuba", "Yolo","Sacramento", "Solano")]
+                                                       "Tehama","Glenn", "Butte", "Colusa", "Sutter", 
+                                                       "Yuba", "Yolo","Sacramento", "Solano")]
 San_Joaq_poly <- agg_counties[agg_counties$NAME %in% c("Plumas", "Sierra", "Nevada", "Placer", 
-                                                  "El Dorado", "Alpine", "Amador", "Calaveras", 
-                                                  "Mono", "Inyo", "Tulare", "Kern", "Kings", 
-                                                  "Fresno", "Madera", "Merced", "Stanislaus", 
-                                                  "Mariposa", "Tuolumne", "San Joaquin")]
+                                                       "El Dorado", "Alpine", "Amador", "Calaveras", 
+                                                       "Mono", "Inyo", "Tulare", "Kern", "Kings", 
+                                                       "Fresno", "Madera", "Merced", "Stanislaus", 
+                                                       "Mariposa", "Tuolumne", "San Joaquin")]
 South_CA_poly <- agg_counties[agg_counties$NAME %in% c("San Bernardino", "Riverside", "Imperial", 
-                                                  "San Diego", "Orange", "Los Angeles")]
+                                                       "San Diego", "Orange", "Los Angeles")]
 Bay_Coast_poly <- agg_counties[agg_counties$NAME %in% c("Contra Costa", "Alameda", "San Mateo", 
-                                                   "Santa Clara", "Santa Cruz", "San Benito", 
-                                                   "Monterey", "San Luis Obispo", "Santa Barbara", 
-                                                   "Ventura")]
+                                                        "Santa Clara", "Santa Cruz", "San Benito", 
+                                                        "Monterey", "San Luis Obispo", "Santa Barbara", 
+                                                        "Ventura")]
 Nor_Coast_poly <- agg_counties[agg_counties$NAME %in% c("Del Norte", "Humboldt", "Trinity", 
-                                                   "Mendocino", "Lake", "Napa", "Sonoma", 
-                                                   "Marin")]
+                                                        "Mendocino", "Lake", "Napa", "Sonoma", 
+                                                        "Marin")]
 
 # aggregate them by dissolving:
 Sac_Vall <- aggregate(Sac_Vall_poly, dissolve = TRUE)
@@ -106,7 +81,62 @@ Bay_Coast <- aggregate(Bay_Coast_poly, dissolve = TRUE)
 Nor_Coast <- aggregate(Nor_Coast_poly, dissolve = TRUE)
 
 # join them to be one polygon vector object:
-agregions <- rbind(Sac_Vall, San_Joaq, South_CA, Bay_Coast, Nor_Coast)
+agg_regions <- rbind(Sac_Vall, San_Joaq, South_CA, Bay_Coast, Nor_Coast)
+rm(Sac_Vall, Sac_Vall_poly, San_Joaq, San_Joaq_poly, South_CA, South_CA_poly, 
+   Bay_Coast, Bay_Coast_poly, Nor_Coast, Nor_Coast_poly)
+n_reg <- nrow(agg_regions)
+
+
+# tigris states:
+ca_sf <- tigris::states() %>%
+  filter(NAME == "California")
+agg_state <- vect(ca_sf)
+rm(ca_sf)
+agg_state <- terra::project(ca_state, agg_counties)
+
+
+
+## Running to get plot and map vectors:
+# run for counties:
+ca_county <- carbon_uncertainty_wrapper(dir = dir,
+                                        var = var,
+                                        year = 2021,
+                                        crops = crops,
+                                        agg_reg = agg_counties, 
+                                        n_regions = n_counties)
+# run for towns:
+ca_towns <- carbon_uncertainty_wrapper(dir = dir,
+                                       var = var,
+                                       year = 2021,
+                                       crops = crops,
+                                       agg_reg = agg_towns,
+                                       n_regions = n_towns)
+
+# run for regions:
+ca_reg <- carbon_uncertainty_wrapper(dir = dir,
+                                     var = var,
+                                     year = 2021,
+                                     crops = crops,
+                                     agg_reg = agg_region,
+                                     n_regions = n_reg)
+
+# run for state:
+ca_state <- carbon_uncertainty_wrapper(dir = dir, 
+                                       var = var,
+                                       year = 2021, 
+                                       crops = crops,
+                                       agg_reg = agg_state,
+                                       n_regions = 1)
+
+
+
+
+
+## Making larger regions from CA counties:
+# county_sort <- function(counties, names) {
+#   out <- counties[counties$NAME %in% names]
+#   return(out)
+# } didn't work but it was worth a try
 
 
 ### ARCHIVE ###
