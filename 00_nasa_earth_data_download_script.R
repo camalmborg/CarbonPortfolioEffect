@@ -1,4 +1,4 @@
-### HLS product download ###
+### HLS product download Dongchen's functions ###
 
 ### install and load libraries:
 #install.packages("doSNOW")
