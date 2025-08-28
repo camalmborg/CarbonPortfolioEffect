@@ -101,10 +101,10 @@ state <- carbon_uncertainty_wrapper(ens_rast,
                                     agg_reg = agg_states,
                                     n_regions = n_states)
 # run for region:
-region <- carbon_uncertainty_wrapper(ens_rast,
-                                     crops = crops,
-                                     agg_reg = agg_region,
-                                     n_regions = n_reg)
+reg <- carbon_uncertainty_wrapper(ens_rast,
+                                  crops = crops,
+                                  agg_reg = agg_region,
+                                  n_regions = n_reg)
 # clean up:
 #rm(ens_rast)
 
