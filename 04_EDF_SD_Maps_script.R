@@ -76,11 +76,4 @@ county_maps <- make_region_maps(2, county)
 region_maps <- make_region_maps(2, reg)
 state_maps <- make_region_maps(2, state)
 
-# # save the maps:
-# save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/Maps/"
-# setwd(save_dir)
-# # Save the plot to a PNG file
-# ggsave("town_map.png", 
-#        plot = town_maps,
-#        dpi = 600)
 

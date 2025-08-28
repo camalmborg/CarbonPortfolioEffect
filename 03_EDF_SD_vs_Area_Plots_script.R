@@ -82,7 +82,7 @@ SD_vs_area <- ggplot(plot_data, aes(area_m2, value, color = variable, fill = var
   scale_y_log10() +
   theme_bw()
 # view:
-SD_vs_area
+#SD_vs_area
 
 
 
