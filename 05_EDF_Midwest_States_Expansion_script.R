@@ -39,25 +39,6 @@ cornstates <- terra::project(cornstates, rast_crops)
 # aggregate and dissolve to get outline of states:
 cornregion <- aggregate(cornstates, dissolve = TRUE)
 
-# # crop the raster to study area:
-# rast_crops <- terra::crop(rast_crops, cornbelt)
-# # apply mask:
-# rast_crops_mask <- terra::mask(rast_crops, cornbelt)
-# # make a croplands area raster:
-# rast_crops_mask[rast_crops_mask != 2] <- NA
-# rast_crops_mask[rast_crops_mask == 2] <- 1
-# # save for later:
-# #writeRaster(rast_crops_mask, "rasters/midwest_crops_classed.tif")
-# # make a crop layer vector:
-# rast_agg <- aggregate(rast_crops_mask, fact = 5)  # gathering 5 pixels together
-# rast_poly <- as.polygons(rast_agg, dissolve = TRUE)
-# # save for later:
-# #writeVector(rast_poly, "shapefiles/midwest_crops_vec.shp")
-
-# test is_crop function:
-#test <- get_is_crop(rast_crops_mask)
-#test <- get_is_crop(mw_rast_crops)
-
 ## Loading Files ##
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
@@ -105,30 +86,49 @@ ens_rast <- process_ensemble_members(dir = dir,
                                      crops = crops)
 
 # run for towns:
-mw_towns <- carbon_uncertainty_wrapper(ens_rast,
-                                       crops = crops,
-                                       agg_reg = agg_twn,
-                                       n_regions = n_towns)
+towns <- carbon_uncertainty_wrapper(ens_rast,
+                                    crops = crops,
+                                    agg_reg = agg_twn,
+                                    n_regions = n_towns)
 # run for counties:
-mw_county <- carbon_uncertainty_wrapper(ens_rast,
-                                        crops = crops,
-                                        agg_reg = agg_counties, 
-                                        n_regions = n_counties)
+county <- carbon_uncertainty_wrapper(ens_rast,
+                                     crops = crops,
+                                     agg_reg = agg_counties, 
+                                     n_regions = n_counties)
 # run for state:
-mw_state <- carbon_uncertainty_wrapper(ens_rast,
-                                       crops = crops,
-                                       agg_reg = agg_states,
-                                       n_regions = n_states)
+state <- carbon_uncertainty_wrapper(ens_rast,
+                                    crops = crops,
+                                    agg_reg = agg_states,
+                                    n_regions = n_states)
 # run for region:
-mw_region <- carbon_uncertainty_wrapper(ens_rast,
-                                        crops = crops,
-                                        agg_reg = agg_region,
-                                        n_regions = n_reg)
+region <- carbon_uncertainty_wrapper(ens_rast,
+                                     crops = crops,
+                                     agg_reg = agg_region,
+                                     n_regions = n_reg)
 
 # Before moving to plots/maps you should have:
 # 1 - a SpatVector for each regional aggregation (town, county, state, region)
 # 2 - a rast_crops 
 
+### ARCHIVE###
+# # crop the raster to study area:
+# rast_crops <- terra::crop(rast_crops, cornbelt)
+# # apply mask:
+# rast_crops_mask <- terra::mask(rast_crops, cornbelt)
+# # make a croplands area raster:
+# rast_crops_mask[rast_crops_mask != 2] <- NA
+# rast_crops_mask[rast_crops_mask == 2] <- 1
+# # save for later:
+# #writeRaster(rast_crops_mask, "rasters/midwest_crops_classed.tif")
+# # make a crop layer vector:
+# rast_agg <- aggregate(rast_crops_mask, fact = 5)  # gathering 5 pixels together
+# rast_poly <- as.polygons(rast_agg, dissolve = TRUE)
+# # save for later:
+# #writeVector(rast_poly, "shapefiles/midwest_crops_vec.shp")
+
+# test is_crop function:
+#test <- get_is_crop(rast_crops_mask)
+#test <- get_is_crop(mw_rast_crops)
 
 # ### Merging croplans raster tiles for Midwest region
 # # load raster for crops:
