@@ -148,8 +148,8 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, is_crop, Reg){
 #'@param n_regions = numeric: number of aggregate units; e.g. number of counties
 carbon_uncertainty_wrapper <- function(dir, var, year, crops, agg_reg, n_regions){
   ens_rast <- process_ensemble_members(dir, var, year, crops)
-  #is_crop <- get_crop(ens_rast[[1]], crops)
-  is_crop <- get_is_crop(crops)
+  is_crop <- get_crop(ens_rast[[1]], crops)
+  #is_crop <- get_is_crop(crops)
   Reg <- naive_C_uncertainty(ens_rast, is_crop, agg_reg)
   Reg <- ensemble_C_uncertainty(ens_rast, n_regions, is_crop, Reg)
   # name <- paste0("Reg_", var)
