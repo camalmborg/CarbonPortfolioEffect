@@ -10,7 +10,7 @@ library(tidyverse)
 library(tigris)
 
 # source functions:
-source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/02_EDF_SDA_Comparing_Ensemble_Uncertainties_functions_script.R")
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Comparing_Ensemble_Uncertainties_functions_script.R")
 
 # set directory
 dir <- "/projectnb/dietzelab/malmborg/EDF/"
