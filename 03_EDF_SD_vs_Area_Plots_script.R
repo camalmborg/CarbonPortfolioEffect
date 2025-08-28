@@ -7,45 +7,48 @@ library(ggplot2)
 
 # variable names for plots:
 var_names <- c("AGB", "SOC", "LAI", "SMF")
+types <- c("town", "county", "region", "state")
 
-# choose vector object with naive and ensemble data:
-#var <- 1
-#vec <- vec_list[[var]]
-cty <- mw_county#[[var]]
-#twn <- twnshp[[var]]
-#hyd <- hydr_reg[[var]]
-twn <- mw_towns
+# function for preparing plot data:
+#'@param agg_vector = aggregate area vector product with SD calculations
+#'@param type = character indicating the spatial region, e.g. "county" - or from types vector object
+prepare_plot_data <- function(agg_vector, type, crops){
+  vec <- agg_vector
+  # get areas of each polygon:
+  vec$area_m2 <- terra::expanse(vec, unit = "m")
+  # add column for type of aggregate region:
+  vec$type <- type
+  # reproject crops to match regional vector:
+  crop_vec <- project(crops, vec)
+  # calculate overlap:
+  overlap <- terra::intersect(vec, crop_vec)
+  # calculate expanse of overlap in each regional unit:
+  vec$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+  return(vec)
+}
 
-## SD vs aggregation area plots
-# find county areas in m^2:
-#vec$county_area_m2 <- terra::expanse(vec, unit = "m")
-cty$area_m2 <- terra::expanse(cty, unit = "m")
-twn$area_m2 <- terra::expanse(twn, unit = "m")
+## Get process each regional aggregate:
+twn <- prepare_plot_data(agg_vector = ca_towns,
+                         type = types[1],
+                         crops = crops)
 
-# add what each is:
-cty$type <- "county"
-twn$type <- "township"
+cty <- prepare_plot_data(agg_vector = ca_county, 
+                         type = types[2],
+                         crops = crops)
 
-# reclass is_crop raster object to prepare for convert to polygon:
-is_crop <- get_is_crop(mw_rast_crops)
-reclass_iscrop <- as.factor(is_crop)
-reclass_iscrop <- ifel(is_crop == 1, 1, NA)
-# convert to polygons
-rast_poly <- as.polygons(reclass_iscrop)
+reg <- prepare_plot_data(agg_vector = ca_reg,
+                         type = types[3],
+                         crops = crops)
 
-# find overlap between crop polygons and counties:
-#test <- get_is_crop(mw_rast_crops)
-#overlap <- terra::intersect(vec, rast_poly)
-overlap <- terra::intersect(cty, rast_poly)
-overlap <- terra::intersect(twn, rast_poly)
-# calculate overlap areas:
-cty$crops_area_m2 <- terra::expanse(overlap, unit = "m")
-#twn$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+st <- prepare_plot_data(agg_vector = ca_state,
+                        type = types[4], 
+                        crops = crops)
 
+# combine data for the plots:
 same_cols <- intersect(names(cty), names(twn))
-vec <- rbind(cty[same_cols], twn[same_cols])
+vec <- rbind(twn[same_cols], cty[same_cols], reg[same_cols], st[same_cols])
 
-
+# set name for labeling plots:
 plot_var_name <- var_names[2]
 
 ### Plot crop area by county vs SD:
@@ -81,7 +84,52 @@ SD_vs_area <- ggplot(plot_data, aes(area_m2, value, color = variable, fill = var
 # view:
 SD_vs_area
 
+
+
 # plot(cty$crops_area_m2, cty$crop_ensVar_SD, pch = 16, col = "blue",
 #      xlab = "total crop area per county (m^2)", ylab = "SD")
 # points(cty$crops_area_m2, cty$crop_Tot_SD, pch = 16, col = "red")
 
+
+
+
+### ARCHIVE ###
+# # choose vector object with naive and ensemble data:
+# twn <- ca_towns
+# cty <- ca_county
+# reg <- ca_reg
+# st <- ca_state
+
+## SD vs aggregation area plots
+# # find county areas in m^2:
+# twn$area_m2 <- terra::expanse(twn, unit = "m")
+# cty$area_m2 <- terra::expanse(cty, unit = "m")
+# reg$area_m2 <- terra::expanse(reg, unit = "m")
+# st$area_m2 <- terra::expanse(st, unit = "m")
+
+# # add what each is:
+# cty$type <- "county"
+# twn$type <- "township"
+
+
+# # function for making overlap object:
+# make_crop_factor <- function(ens_rast, crops){
+#   # get is_crop to make crops logical:
+#   is_crop <- get_crop(ens_rast[[1]], crops)
+#   # make factor:
+#   reclass_iscrop <- as.factor(is_crop)
+#   reclass_iscrop <- ifel(is_crop == 1, 1, NA)
+#   # make polygons:
+#   crop_poly <- as.polygons(reclass_iscrop)
+#   # return:
+#   return(crop_poly)
+# }
+
+# # find overlap between crop polygons and counties:
+# #test <- get_is_crop(mw_rast_crops)
+# #overlap <- terra::intersect(vec, rast_poly)
+# overlap <- terra::intersect(cty, rast_poly)
+# overlap <- terra::intersect(twn, rast_poly)
+# # calculate overlap areas:
+# cty$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+# #twn$crops_area_m2 <- terra::expanse(overlap, unit = "m")
