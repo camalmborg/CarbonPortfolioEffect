@@ -1,10 +1,13 @@
 ### MIDWEST RUN ###
 
 # run the California processing script:
-source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/05_EDF_Midwest_States_Expansion_script.R")
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/02_EDF_Midwest_States_Processing_script.R")
 
 # run the plotting script:
 source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/03_EDF_SD_vs_Area_Plots_script.R")
+
+# run the map script:
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/04_EDF_SD_Maps_script.R")
 
 
 # save the plots and maps:
