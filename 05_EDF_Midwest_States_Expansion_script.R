@@ -76,7 +76,7 @@ n_reg <- 1
 
 
 # croplands:
-mw_rast_crops <- terra::rast("rasters/midwest_crops_classed.tif")
+#mw_rast_crops <- terra::rast("rasters/midwest_crops_classed.tif")
 crops <- terra::vect("shapefiles/midwest_crops_vec.shp")
 
 ## Running to get plot and map vectors:
@@ -105,6 +105,8 @@ region <- carbon_uncertainty_wrapper(ens_rast,
                                      crops = crops,
                                      agg_reg = agg_region,
                                      n_regions = n_reg)
+# clean up:
+#rm(ens_rast)
 
 # Before moving to plots/maps you should have:
 # 1 - a SpatVector for each regional aggregation (town, county, state, region)
