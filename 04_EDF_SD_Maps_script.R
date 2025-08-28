@@ -9,11 +9,9 @@ library(patchwork)
 # variable names for plots:
 var_names <- c("AGB", "SOC", "LAI", "SMF")
 
-# choose vector object with naive and ensemble data:
-var <- 2
-vec <- ca_county
-
 # map function:
+#'@param var = numeric, number of variable name object you want - 2 for SOC
+#'@param vec = regional vector from ensemble vs naive processing step - e.g. _county, town, etc
 make_region_maps <- function(var, vec){
   plot_var_name <- var_names[var]
   
@@ -66,6 +64,23 @@ make_region_maps <- function(var, vec){
       name = "Aggregated SD",
       labels = labels) +
     theme_minimal()
+  
+  # make together:
+  compare_maps <- map1 + map2 + plot_layout(guides = "collect")
+  return(compare_maps)
 }
 
-map1 + map2 + plot_layout(guides = "collect")
+# Make the maps:
+town_maps <- make_region_maps(2, towns)
+county_maps <- make_region_maps(2, county)
+region_maps <- make_region_maps(2, reg)
+state_maps <- make_region_maps(2, state)
+
+# # save the maps:
+# save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/Maps/"
+# setwd(save_dir)
+# # Save the plot to a PNG file
+# ggsave("town_map.png", 
+#        plot = town_maps,
+#        dpi = 600)
+

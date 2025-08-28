@@ -105,27 +105,27 @@ ens_rast <- process_ensemble_members(dir = dir,
                                      crops = crops)
 
 # run for counties:
-ca_county <- carbon_uncertainty_wrapper(ens_rast,
-                                        crops = crops,
-                                        agg_reg = agg_counties, 
-                                        n_regions = n_counties)
+county <- carbon_uncertainty_wrapper(ens_rast,
+                                     crops = crops,
+                                     agg_reg = agg_counties, 
+                                     n_regions = n_counties)
 # run for towns:
-ca_towns <- carbon_uncertainty_wrapper(ens_rast,
-                                       crops = crops,
-                                       agg_reg = agg_towns,
-                                       n_regions = n_towns)
+towns <- carbon_uncertainty_wrapper(ens_rast,
+                                    crops = crops,
+                                    agg_reg = agg_towns,
+                                    n_regions = n_towns)
 
 # run for regions:
-ca_reg <- carbon_uncertainty_wrapper(ens_rast,
-                                     crops = crops,
-                                     agg_reg = agg_regions,
-                                     n_regions = n_reg)
+reg <- carbon_uncertainty_wrapper(ens_rast,
+                                  crops = crops,
+                                  agg_reg = agg_regions,
+                                  n_regions = n_reg)
 
 # run for state:
-ca_state <- carbon_uncertainty_wrapper(ens_rast, 
-                                       crops = crops,
-                                       agg_reg = agg_state,
-                                       n_regions = 1)
+state <- carbon_uncertainty_wrapper(ens_rast, 
+                                    crops = crops,
+                                    agg_reg = agg_state,
+                                    n_regions = 1)
 
 
 

@@ -28,25 +28,25 @@ prepare_plot_data <- function(agg_vector, type, crops){
 }
 
 ## Get process each regional aggregate:
-twn <- prepare_plot_data(agg_vector = ca_towns,
+towns <- prepare_plot_data(agg_vector = towns,
                          type = types[1],
                          crops = crops)
 
-cty <- prepare_plot_data(agg_vector = ca_county, 
+county <- prepare_plot_data(agg_vector = county, 
                          type = types[2],
                          crops = crops)
 
-reg <- prepare_plot_data(agg_vector = ca_reg,
+reg <- prepare_plot_data(agg_vector = reg,
                          type = types[3],
                          crops = crops)
 
-st <- prepare_plot_data(agg_vector = ca_state,
+state <- prepare_plot_data(agg_vector = state,
                         type = types[4], 
                         crops = crops)
 
 # combine data for the plots:
-same_cols <- intersect(names(cty), names(twn))
-vec <- rbind(twn[same_cols], cty[same_cols], reg[same_cols], st[same_cols])
+same_cols <- intersect(names(county), names(town))
+vec <- rbind(towns[same_cols], county[same_cols], reg[same_cols], state[same_cols])
 
 # set name for labeling plots:
 plot_var_name <- var_names[2]
