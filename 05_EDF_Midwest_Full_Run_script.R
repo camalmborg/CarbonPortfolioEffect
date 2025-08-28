@@ -16,6 +16,7 @@ save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
 # Save the plot to a PNG file:
 ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_MW_aggregate_regions_plot.png"),
        plot = SD_vs_area,
+       width = 10, height = 6,
        dpi = 600)
 
 # Save the maps to PNG files:
