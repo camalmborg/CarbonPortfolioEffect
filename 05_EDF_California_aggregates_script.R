@@ -18,7 +18,7 @@ setwd(wd)
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
-run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf"
+run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf/"
 #run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/" # deprec.
 # # get directories that include tiff files:
 # dirs <- list.dirs(paste0(ens, run))[-grep("07-15", list.dirs(paste0(ens, run)))]
@@ -27,7 +27,7 @@ run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf"
 counties <- "/projectnb/dietzelab/dietze/CARB/CA_Counties.shp"
 twnshps <- "/projectnb/dietzelab/malmborg/CARB/ca_towns/California_City_Boundaries_and_Identifiers.shp"
 #hydreg <- "/projectnb/dietzelab/malmborg/CARB/LandIQ_shps/i15_Crop_Mapping_2021_SHP/LandIQ_2021_hydro_reg_aggregated.shp"
-crops <- "/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15_Crop_Mapping_2021.shp"
+crops <- vect("/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15_Crop_Mapping_2021.shp")
 classes <- read.table("https://raw.githubusercontent.com/ccmmf/rs-sandbox/refs/heads/main/code_snippets/landiq_crop_mapping_codes.tsv",
                       header=TRUE, sep="\t")
 
@@ -51,6 +51,7 @@ n_counties <- length(unique(agg_counties$NAME))
 # township group:
 agg_towns <- vect(twnshps)
 agg_towns <- agg_towns[is.na(agg_towns$OFFSHORE),]
+agg_towns <- terra::project(agg_towns, agg_counties)
 n_towns <- length(agg_towns$CDTFA_CITY)
 
 # region group:
@@ -92,38 +93,36 @@ ca_sf <- tigris::states() %>%
   filter(NAME == "California")
 agg_state <- vect(ca_sf)
 rm(ca_sf)
-agg_state <- terra::project(ca_state, agg_counties)
+agg_state <- terra::project(agg_state, agg_counties)
 
 
 
 ## Running to get plot and map vectors:
+
+ens_rast <- process_ensemble_members(dir = dir,
+                                     var = var,
+                                     year = 2021,
+                                     crops = crops)
+
 # run for counties:
-ca_county <- carbon_uncertainty_wrapper(dir = dir,
-                                        var = var,
-                                        year = 2021,
+ca_county <- carbon_uncertainty_wrapper(ens_rast,
                                         crops = crops,
                                         agg_reg = agg_counties, 
                                         n_regions = n_counties)
 # run for towns:
-ca_towns <- carbon_uncertainty_wrapper(dir = dir,
-                                       var = var,
-                                       year = 2021,
+ca_towns <- carbon_uncertainty_wrapper(ens_rast,
                                        crops = crops,
                                        agg_reg = agg_towns,
                                        n_regions = n_towns)
 
 # run for regions:
-ca_reg <- carbon_uncertainty_wrapper(dir = dir,
-                                     var = var,
-                                     year = 2021,
+ca_reg <- carbon_uncertainty_wrapper(ens_rast,
                                      crops = crops,
-                                     agg_reg = agg_region,
+                                     agg_reg = agg_regions,
                                      n_regions = n_reg)
 
 # run for state:
-ca_state <- carbon_uncertainty_wrapper(dir = dir, 
-                                       var = var,
-                                       year = 2021, 
+ca_state <- carbon_uncertainty_wrapper(ens_rast, 
                                        crops = crops,
                                        agg_reg = agg_state,
                                        n_regions = 1)

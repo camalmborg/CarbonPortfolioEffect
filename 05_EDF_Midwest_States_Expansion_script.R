@@ -64,7 +64,7 @@ ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
 #run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/"
 #run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_GEDI_rf/"
-run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf"
+run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf/"
 
 # test functions on Midwest counties
 ## Preparing for running selected variable and year across aggregate regions:
@@ -99,31 +99,28 @@ mw_rast_crops <- terra::rast("rasters/midwest_crops_classed.tif")
 crops <- terra::vect("shapefiles/midwest_crops_vec.shp")
 
 ## Running to get plot and map vectors:
+ens_rast <- process_ensemble_members(dir = dir,
+                                     var = var,
+                                     year = 2021,
+                                     crops = crops)
+
 # run for towns:
-mw_towns <- carbon_uncertainty_wrapper(dir = dir,
-                                       var = var,
-                                       year = 2021,
+mw_towns <- carbon_uncertainty_wrapper(ens_rast,
                                        crops = crops,
                                        agg_reg = agg_twn,
                                        n_regions = n_towns)
 # run for counties:
-mw_county <- carbon_uncertainty_wrapper(dir = dir,
-                                        var = var,
-                                        year = 2021,
+mw_county <- carbon_uncertainty_wrapper(ens_rast,
                                         crops = crops,
                                         agg_reg = agg_counties, 
                                         n_regions = n_counties)
 # run for state:
-mw_state <- carbon_uncertainty_wrapper(dir = dir,
-                                       var = var,
-                                       year = 2021,
+mw_state <- carbon_uncertainty_wrapper(ens_rast,
                                        crops = crops,
                                        agg_reg = agg_states,
                                        n_regions = n_states)
 # run for region:
-mw_region <- carbon_uncertainty_wrapper(dir = dir,
-                                        var = var,
-                                        year = 2021,
+mw_region <- carbon_uncertainty_wrapper(ens_rast,
                                         crops = crops,
                                         agg_reg = agg_region,
                                         n_regions = n_reg)
