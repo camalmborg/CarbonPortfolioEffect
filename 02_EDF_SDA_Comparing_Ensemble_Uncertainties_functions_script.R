@@ -11,7 +11,7 @@ library(dplyr)
 ## 1. Function for processing each tif file
 # inputs:
 #'@param dir = Character vector: file where tiffs can be found
-#'@param var = variable of interest for each analysis; e.g. soc
+#'@param var = character: variable of interest for each analysis; e.g. soc
 #'@param year = numeric: data year of ensemble members
 #'@param crops = vector: shapefile for croplands to crop rasters
 process_ensemble_members <- function(dir, var, year, crops){
@@ -61,10 +61,10 @@ get_crop <- function(rast, crops){
 }
 
 ## 2b. Function for making is_crop object if croplands is a raster object:
-get_is_crop <- function(crops){
-  is_crop <- !is.na(crops)
-  return(is_crop)
-}
+# get_is_crop <- function(crops){
+#   is_crop <- !is.na(crops)
+#   return(is_crop)
+# }
 
 
 ## 3. Function for running analyses ##
@@ -140,14 +140,12 @@ ensemble_C_uncertainty <- function(ens_rast, n_regions, is_crop, Reg){
 
 ## Function wrapper for outputting vectors for maps and plots
 # inputs:
-#'@param dir = Character vector: file where tiffs can be found
-#'@param var = character: variable of interest for each analysis; e.g. soc
-#'@param year = numeric: data year of ensemble members
+#'@param ens_rast = raster list from process_ensemble_members 
 #'@param crops = vector: shapefile for croplands to crop rasters
 #'@param agg_reg = vector: shapefile for aggregate region; e.g. county map
 #'@param n_regions = numeric: number of aggregate units; e.g. number of counties
-carbon_uncertainty_wrapper <- function(dir, var, year, crops, agg_reg, n_regions){
-  ens_rast <- process_ensemble_members(dir, var, year, crops)
+carbon_uncertainty_wrapper <- function(ens_rast, crops, agg_reg, n_regions){
+  #ens_rast <- process_ensemble_members(dir, var, year, crops)
   is_crop <- get_crop(ens_rast[[1]], crops)
   #is_crop <- get_is_crop(crops)
   Reg <- naive_C_uncertainty(ens_rast, is_crop, agg_reg)
@@ -157,4 +155,4 @@ carbon_uncertainty_wrapper <- function(dir, var, year, crops, agg_reg, n_regions
   return(Reg)
 }
 
-# Last update: 7/25/2025
+# Last update: 8/28/2025
