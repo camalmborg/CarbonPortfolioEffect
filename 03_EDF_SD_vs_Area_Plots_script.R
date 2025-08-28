@@ -45,7 +45,9 @@ state <- prepare_plot_data(agg_vector = state,
                         crops = crops)
 
 # combine data for the plots:
-same_cols <- intersect(names(county), names(towns))
+#same_cols <- intersect(names(county), names(towns))
+same_cols <- c("mean","cropMean", "cropTot", "crop_Tot_CV", "crop_Tot_SD", "crop_ensVar_SD",
+               "area_m2", "type", "crops_area_m2")
 vec <- rbind(towns[same_cols], county[same_cols], reg[same_cols], state[same_cols])
 
 # set name for labeling plots:
