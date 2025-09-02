@@ -19,9 +19,9 @@ ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_CA_aggregate_regions_plot.png"),
        dpi = 600)
 
 # Save the maps to PNG files:
-ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_town_maps.png"), 
-       plot = town_maps,
-       dpi = 600)
+# ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_town_maps.png"), 
+#        plot = town_maps,
+#        dpi = 600)
 
 ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_county_maps.png"), 
        plot = county_maps,
@@ -31,6 +31,6 @@ ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_region_maps.png"),
        plot = region_maps,
        dpi = 600)
 
-ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_state_maps.png"), 
-       plot = state_maps,
-       dpi = 600)
+# ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_state_maps.png"), 
+#        plot = state_maps,
+#        dpi = 600)
