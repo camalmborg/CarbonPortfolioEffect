@@ -12,6 +12,9 @@ library(tigris)
 # source functions:
 source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Comparing_Ensemble_Uncertainties_functions_script.R")
 
+# load raster cell sizes:
+cell_size <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_8k_site/cell_size.tif")
+
 # set directory
 dir <- "/projectnb/dietzelab/malmborg/EDF/"
 setwd(dir)
@@ -83,7 +86,8 @@ crops <- terra::vect("shapefiles/midwest_crops_vec.shp")
 ens_rast <- process_ensemble_members(dir = dir,
                                      var = var,
                                      year = 2021,
-                                     crops = crops)
+                                     crops = crops,
+                                     cell_size = cell_size)
 
 # run for towns:
 towns <- carbon_uncertainty_wrapper(ens_rast,

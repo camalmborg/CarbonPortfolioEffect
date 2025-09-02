@@ -19,9 +19,9 @@ setwd(wd)
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
 run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf/"
-#run <- "SDA_25ens_GEDI_2025_5_23/downscale_maps_analysis_lc_ts/" # deprec.
-# # get directories that include tiff files:
-# dirs <- list.dirs(paste0(ens, run))[-grep("07-15", list.dirs(paste0(ens, run)))]
+
+# load raster cell sizes:
+cell_size <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_8k_site/cell_size.tif")
 
 # load information for region and aggregation scale:
 counties <- "/projectnb/dietzelab/dietze/CARB/CA_Counties.shp"
@@ -102,7 +102,8 @@ agg_state <- terra::project(agg_state, agg_counties)
 ens_rast <- process_ensemble_members(dir = dir,
                                      var = var,
                                      year = 2021,
-                                     crops = crops)
+                                     crops = crops,
+                                     cell_size = cell_size)
 
 # run for counties:
 county <- carbon_uncertainty_wrapper(ens_rast,
