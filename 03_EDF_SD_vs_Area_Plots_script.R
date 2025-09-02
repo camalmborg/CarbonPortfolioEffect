@@ -24,6 +24,10 @@ prepare_plot_data <- function(agg_vector, type, crops){
   overlap <- terra::intersect(vec, crop_vec)
   # calculate expanse of overlap in each regional unit:
   vec$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+  # calculate the delta between naive and ensemble calculations:
+  vec$delta <- vec$crop_ensVar_SD - vec$crop_Tot_SD
+  # calculate ratio between naive and ensemble calculations:
+  vec$ratio <- vec$crop_Tot_SD / vec$crop_ensVar_SD
   return(vec)
 }
 
@@ -47,7 +51,7 @@ state <- prepare_plot_data(agg_vector = state,
 # combine data for the plots:
 #same_cols <- intersect(names(county), names(towns))
 same_cols <- c("mean","cropMean", "cropTot", "crop_Tot_CV", "crop_Tot_SD", "crop_ensVar_SD",
-               "area_m2", "type", "crops_area_m2")
+               "area_m2", "type", "crops_area_m2", "delta", "ratio")
 vec <- rbind(towns[same_cols], county[same_cols], reg[same_cols], state[same_cols])
 
 # set name for labeling plots:
@@ -57,7 +61,7 @@ plot_var_name <- var_names[2]
 # coerce to data.frame for plot:
 plot_data <- as.data.frame(vec) %>%
   # select columns:
-  select(c(area_m2, crop_Tot_SD, crop_ensVar_SD, crops_area_m2, type)) %>%
+  select(c(area_m2, crop_Tot_SD, crop_ensVar_SD, crops_area_m2, delta, ratio, type)) %>%
   # pivot longer:
   pivot_longer(
     cols = c(crop_Tot_SD, crop_ensVar_SD),
@@ -68,7 +72,7 @@ plot_data <- as.data.frame(vec) %>%
 # color palette:
 plot_palette <- c("orchid4", "chocolate3")
 
-SD_vs_area <- ggplot(plot_data, aes(area_m2, value, color = variable, fill = variable, shape = type)) +
+SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value, color = variable, fill = variable, shape = type)) +
   geom_point(size = 2) +
   geom_smooth(method = "lm", se = TRUE, linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name)) +
@@ -86,7 +90,31 @@ SD_vs_area <- ggplot(plot_data, aes(area_m2, value, color = variable, fill = var
 # view:
 #SD_vs_area
 
+delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta, color = variable, fill = variable, shape = type)) +
+  geom_point(size = 2, color = "navy") +
+  geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+  ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
+  labs(x = "Area (square meters)",
+       y = "deltaSD") +
+  scale_x_log10() +
+  #scale_y_log10() +
+  theme_bw() +
+  theme(legend.position = "none")
 
+#delta_vs_area
+
+ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio, color = variable, fill = variable, shape = type)) +
+  geom_point(size = 2, color = "navy") +
+  geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+  ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
+  labs(x = "Area (square meters)",
+       y = "deltaSD") +
+  scale_x_log10() +
+  #scale_y_log10() +
+  theme_bw() +
+  theme(legend.position = "none")
+
+#ratio_vs_area
 
 # plot(cty$crops_area_m2, cty$crop_ensVar_SD, pch = 16, col = "blue",
 #      xlab = "total crop area per county (m^2)", ylab = "SD")
