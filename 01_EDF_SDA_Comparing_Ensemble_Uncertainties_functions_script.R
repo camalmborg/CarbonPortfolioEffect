@@ -32,14 +32,20 @@ process_ensemble_members <- function(dir, var, year, crops, cell_size){
   ens_rast <- list()
   for (i in 1:length(findtiff)){
     print(i)
+    # load each tif
     tiff <- paste0(findfile, "/", findtiff[i])
     rast <- terra::rast(tiff)
+    # project crop layer to match raster:
     vec <- terra::project(vec, rast)
+    # crop raster to croplands extent
     crop <- terra::crop(rast, vec)
-    ens_rast[[findtiff[i]]] <- crop
+    # multiply by cell size to get kg C (for SOC each raster is kgC/m^2)
+    cell_crop <- terra::crop(cell_size, vec)
+    # load cropped rasters into list, multiply by 1000000 to get Gigagrams (Gg) C 
+    ens_rast[[findtiff[i]]] <- (crop*cell_crop)/1000000  
   }
   #ens_rast[["full_map"]] <- terra::rast(paste0(findfile, "/", findtiff[grep("mean", findtiff)]))
-  ens_rast[["cell_size"]] <- terra::crop(cell_size, vec)
+  #ens_rast[["cell_size"]] <- terra::crop(cell_size, vec)
   return(ens_rast)
 }
 
@@ -81,8 +87,7 @@ naive_C_uncertainty <- function(ens_rast, is_crop, agg_reg){
   ens_mean <- ens_rast[[names(ens_rast)[grep("mean", names(ens_rast))]]]
   ens_std <- ens_rast[[names(ens_rast)[grep("std", names(ens_rast))]]]
   
-  # Calculate by county:
-  #RegORIG <- terra::vect(region)
+  # Calculate by aggregating region:
   RegORIG <- agg_reg  # vector shapefile SpatVector object
   Reg <- terra::project(RegORIG, ens_mean)
   RegVar <- terra::extract(ens_mean, Reg, fun = mean, na.rm = TRUE)
@@ -94,14 +99,14 @@ naive_C_uncertainty <- function(ens_rast, is_crop, agg_reg){
   Reg[["cropMean"]] <- RegCropMean$mean
   
   # totals for area that is just cropland:
-  RegCropTotMean <- terra::extract(cropMean*100/1000000, Reg, fun = sum, na.rm = TRUE) #Mg/ha -> Tg
+  RegCropTotMean <- terra::extract(cropMean, Reg, fun = sum, na.rm = TRUE) 
   Reg[["cropTot"]] <- RegCropTotMean$mean
 
   # naive uncertainty:
   cropVar <- is_crop*ens_std^2
   RegCropTotVar = terra::extract(cropVar, Reg, fun = sum, na.rm = TRUE)
-  Reg[["crop_Tot_CV"]] <- sqrt(RegCropTotVar[2])*100/1000000/RegCropTotMean$mean*100
-  Reg[["crop_Tot_SD"]] <- sqrt(RegCropTotVar[2])*100/1000
+  Reg[["crop_Tot_CV"]] <- sqrt(RegCropTotVar[2])/RegCropTotMean$mean
+  Reg[["crop_Tot_SD"]] <- sqrt(RegCropTotVar[2])
   
   # return data for making maps:
   return(Reg)
