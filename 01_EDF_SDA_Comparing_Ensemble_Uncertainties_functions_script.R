@@ -14,13 +14,16 @@ library(dplyr)
 #'@param var = character: variable of interest for each analysis; e.g. soc
 #'@param year = numeric: data year of ensemble members
 #'@param crops = vector: shapefile for croplands to crop rasters
-process_ensemble_members <- function(dir, var, year, crops){
+process_ensemble_members <- function(dir, var, year, crops, cell_size){
   # choose file by year:
   findfile <- paste0(dir, var, as.character(year))
   findtiff <- list.files(findfile)[grep(".tiff", list.files(findfile))]
   
   # load vector for region:
   vec <- crops
+  
+  # load raster for cell size:
+  cell_size <- cell_size
   
   # print progress message:
   print("processing ensemble member rasters")
@@ -36,6 +39,7 @@ process_ensemble_members <- function(dir, var, year, crops){
     ens_rast[[findtiff[i]]] <- crop
   }
   #ens_rast[["full_map"]] <- terra::rast(paste0(findfile, "/", findtiff[grep("mean", findtiff)]))
+  ens_rast[["cell_size"]] <- terra::crop(cell_size, vec)
   return(ens_rast)
 }
 
