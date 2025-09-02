@@ -18,6 +18,14 @@ ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_CA_aggregate_regions_plot.png"),
        plot = SD_vs_area,
        dpi = 600)
 
+ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_CA_aggregate_regions_DELTA_plot.png"),
+       plot = delta_vs_area,
+       dpi = 600)
+
+ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_CA_aggregate_regions_RATIO_plot.png"),
+       plot = ratio_vs_area,
+       dpi = 600)
+
 # Save the maps to PNG files:
 # ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_town_maps.png"), 
 #        plot = town_maps,
