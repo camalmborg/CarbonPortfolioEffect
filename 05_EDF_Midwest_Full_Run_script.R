@@ -1,6 +1,6 @@
 ### MIDWEST RUN ###
 
-# run the California processing script:
+# run the Midwest processing script:
 source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/02_EDF_Midwest_States_Processing_script.R")
 
 # run the plotting script:
