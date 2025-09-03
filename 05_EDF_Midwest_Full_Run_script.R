@@ -24,7 +24,7 @@ ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_MW_aggregate_regions_DELTA_plot.
        width = 10, height = 6,
        dpi = 600)
 
-ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_MW_aggregate_regions_RATIO_plot.png"),
+ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_MW_aggregate_regions_RATIO_REV_plot.png"),
        plot = ratio_vs_area,
        width = 10, height = 6,
        dpi = 600)

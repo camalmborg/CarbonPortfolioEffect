@@ -95,7 +95,7 @@ make_region_maps <- function(var, vec){
 }
 
 # Make the maps:
-town_maps <- make_region_maps(2, towns)
+#town_maps <- make_region_maps(2, towns)
 county_maps <- make_region_maps(2, county)
 region_maps <- make_region_maps(2, reg)
 state_maps <- make_region_maps(2, state)

@@ -28,6 +28,8 @@ prepare_plot_data <- function(agg_vector, type, crops){
   vec$delta <- vec$crop_ensVar_SD - vec$crop_Tot_SD
   # calculate ratio between naive and ensemble calculations:
   vec$ratio <- vec$crop_Tot_SD / vec$crop_ensVar_SD
+  # other direction ratio:
+  vec$ratio_rev <- vec$crop_ensVar_SD / vec$crop_Tot_SD
   return(vec)
 }
 
@@ -51,7 +53,7 @@ state <- prepare_plot_data(agg_vector = state,
 # combine data for the plots:
 #same_cols <- intersect(names(county), names(towns))
 same_cols <- c("mean","cropMean", "cropTot", "crop_Tot_CV", "crop_Tot_SD", "crop_ensVar_SD",
-               "area_m2", "type", "crops_area_m2", "delta", "ratio")
+               "area_m2", "type", "crops_area_m2", "delta", "ratio", "ratio_rev")
 vec <- rbind(towns[same_cols], county[same_cols], reg[same_cols], state[same_cols])
 
 # set name for labeling plots:
@@ -61,7 +63,7 @@ plot_var_name <- var_names[2]
 # coerce to data.frame for plot:
 plot_data <- as.data.frame(vec) %>%
   # select columns:
-  select(c(area_m2, crop_Tot_SD, crop_ensVar_SD, crops_area_m2, delta, ratio, type)) %>%
+  select(c(area_m2, crop_Tot_SD, crop_ensVar_SD, crops_area_m2, delta, ratio, ratio_rev, type)) %>%
   # pivot longer:
   pivot_longer(
     cols = c(crop_Tot_SD, crop_ensVar_SD),
@@ -92,7 +94,7 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value, color = variable, fi
 #SD_vs_area
 
 delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta, color = variable, fill = variable, shape = type)) +
-  geom_point(size = 2, color = "navy") +
+  geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
@@ -104,8 +106,8 @@ delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta, color = variable,
 
 #delta_vs_area
 
-ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio, color = variable, fill = variable, shape = type)) +
-  geom_point(size = 2, color = "navy") +
+ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev, color = variable, fill = variable, shape = type)) +
+  geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
