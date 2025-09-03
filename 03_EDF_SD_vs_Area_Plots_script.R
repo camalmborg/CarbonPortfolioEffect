@@ -73,7 +73,7 @@ plot_data <- as.data.frame(vec) %>%
 plot_palette <- c("orchid4", "chocolate3")
 
 SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value, color = variable, fill = variable, shape = type)) +
-  geom_point(size = 2) +
+  geom_point(size = 1) +
   geom_smooth(method = "lm", se = TRUE, linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name)) +
   labs(x = "Area (square meters)",
