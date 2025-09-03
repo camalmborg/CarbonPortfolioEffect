@@ -7,7 +7,7 @@ library(ggplot2)
 
 # variable names for plots:
 var_names <- c("AGB", "SOC", "LAI", "SMF")
-types <- c("town", "county", "region", "state")
+types <- c("Town", "County", "Region", "State")
 
 # function for preparing plot data:
 #'@param agg_vector = aggregate area vector product with SD calculations
@@ -67,13 +67,14 @@ plot_data <- as.data.frame(vec) %>%
     cols = c(crop_Tot_SD, crop_ensVar_SD),
     names_to = "variable",
     values_to = "value"
-  )
+  ) %>%
+  arrange(factor(type, levels = c("Town", "County", "Region", "State")))
 
 # color palette:
 plot_palette <- c("orchid4", "chocolate3")
 
 SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value, color = variable, fill = variable, shape = type)) +
-  geom_point(size = 1) +
+  geom_point(size = 1.25) +
   geom_smooth(method = "lm", se = TRUE, linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name)) +
   labs(x = "Area (square meters)",
@@ -95,9 +96,9 @@ delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta, color = variable,
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
-       y = "deltaSD") +
+       y = "Ensemble SD - Naive SD") +
   scale_x_log10() +
-  #scale_y_log10() +
+  scale_y_log10() +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -108,7 +109,7 @@ ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio, color = variable,
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
-       y = "deltaSD") +
+       y = "Ratio of Total SD:Ensemble SD") +
   scale_x_log10() +
   #scale_y_log10() +
   theme_bw() +

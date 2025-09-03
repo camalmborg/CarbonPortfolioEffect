@@ -25,12 +25,11 @@ make_region_maps <- function(var, vec){
   
   # when I have to make plots
   map_palette = c('#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000')
-  min_value = min(vec$crop_ensVar_SD)
+  min_value = min(vec$crop_Tot_SD)
   max_value = max(vec$crop_ensVar_SD)
   breaks = c(0, 10^seq(log10(min_value), log10(max_value), length.out = length(map_palette)))
+  #breaks = c(0, seq(from = min_value, to = max_value, length.out = length(map_palette)))
   #breaks = c(0,10^seq(0,log10(1000),length=9))
-  # terra::plot(vec, "crop_Tot_SD", legend = "topright", breaks = breaks, col = palatte)
-  # terra::plot(vec, "crop_ensVar_SD", legend = "topright", breaks = breaks, col = palatte)
   
   ### Making map using terra, sf, and ggplot2:
   # convert terra SpatVector to sf object:
