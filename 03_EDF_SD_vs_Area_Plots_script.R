@@ -82,9 +82,9 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value, color = variable, fi
        color = "SD Calculation",
        fill = "SD Calculation") +
   scale_color_manual(values = plot_palette, 
-                     labels = c("Ensemble", "Naive")) +
+                     labels = c("Naive", "Ensemble")) +
   scale_fill_manual(values = plot_palette, 
-                    labels = c("Ensemble", "Naive")) +
+                    labels = c("Naive", "Ensemble")) +
   scale_x_log10() +
   scale_y_log10() +
   theme_bw()
