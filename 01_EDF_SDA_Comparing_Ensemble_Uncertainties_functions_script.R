@@ -41,7 +41,7 @@ process_ensemble_members <- function(dir, var, year, crops, cell_size){
     crop <- terra::crop(rast, vec)
     # multiply by cell size to get kg C (for SOC each raster is kgC/m^2)
     cell_crop <- terra::crop(cell_size, vec)
-    # load cropped rasters into list, multiply by 1000000 to get Gigagrams (Gg) C 
+    # load cropped rasters into list, divide by 1000000 to get Gigagrams (Gg) C 
     ens_rast[[findtiff[i]]] <- (crop*cell_crop)/1000000  
   }
   #ens_rast[["full_map"]] <- terra::rast(paste0(findfile, "/", findtiff[grep("mean", findtiff)]))
