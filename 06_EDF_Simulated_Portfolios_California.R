@@ -84,11 +84,16 @@ crop_type <- project(crop_type, ens_rast[[1]])
 # crop raster to crop area:
 crop_rast <- crop(ens_rast[[1]], crop_type)
 crop_mask <- mask(crop_rast, crop_type)
+# put it in a meters-based projection:
+crop_mask <- project(crop_mask, "EPSG:3857")
 # sample pixels in crop area:
 test <- spatSample(crop_mask,
-                   size = 100,
+                   size = 1000,
                    method = "random",
-                   as.raster = TRUE,
+                   as.points = TRUE,
+                   #values = TRUE,
                    na.rm = TRUE)
 
-
+#test_aggr <- aggregate(test)
+r_crop <- crop(crop_mask, test)
+r_mask <- mask(r_crop, test)
