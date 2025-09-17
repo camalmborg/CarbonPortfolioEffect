@@ -109,7 +109,7 @@ citrus_portfolio <- portfolio_sampler(crop_group = citrus,
                                       ens_rast = ens_rast,
                                       n_pixels = 1000)
 
-
+# make into 
 
 ### ARCHIVE ###
 # # convert back to polygons:

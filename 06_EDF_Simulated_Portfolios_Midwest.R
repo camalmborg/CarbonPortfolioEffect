@@ -19,6 +19,8 @@ source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Compari
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
 run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf/"
+# load raster cell sizes:
+cell_size <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_8k_site/cell_size.tif")
 # crop types layer:
 crop_types_layer <- "rasters/2021_30m_cdls/2021_30m_cdls.tif"
 
@@ -39,12 +41,45 @@ crop_types_crop <- crop(crop_types_rast, cornregion)
 # save it so I don't have to deal with the projection time again:
 #writeRaster(crop_types_crop, filename = "rasters/crop_types_rast_MW_crop.tif")
 
-# aggregate to 1km:
-crop_types_agg <- aggregate(crop_types_crop, fact = 1000/30, fun = "modal")
-# resample to get to 1km:
-one_k <- 1000 # 1000 x 1000 m 
-temp <- rast(round(ext(crop_types_agg), 0), resolution = one_k, crs = crs(crop_types_agg))
-crop_types_resamp <- resample(crop_types_agg, temp, method = "near")
+## Attempt to make into vector object:
+# first aggregate up to a workable factor:
+crop_types_crop_agg <- aggregate(crop_types_crop, fact = 5, fun = "modal")  # gathering 5 pixels together
+# make into polygons:
+crop_types_vec <- as.polygons(crop_types_crop_agg)
+
+## Process NA SDA product for MW:
+# C variables:
+agb <- "AbvGrndWood_"
+lai <- "LAI_"
+smf <- "SoilMoistFrac_"
+soc <- "TotSoilCarb_"
+
+# choose analysis run variables:
+var <- soc
+year <- 2021
+dir <- paste0(ens, run)
+ens_rast <- process_ensemble_members(dir = dir,
+                                     var = var,
+                                     year = 2021,
+                                     crops = crop_types_vec,
+                                     cell_size = cell_size)
+
+## Make polygons of particular crop classes
+# convert terra vector to sf for easier separation:
+crops_sf <- st_as_sf(crop_types_vec) 
+# separate some groups:
+# corn crops:
+corn <- crops_sf |>
+  # citrus crop type:
+  filter(Class_Names == "Corn")
+
+### ARCHIVE ###
+# # aggregate to 1km:
+# crop_types_agg <- aggregate(crop_types_crop, fact = 1000/30, fun = "modal")
+# # resample to get to 1km:
+# one_k <- 1000 # 1000 x 1000 m 
+# temp <- rast(round(ext(crop_types_agg), 0), resolution = one_k, crs = crs(crop_types_agg))
+# crop_types_resamp <- resample(crop_types_agg, temp, method = "near")
 # clean up (not super necessary):
-rm(crop_types_rast, crop_types_crop, crop_types_agg, temp)
+# rm(crop_types_rast, crop_types_crop, crop_types_agg, temp)
 
