@@ -31,10 +31,20 @@ rm(cornstates_sf)
 # aggregate and dissolve to get outline of states:
 cornregion <- aggregate(cornstates, dissolve = TRUE)
 
-
 ## Make vector crop types object from raster layer
 crop_types_rast <- terra::rast(crop_types_layer)
-# assign new crs:
+# crop to vector area:
+cornregion <- project(cornregion, crop_types_rast)
+crop_types_crop <- crop(crop_types_rast, cornregion)
+# save it so I don't have to deal with the projection time again:
+#writeRaster(crop_types_crop, filename = "rasters/crop_types_rast_MW_crop.tif")
 
 # aggregate to 1km:
-crop_types_agg <- aggregate(crop_type)
+crop_types_agg <- aggregate(crop_types_crop, fact = 1000/30, fun = "modal")
+# resample to get to 1km:
+one_k <- 1000 # 1000 x 1000 m 
+temp <- rast(round(ext(crop_types_agg), 0), resolution = one_k, crs = crs(crop_types_agg))
+crop_types_resamp <- resample(crop_types_agg, temp, method = "near")
+# clean up (not super necessary):
+rm(crop_types_rast, crop_types_crop, crop_types_agg, temp)
+
