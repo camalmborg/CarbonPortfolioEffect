@@ -78,8 +78,14 @@ crops_sf <- st_as_sf(crop_types_vec)
 # separate some groups:
 # corn crops:
 corn <- crops_sf |>
-  # citrus crop type:
   filter(Class_Names == "Corn")
+# soybeans:
+soybeans <- crop_sf |>
+  filter(Class_Names == "Soybeans")
+# Grass/Pasture:
+grasspas <- crop_sf |>
+  filter(Class_Names == "Grass/Pasture")
+  
 
 
 ### ARCHIVE ###
