@@ -73,3 +73,45 @@ portfolio_naive <- function(ens_rast, portfolio_sample){
   return(Reg)
 }
   
+## 3. Function for ensemble uncertainty calculations:
+#'@param ens_rast List: list of raster objects from processing function
+#'@param n_regions numeric: number of rows in portfolio_naive object
+#'@param Reg region variable from previous function
+portfolio_ens <- function(ens_rast, n_regions, Reg){
+  # separate ensemble members from mean and std rasters:
+  ensems <- ens_rast[names(ens_rast)[grep("ensemble", names(ens_rast))]]
+  
+  # loop for extracting ensemble member sums:
+  ne = length(ensems)
+  ens_mems <- as.data.frame(matrix(NA, nrow = n_regions, ncol = ne))
+  
+  # print progress message:
+  print("calculating ensemble member uncertainty")
+  
+  # Calculate sum for different ensembles, then calculate SD:
+  for (e in 1:ne) {
+    print(e)
+    # load ensemble member:
+    ens_var <- ens_rast[[e]]
+    # extract for region of aggregation:
+    ensTotCropVar <- terra::extract(ens_var, Reg, fun = sum, na.rm = TRUE)
+    # add to data frame + Tg conversion:
+    ens_mems[,e] <- ensTotCropVar[,2]
+  }
+  # calculate sd over dataframe
+  Reg[["crop_ensVar_SD"]] <- apply(ens_mems, 1, sd)  
+  return(Reg)
+}
+
+## Function wrapper for outputting vectors for maps and plots
+# inputs:
+#'@param ens_rast = raster list from process_ensemble_members 
+#'@param portfolio = vector: shapefile for croplands to crop rasters
+#'@param agg_reg = vector: shapefile for aggregate region; e.g. county map
+#'@param n_regions = numeric: number of aggregate units; e.g. number of counties
+portfolio_naive_ens_wrapper <- function(crop_group, ens_rast, n_pixels){
+  portfolio <- portfolio_sampler(crop_group, ens_rast, n_pixels)
+  Reg <- portfolio_naive(ens_rast, portfolio)
+  Reg <- portfolio_ens(ens_rast, n_regions = nrow(Reg), Reg)
+  return(Reg)
+}
