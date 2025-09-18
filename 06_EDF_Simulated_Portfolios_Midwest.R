@@ -42,10 +42,18 @@ crop_types_crop <- crop(crop_types_rast, cornregion)
 #writeRaster(crop_types_crop, filename = "rasters/crop_types_rast_MW_crop.tif")
 
 ## Attempt to make into vector object:
-# first aggregate up to a workable factor:
-crop_types_crop_agg <- aggregate(crop_types_crop, fact = 5, fun = "modal")  # gathering 5 pixels together
+# aggregate to 1km:
+crop_types_agg <- aggregate(crop_types_crop, fact = 1000/30, fun = "modal")
+# resample to get to 1km:
+one_k <- 1000 # 1000 x 1000 m
+temp <- rast(round(ext(crop_types_agg), 0), resolution = one_k, crs = crs(crop_types_agg))
+crop_types_resamp <- resample(crop_types_agg, temp, method = "near")
 # make into polygons:
-crop_types_vec <- as.polygons(crop_types_crop_agg)
+crop_types_vec <- as.polygons(crop_types_resamp)
+crop_types_vec <- disagg(crop_types_vec)
+# clean up (not super necessary):
+rm(crop_types_rast, crop_types_crop, crop_types_agg, temp, one_k)
+
 
 ## Process NA SDA product for MW:
 # C variables:
@@ -73,13 +81,10 @@ corn <- crops_sf |>
   # citrus crop type:
   filter(Class_Names == "Corn")
 
+
 ### ARCHIVE ###
-# # aggregate to 1km:
-# crop_types_agg <- aggregate(crop_types_crop, fact = 1000/30, fun = "modal")
-# # resample to get to 1km:
-# one_k <- 1000 # 1000 x 1000 m 
-# temp <- rast(round(ext(crop_types_agg), 0), resolution = one_k, crs = crs(crop_types_agg))
-# crop_types_resamp <- resample(crop_types_agg, temp, method = "near")
-# clean up (not super necessary):
-# rm(crop_types_rast, crop_types_crop, crop_types_agg, temp)
+# # first aggregate up to a workable factor:
+# crop_types_crop_agg <- aggregate(crop_types_crop, fact = 5, fun = "modal")  # gathering 5 pixels together
+# # make into polygons:
+# crop_types_vec <- as.polygons(crop_types_crop_agg)
 
