@@ -116,6 +116,10 @@ portfolio_naive_ens_wrapper <- function(crop_group, ens_rast, n_pixels){
 
 ## Function to run multiple times in a row
 # inputs:
+#'@param crop_group = subset vector of specific crop type
+#'@param ens_rast = raster list from process_ensemble_members 
+#'@param n_pixels = number of pixels for sample portfolio
+#'@param n_reps = number of times to do the sample
 portfolio_run <- function(crop_group, ens_rast, n_pixels, n_reps){
   portfolio <- list()
   for (i in 1:n_reps){
@@ -126,4 +130,21 @@ portfolio_run <- function(crop_group, ens_rast, n_pixels, n_reps){
   }
   portfolio_bind <- do.call(rbind, portfolio)
   return(portfolio_bind)
+}
+
+## Function to get full portfolio runs for single crop group:
+#'@param crop_group = subset vector of specific crop type
+#'@param ens_rast = raster list from process_ensemble_members 
+#'@param n_pixels_vec = numeric vector of pixel numbers for different portfolios
+#'@param n_reps = number of times to sample each crop_group
+all_portfolios_runs <- function(crop_group, ens_rast, n_pixels_vec, n_reps){
+  full_portfolio_list <- list()
+  for(i in 1:length(n_pixels_vec)){
+    p_name <- paste0(as.character(n_pixels[i]), "_pixel_portfolio")
+    full_portfolio_list[[p_name]] <- portfolio_run(crop_group = crop_group,
+                                                     ens_rast = ens_rast,
+                                                     n_pixels = n_pixels_vec[i],
+                                                     n_reps = n_reps)
+  }
+  return(full_portfolio_list)
 }
