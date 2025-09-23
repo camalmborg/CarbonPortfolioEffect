@@ -124,4 +124,5 @@ portfolio_run <- function(crop_group, ens_rast, n_pixels, n_reps){
     # add portfolio to list:
     portfolio[[i]] <- portfolio_naive_ens_wrapper(crop_group, ens_rast, n_pixels)
   }
+  return(portfolio)
 }
