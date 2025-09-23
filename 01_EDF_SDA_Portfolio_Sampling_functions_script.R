@@ -29,10 +29,8 @@ portfolio_sampler <- function(crop_group, ens_rast, n_pixels){
                                  as.points = TRUE,
                                  #values = TRUE,
                                  na.rm = TRUE)
-  # crop the original raster to the portfolio sample:
-  portfolio_crop <- crop(crop_mask, portfolio_sample)
   # mask to portfolio:
-  portfolio_mask <- mask(portfolio_crop, portfolio_sample)
+  portfolio_mask <- mask(crop_mask, portfolio_sample)
   # make a vector:
   portfolio_poly <- as.polygons(portfolio_mask)
   # turn into individual polygons
@@ -86,11 +84,11 @@ portfolio_ens <- function(ens_rast, n_regions, Reg){
   ens_mems <- as.data.frame(matrix(NA, nrow = n_regions, ncol = ne))
   
   # print progress message:
-  print("calculating ensemble member uncertainty")
+  #print("calculating ensemble member uncertainty")
   
   # Calculate sum for different ensembles, then calculate SD:
   for (e in 1:ne) {
-    print(e)
+    #print(e)
     # load ensemble member:
     ens_var <- ens_rast[[e]]
     # extract for region of aggregation:
@@ -114,4 +112,16 @@ portfolio_naive_ens_wrapper <- function(crop_group, ens_rast, n_pixels){
   Reg <- portfolio_naive(ens_rast, portfolio)
   Reg <- portfolio_ens(ens_rast, n_regions = nrow(Reg), Reg)
   return(Reg)
+}
+
+## Function to run multiple times in a row
+# inputs:
+portfolio_run <- function(crop_group, ens_rast, n_pixels, n_reps){
+  portfolio <- list()
+  for (i in 1:n_reps){
+    # progress:
+    print(i)
+    # add portfolio to list:
+    portfolio[[i]] <- portfolio_naive_ens_wrapper(crop_group, ens_rast, n_pixels)
+  }
 }
