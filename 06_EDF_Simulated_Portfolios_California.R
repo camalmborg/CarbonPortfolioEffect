@@ -12,6 +12,7 @@ setwd(wd)
 
 # source processing functions:
 source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Comparing_Ensemble_Uncertainties_functions_script.R")
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Portfolio_Sampling_functions_script.R")
 
 ## Load Data:
 # navigate to Dongchen's North America runs:
@@ -70,12 +71,17 @@ vineyd <- crops_sf |>
   filter(PCNT2 == "00")
 
 
-# test with citrus:
-citrus_portfolio <- portfolio_sampler(crop_group = citrus,
-                                      ens_rast = ens_rast,
-                                      n_pixels = 1000)
+## Get all the California portfolios:
+n_pixels = c(1, 10, 100, 1000, 10000, 100000)
 
-# make into 
+citrus_portfolio_1px <- portfolio_run(crop_group = citrus,
+                                      ens_rast = ens_rast,
+                                      n_pixels = 1,
+                                      n_reps = 100)
+
+
+citrus_full_portfolio <- list()
+
 
 ### ARCHIVE ###
 # # convert back to polygons:
