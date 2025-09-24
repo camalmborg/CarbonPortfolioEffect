@@ -72,15 +72,15 @@ vineyd <- crops_sf |>
 
 
 ## Get all the California portfolios:
-n_pixels = c(1, 10, 100, 1000, 10000, 100000)
+#n_pixels = c(1, 10, 100, 1000, 10000)
+n_pixels = c(1, 10, 100)
 
-citrus_portfolio_1px <- portfolio_run(crop_group = citrus,
-                                      ens_rast = ens_rast,
-                                      n_pixels = 1,
-                                      n_reps = 100)
+# run the portfolios:
+citrus_portfolios <- all_portfolios_runs(crop_group = citrus,
+                                         ens_rast = ens_rast,
+                                         n_pixels_vec = n_pixels,
+                                         n_reps = 5)
 
-
-citrus_full_portfolio <- list()
 
 
 ### ARCHIVE ###
@@ -104,3 +104,28 @@ citrus_full_portfolio <- list()
 # #test_aggr <- aggregate(test)
 # r_crop <- crop(crop_mask, test)
 # r_mask <- mask(r_crop, test)
+
+
+# test <- bind_rows(citrus_portfolio_1px, .id = "portfolio_num")
+# test <- do.call(rbind, citrus_portfolio_1px)
+
+# citrus_portfolio_1px <- portfolio_run(crop_group = citrus,
+#                                       ens_rast = ens_rast,
+#                                       n_pixels = 1,
+#                                       n_reps = 100)
+
+# citrus_full_portfolio <- list()
+# for(i in 1:length(n_pixels)){
+#   p_name <- paste0(as.character(n_pixels[i]), "_pixel_portfolio")
+#   citrus_full_portfolio[[p_name]] <- portfolio_run(crop_group = citrus,
+#                                                    ens_rast = ens_rast,
+#                                                    n_pixels = n_pixels[i],
+#                                                    n_reps = 100)
+# }
+
+# 
+# decid_full_portfolio <- all_portfolio_runs(crop_group = decid,
+#                                            ens_rast = ens_rast,
+#                                            n_pixels_vec = n_pixels,
+#                                            n_reps = 100)
+

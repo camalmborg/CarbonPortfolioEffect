@@ -19,22 +19,41 @@ portfolio_sampler <- function(crop_group, ens_rast, n_pixels){
   crop_rast <- crop(ens_rast[[1]], crop_type)
   # mask to crop_type area:
   crop_mask <- mask(crop_rast, crop_type)
-  # put into meters-based projection:
-  crop_mask <- project(crop_mask, "EPSG:3857")
+  # put into meters-based, equal-area projection:
+  #crop_mask <- project(crop_mask, "EPSG:3857")
+  crop_mask <- project(crop_mask, "EPSG:9822")
   
-  # sample the raster of crop type:
-  portfolio_sample <- spatSample(crop_mask,
-                                 size = n_pixels,
-                                 method = "random",
-                                 as.points = TRUE,
-                                 #values = TRUE,
-                                 na.rm = TRUE)
-  # mask to portfolio:
-  portfolio_mask <- mask(crop_mask, portfolio_sample)
-  # make a vector:
-  portfolio_poly <- as.polygons(portfolio_mask)
-  # turn into individual polygons
+  # make km resolution
+  # template raster with desired resolution:
+  template <- rast(ext(crop_mask), resolution = 1000, crs = crs(crop_mask))
+  # resample:
+  resample <- resample(crop_mask, template, method = "bilinear")
+  
+  # sample raster of crop type
+  # get cells with values:
+  cells <- which(!is.na(values(resample)))
+  # take random sample:
+  sample <- sample(cells, n_pixels, replace = FALSE)
+  # get xy coords:
+  xy <- xyFromCell(resample, sample)
+  # sample points:
+  sample_points <- vect(xy, type = "points", crs = crs(resample))
+  # get raster values for sample cells
+  values <- values(resample)[sample]
+  
+  # make an empty raster to fill with sampled values:
+  new_rast <- resample
+  values(new_rast) <- NA
+  new_rast[sample] <- values
+  
+  # make into polygon:
+  portfolio_poly <- as.polygons(new_rast, dissolve = FALSE)
+  # disaggregate to separate:
   portfolio_poly <- disagg(portfolio_poly)
+  # add expanse of region column:
+  portfolio_poly[["area_m2"]] <- expanse(portfolio_poly, unit = "m")
+  # add name to portfolio:
+  portfolio_poly[["group"]] <- paste0(as.character(n_pixels), "_pixel_group")
   # project to ens_rast:
   portfolio_poly <- project(portfolio_poly, ens_rast[[1]])
   # return the portfolio:
@@ -97,7 +116,7 @@ portfolio_ens <- function(ens_rast, n_regions, Reg){
     ens_mems[,e] <- ensTotCropVar[,2]
   }
   # calculate sd over dataframe
-  Reg[["crop_ensVar_SD"]] <- apply(ens_mems, 1, sd)  
+  Reg[["crop_ensVar_SD"]] <- apply(ens_mems, 1, sd)
   return(Reg)
 }
 
@@ -124,12 +143,12 @@ portfolio_run <- function(crop_group, ens_rast, n_pixels, n_reps){
   portfolio <- list()
   for (i in 1:n_reps){
     # progress:
-    print(i)
+    #print(i)
     # add portfolio to list:
     portfolio[[i]] <- portfolio_naive_ens_wrapper(crop_group, ens_rast, n_pixels)
   }
-  portfolio_bind <- do.call(rbind, portfolio)
-  return(portfolio_bind)
+  #portfolio_bind <- do.call(rbind, portfolio)
+  return(portfolio)
 }
 
 ## Function to get full portfolio runs for single crop group:
@@ -140,11 +159,28 @@ portfolio_run <- function(crop_group, ens_rast, n_pixels, n_reps){
 all_portfolios_runs <- function(crop_group, ens_rast, n_pixels_vec, n_reps){
   full_portfolio_list <- list()
   for(i in 1:length(n_pixels_vec)){
-    p_name <- paste0(as.character(n_pixels[i]), "_pixel_portfolio")
+    # list member name:
+    p_name <- paste0(as.character(n_pixels_vec[i]), "_pixel_portfolio")
+    # progress:
+    print(p_name)
+    # fill list:
     full_portfolio_list[[p_name]] <- portfolio_run(crop_group = crop_group,
                                                      ens_rast = ens_rast,
                                                      n_pixels = n_pixels_vec[i],
                                                      n_reps = n_reps)
+    # add a portfolio column:
+    # full_portfolio_list[[p_name]]$portfolio_group <- p_name
   }
   return(full_portfolio_list)
 }
+
+### ARCHIVE ###
+
+## Note: spatSample method = "random" may place points in the same pixel, had to troubleshoot
+# # sample the raster of crop type:
+# portfolio_sample <- spatSample(crop_mask,
+#                                size = n_pixels,
+#                                method = "random",
+#                                as.points = TRUE,
+#                                #values = TRUE,
+#                                na.rm = TRUE)
