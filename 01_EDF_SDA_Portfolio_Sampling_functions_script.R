@@ -11,7 +11,7 @@ library(dplyr)
 #'@param ens_rast = ens_rast object from SDA spatial aggregates code runs
 #'@param n_pixels = number of pixels for sample portfolio
 portfolio_sampler <- function(crop_group, ens_rast, n_pixels){
-  # convert crops back to polygon:
+  # convert crops back to terra polygon:
   crop_type <- vect(crop_group)
   # project to raster crs:
   crop_type <- project(crop_type, ens_rast[[1]])
@@ -34,13 +34,8 @@ portfolio_sampler <- function(crop_group, ens_rast, n_pixels){
   cells <- which(!is.na(values(resample)))
   # take random sample:
   sample <- sample(cells, n_pixels, replace = FALSE)
-  # get xy coords:
-  xy <- xyFromCell(resample, sample)
-  # sample points:
-  sample_points <- vect(xy, type = "points", crs = crs(resample))
   # get raster values for sample cells
   values <- values(resample)[sample]
-  
   # make an empty raster to fill with sampled values:
   new_rast <- resample
   values(new_rast) <- NA
@@ -54,6 +49,8 @@ portfolio_sampler <- function(crop_group, ens_rast, n_pixels){
   portfolio_poly[["area_m2"]] <- expanse(portfolio_poly, unit = "m")
   # add name to portfolio:
   portfolio_poly[["group"]] <- paste0(as.character(n_pixels), "_pixel_group")
+  # aggregate into one portfolio:
+  portfolio_poly <- aggregate(portfolio_poly, by = "group")
   # project to ens_rast:
   portfolio_poly <- project(portfolio_poly, ens_rast[[1]])
   # return the portfolio:
@@ -94,7 +91,7 @@ portfolio_naive <- function(ens_rast, portfolio_sample){
 #'@param ens_rast List: list of raster objects from processing function
 #'@param n_regions numeric: number of rows in portfolio_naive object
 #'@param Reg region variable from previous function
-portfolio_ens <- function(ens_rast, n_regions, Reg){
+portfolio_ens <- function(ens_rast, n_pixels, Reg){
   # separate ensemble members from mean and std rasters:
   ensems <- ens_rast[names(ens_rast)[grep("ensemble", names(ens_rast))]]
   
