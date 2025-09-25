@@ -73,13 +73,13 @@ vineyd <- crops_sf |>
 
 ## Get all the California portfolios:
 #n_pixels = c(1, 10, 100, 1000, 10000)
-n_pixels = c(1, 10, 100)
+n_pixels = c(1, 10, 100, 1000, 10000)
 
 # run the portfolios:
 citrus_portfolios <- all_portfolios_runs(crop_group = citrus,
                                          ens_rast = ens_rast,
                                          n_pixels_vec = n_pixels,
-                                         n_reps = 5)
+                                         n_reps = 100)
 
 
 
