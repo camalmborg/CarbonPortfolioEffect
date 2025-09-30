@@ -143,7 +143,7 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
   ratio_vs_area <- ggplot(plot_data, aes(x = agg_n, y = ratio_rev, color = variable, fill = variable)) +
     geom_point(size = 1.25, color = "navy") +
     geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-    ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
+    ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
     labs(x = "Number of 1km pixels",
          y = "Ratio of Total SD:Ensemble SD") +
     scale_x_log10() +
