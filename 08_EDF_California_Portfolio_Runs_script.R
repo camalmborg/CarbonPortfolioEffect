@@ -32,6 +32,8 @@ crop_portfolios <- all_portfolios_runs(crop_group = crop_portfolio,
                                          ens_rast = ens_rast,
                                          n_pixels_vec = n_pixels,
                                          n_reps = 2)
+# pixel group names:
+pixel_groups <- names(crop_portfolios)
 
 ## Make plots:
 SD_vs_area <- SD_vs_area_plot(portfolio_list = crop_portfolios,
@@ -66,8 +68,6 @@ ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_CA_portfolio_", portfo
 
 ### ARCHIVE ###
 
-# # pixel group names:
-# pixel_groups <- names(crop_portfolios)
 # # compile portfolio data for plots:
 # portfolio_df <- compile_portfolio_df(portfolio_list = crop_portfolios,
 #                                      pixel_groups = pixel_groups)
