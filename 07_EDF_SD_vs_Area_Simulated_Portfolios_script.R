@@ -108,7 +108,7 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
     arrange(factor(group))
   
   ## Plot
-  delta_vs_area <- ggplot(plot_data, aes(x = mean_area_m2, y = delta, color = variable, fill = variable)) +
+  delta_vs_area <- ggplot(plot_data, aes(x = agg_n, y = delta, color = variable, fill = variable)) +
     geom_point(size = 1.25, color = "navy") +
     geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
     ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
@@ -118,32 +118,42 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
     scale_y_log10() +
     theme_bw() +
     theme(legend.position = "none")
+  
+  return(delta_vs_area)
 }
 
 
-delta_vs_area <- ggplot(plot_data, aes(x = mean_area_m2, y = delta, color = variable, fill = variable)) +
-  geom_point(size = 1.25, color = "navy") +
-  geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-  ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
-  labs(x = "Number of 1km Pixels",
-       y = "Ensemble SD - Naive SD") +
-  scale_x_log10() +
-  scale_y_log10() +
-  theme_bw() +
-  theme(legend.position = "none")
+ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
+  # compile data:
+  vec <- compile_portfolio_df(portfolio_list,
+                              pixel_groups)
+  # coerce to data.frame for plot:
+  plot_data <- as.data.frame(vec) %>%
+    # select columns:
+    select(c(group, agg_n, mean_area_m2, crop_Tot_SD, crop_ensVar_SD, delta, ratio, ratio_rev)) %>%
+    # pivot longer:
+    pivot_longer(
+      cols = c(crop_Tot_SD, crop_ensVar_SD),
+      names_to = "variable",
+      values_to = "value"
+    ) %>%
+    arrange(factor(group))
+  
+  ## Plot
+  ratio_vs_area <- ggplot(plot_data, aes(x = agg_n, y = ratio_rev, color = variable, fill = variable)) +
+    geom_point(size = 1.25, color = "navy") +
+    geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+    ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
+    labs(x = "Number of 1km pixels",
+         y = "Ratio of Total SD:Ensemble SD") +
+    scale_x_log10() +
+    #scale_y_log10() +
+    theme_bw() +
+    theme(legend.position = "none")
+  
+  return(ratio_vs_area)
+}
 
-#delta_vs_area
-
-ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev, color = variable, fill = variable, shape = type)) +
-  geom_point(size = 1.25, color = "navy") +
-  geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-  ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
-  labs(x = "Area (square meters)",
-       y = "Ratio of Total SD:Ensemble SD") +
-  scale_x_log10() +
-  #scale_y_log10() +
-  theme_bw() +
-  theme(legend.position = "none")
 
 #ratio_vs_area
 

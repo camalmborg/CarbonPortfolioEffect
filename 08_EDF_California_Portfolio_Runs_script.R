@@ -27,17 +27,51 @@ if(portfolio_name == "citrus"){
   n_pixels = n_pixels
 }
 
-## Run portfolio
+## Run portfolios
 crop_portfolios <- all_portfolios_runs(crop_group = crop_portfolio,
                                          ens_rast = ens_rast,
                                          n_pixels_vec = n_pixels,
                                          n_reps = 2)
 
-## Run plot
-# pixel group names:
-pixel_groups <- names(crop_portfolios)
-# compile portfolio data for plots:
-portfolio_df <- compile_portfolio_df(portfolio_list = crop_portfolios,
-                                     pixel_groups = pixel_groups)
+## Make plots:
+SD_vs_area <- SD_vs_area_plot(portfolio_list = crop_portfolios,
+                              pixel_groups = pixel_groups)
+
+delta_vs_area <- delta_vs_area_plot(portfolio_list = crop_portfolios,
+                                    pixel_groups = pixel_groups)
+
+ratio_vs_area <- ratio_vs_area_plot(portfolio_list = crop_portfolios,
+                                    pixel_groups = pixel_groups)
+
+## Save the plots
+# save the plots and maps:
+save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
+# Save the plot to a PNG file:
+ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_CA_portfolio_", portfolio_name,"SD_vs_pixels_plot.png"),
+       plot = SD_vs_area,
+       width = 10, height = 6,
+       dpi = 600)
+
+ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_CA_portfolio_", portfolio_name,"delta_vs_pixels_plot.png"),
+       plot = SD_vs_area,
+       width = 10, height = 6,
+       dpi = 600)
+
+ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_CA_portfolio_", portfolio_name,"ratio_vs_pixels_plot.png"),
+       plot = SD_vs_area,
+       width = 10, height = 6,
+       dpi = 600)
+
+
+
+### ARCHIVE ###
+
+# # pixel group names:
+# pixel_groups <- names(crop_portfolios)
+# # compile portfolio data for plots:
+# portfolio_df <- compile_portfolio_df(portfolio_list = crop_portfolios,
+#                                      pixel_groups = pixel_groups)
+
+
 
 
