@@ -31,7 +31,7 @@ if(portfolio_name == "citrus"){
 crop_portfolios <- all_portfolios_runs(crop_group = crop_portfolio,
                                          ens_rast = ens_rast,
                                          n_pixels_vec = n_pixels,
-                                         n_reps = 2)
+                                         n_reps = 100)
 # pixel group names:
 pixel_groups <- names(crop_portfolios)
 
