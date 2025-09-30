@@ -70,18 +70,32 @@ vineyd <- crops_sf |>
   filter(CLASS2 == "V")|>
   filter(PCNT2 == "00")
 
-
-## Get all the California portfolios:
-#n_pixels = c(1, 10, 100, 1000, 10000)
-n_pixels = c(1, 10, 100)
-
-# run the portfolios:
-citrus_portfolios <- all_portfolios_runs(crop_group = citrus,
-                                         ens_rast = ens_rast,
-                                         n_pixels_vec = n_pixels,
-                                         n_reps = 5)
+crop_group_list <- list(citrus = citrus, 
+                        decid = decid, 
+                        pasture = pasture, 
+                        truck_field_grain = truck_field_grain,
+                        vineyd = vineyd)
 
 
+# ## Get all the California portfolios:
+# n_pixels_citrus = c(1, 10, 100, 1000)
+# n_pixels = c(1, 10, 100, 1000, 10000)
+
+# # run the portfolios:
+# citrus_portfolios <- all_portfolios_runs(crop_group = citrus,
+#                                          ens_rast = ens_rast,
+#                                          n_pixels_vec = n_pixels_citrus,
+#                                          n_reps = 100)
+# 
+# decid_portfolios <- all_portfolios_runs(crop_group = decid,
+#                                         ens_rast = ens_rast,
+#                                         n_pixels_vec = n_pixels,
+#                                         n_reps = 100)
+# 
+# pasture_portfolios <- all_portfolios_runs(crop_group = pasture,
+#                                           ens_rast = ens_rast,
+#                                           n_pixels_vec = n_pixels,
+#                                           n_reps = 100)
 
 ### ARCHIVE ###
 # # convert back to polygons:

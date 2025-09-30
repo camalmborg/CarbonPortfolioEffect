@@ -89,7 +89,7 @@ portfolio_naive <- function(ens_rast, portfolio_sample){
   
 ## 3. Function for ensemble uncertainty calculations:
 #'@param ens_rast List: list of raster objects from processing function
-#'@param n_regions numeric: number of rows in portfolio_naive object
+#'@param n_pixels numeric: number of rows in portfolio_naive object
 #'@param Reg region variable from previous function
 portfolio_ens <- function(ens_rast, n_pixels, Reg){
   # separate ensemble members from mean and std rasters:
@@ -122,11 +122,11 @@ portfolio_ens <- function(ens_rast, n_pixels, Reg){
 #'@param ens_rast = raster list from process_ensemble_members 
 #'@param portfolio = vector: shapefile for croplands to crop rasters
 #'@param agg_reg = vector: shapefile for aggregate region; e.g. county map
-#'@param n_regions = numeric: number of aggregate units; e.g. number of counties
+#'@param n_pixels = numeric: number of aggregate units; e.g. number of counties
 portfolio_naive_ens_wrapper <- function(crop_group, ens_rast, n_pixels){
   portfolio <- portfolio_sampler(crop_group, ens_rast, n_pixels)
   Reg <- portfolio_naive(ens_rast, portfolio)
-  Reg <- portfolio_ens(ens_rast, n_regions = nrow(Reg), Reg)
+  Reg <- portfolio_ens(ens_rast, n_pixels = nrow(Reg), Reg)
   return(Reg)
 }
 
