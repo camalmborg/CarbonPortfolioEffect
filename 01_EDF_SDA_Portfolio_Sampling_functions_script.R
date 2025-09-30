@@ -97,7 +97,7 @@ portfolio_ens <- function(ens_rast, n_pixels, Reg){
   
   # loop for extracting ensemble member sums:
   ne = length(ensems)
-  ens_mems <- as.data.frame(matrix(NA, nrow = n_regions, ncol = ne))
+  ens_mems <- as.data.frame(matrix(NA, nrow = n_pixels, ncol = ne))
   
   # print progress message:
   #print("calculating ensemble member uncertainty")
