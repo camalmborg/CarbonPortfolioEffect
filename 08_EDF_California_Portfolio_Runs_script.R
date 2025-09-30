@@ -53,12 +53,12 @@ ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_CA_portfolio_", portfo
        dpi = 600)
 
 ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_CA_portfolio_", portfolio_name,"delta_vs_pixels_plot.png"),
-       plot = SD_vs_area,
+       plot = delta_vs_area,
        width = 10, height = 6,
        dpi = 600)
 
 ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_CA_portfolio_", portfolio_name,"ratio_vs_pixels_plot.png"),
-       plot = SD_vs_area,
+       plot = ratio_vs_area,
        width = 10, height = 6,
        dpi = 600)
 
