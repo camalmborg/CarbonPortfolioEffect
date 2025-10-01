@@ -86,7 +86,7 @@ soybeans <- crops_sf |>
   filter(Class_Names == "Soybeans")
 # Grass/Pasture:
 grass_pasture <- crops_sf |>
-  filter(Class_Names == "Grass/Pasture")
+  filter(Class_Names == "Grassland/Pasture")
   
 # add to a list:
 crop_group_list <- list(corn = corn, 
