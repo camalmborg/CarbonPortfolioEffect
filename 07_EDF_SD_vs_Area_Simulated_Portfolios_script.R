@@ -147,7 +147,7 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
     labs(x = "Number of 1km pixels",
          y = "Ratio of Total SD:Ensemble SD") +
     scale_x_log10() +
-    #scale_y_log10() +
+    scale_y_log10() +
     theme_bw() +
     theme(legend.position = "none")
   
