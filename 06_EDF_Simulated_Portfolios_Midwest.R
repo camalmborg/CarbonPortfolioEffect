@@ -38,12 +38,13 @@ crop_types_rast <- terra::rast(crop_types_layer)
 # crop to vector area:
 cornregion <- project(cornregion, crop_types_rast)
 crop_types_crop <- crop(crop_types_rast, cornregion)
+crop_types_mask <- mask(crop_types_crop, cornregion)
 # save it so I don't have to deal with the projection time again:
 #writeRaster(crop_types_crop, filename = "rasters/crop_types_rast_MW_crop.tif")
 
 ## Attempt to make into vector object:
 # aggregate to 1km:
-crop_types_agg <- aggregate(crop_types_crop, fact = 1000/30, fun = "modal")
+crop_types_agg <- aggregate(crop_types_mask, fact = 1000/30, fun = "modal")
 # resample to get to 1km:
 one_k <- 1000 # 1000 x 1000 m
 temp <- rast(round(ext(crop_types_agg), 0), resolution = one_k, crs = crs(crop_types_agg))
@@ -73,6 +74,7 @@ ens_rast <- process_ensemble_members(dir = dir,
                                      cell_size = cell_size)
 
 ## Make polygons of particular crop classes
+crop_types_vec <- project(crop_types_vec, ens_rast[[1]])
 # convert terra vector to sf for easier separation:
 crops_sf <- st_as_sf(crop_types_vec) 
 # separate some groups:
@@ -80,12 +82,26 @@ crops_sf <- st_as_sf(crop_types_vec)
 corn <- crops_sf |>
   filter(Class_Names == "Corn")
 # soybeans:
-soybeans <- crop_sf |>
+soybeans <- crops_sf |>
   filter(Class_Names == "Soybeans")
 # Grass/Pasture:
-grasspas <- crop_sf |>
+grass_pasture <- crops_sf |>
   filter(Class_Names == "Grass/Pasture")
   
+# add to a list:
+crop_group_list <- list(corn = corn, 
+                        soybeans = soybeans, 
+                        grass_pasture = grass_pasture)
+
+
+
+# # testing:
+# n_pixels = c(1, 10, 100)
+# 
+# corn_portfolios <- all_portfolios_runs(crop_group = corn,
+#                                        ens_rast = ens_rast,
+#                                        n_pixels_vec = n_pixels,
+#                                        n_reps = 5)
 
 
 ### ARCHIVE ###
