@@ -67,7 +67,7 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
     arrange(factor(group))
   
   # color palette:
-  plot_palette <- c("orchid4", "chocolate3")
+  plot_palette <- c("chocolate3", "orchid4")
   
   SD_vs_area <- ggplot(plot_data, aes(x = agg_n, y = value, color = variable, fill = variable)) +
     geom_point(size = 1) +
