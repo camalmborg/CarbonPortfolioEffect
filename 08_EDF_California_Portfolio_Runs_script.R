@@ -41,6 +41,8 @@ crop_port_list <- unlist(crop_portfolios, recursive = FALSE)
 # make into a single data frames:
 crop_port_list <- lapply(crop_port_list, as.data.frame)
 cp <- do.call(rbind, crop_port_list)
+cp$crop <- names(crop_group_list)[task_id]
+cp$region <- "CA"
 # save it:
 write.csv(cp, file = paste0(save_dir, Sys.Date(), "_CA_crop_portfolio_", names(crop_group_list)[task_id], ".csv"))
 
