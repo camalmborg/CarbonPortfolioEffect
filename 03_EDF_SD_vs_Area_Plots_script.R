@@ -109,11 +109,11 @@ delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta, color = variable,
 ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev, color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-  ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
+  ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
        y = "Ratio of Total SD:Ensemble SD") +
   scale_x_log10() +
-  #scale_y_log10() +
+  scale_y_log10() +
   theme_bw() +
   theme(legend.position = "none")
 
