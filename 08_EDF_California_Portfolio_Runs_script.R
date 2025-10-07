@@ -34,7 +34,7 @@ crop_portfolios <- all_portfolios_runs(crop_group = crop_portfolio,
                                        n_reps = 100)
 # save portfolio:
 save_dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
-save(crop_portfolio, file = paste0(save_dir, Sys.Date(), "_CA_crop_portfolio_", names(crop_group_list)[task_id], ".RData"))
+save(crop_portfolios, file = paste0(save_dir, Sys.Date(), "_CA_crop_portfolio_", names(crop_group_list)[task_id], ".RData"))
 
 # pixel group names:
 pixel_groups <- names(crop_portfolios)
