@@ -32,9 +32,17 @@ crop_portfolios <- all_portfolios_runs(crop_group = crop_portfolio,
                                        ens_rast = ens_rast,
                                        n_pixels_vec = n_pixels,
                                        n_reps = 100)
-# save portfolio:
+
+## Save portfolios for making regressions
+# directory for saving:
 save_dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
-save(crop_portfolios, file = paste0(save_dir, Sys.Date(), "_CA_crop_portfolio_", names(crop_group_list)[task_id], ".RData"))
+# make a single list from the list of lists:
+crop_port_list <- unlist(crop_portfolios, recursive = FALSE)
+# make into a single data frames:
+crop_port_list <- lapply(crop_port_list, as.data.frame)
+cp <- do.call(rbind, crop_port_list)
+# save it:
+write.csv(cp, file = paste0(save_dir, Sys.Date(), "_CA_crop_portfolio_", names(crop_group_list)[task_id], ".csv"))
 
 # pixel group names:
 pixel_groups <- names(crop_portfolios)
