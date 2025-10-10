@@ -24,7 +24,9 @@ port_df <- list.files(dir) %>%
   # change names to make most abundant crops for each region reference classes for their regions:
   mutate(crop = case_when(crop == "decid" ~ "aa_decid",
                           crop == "corn" ~ "aa_corn",
-                          TRUE ~ crop))
+                          TRUE ~ crop)) %>%
+  filter(complete.cases(.))
+
 # make one for California:
 ca_port_df <- port_df %>%
   filter(region == "CA")
@@ -33,7 +35,7 @@ mw_port_df <- port_df %>%
   filter(region == "MW")
 
 ## Regressions
-# region one:
+# region:
 region_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(region) + (log10(agg_n)*as.factor(region)), data = port_df)
 
 # for crop types:
@@ -42,3 +44,15 @@ crop_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(crop) + (log10(agg_n)*
 CA_crop_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(crop) + (log10(agg_n)*as.factor(crop)), data = ca_port_df)
 # crop types for MW:
 MW_crop_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(crop) + (log10(agg_n)*as.factor(crop)), data = mw_port_df)
+
+## Add predicting values back to datasets for plots
+# for region:
+reg_pred <- as.data.frame(predict(region_lm, interval = "confidence"))
+# for crop:
+crop_pred <- as.data.frame(predict(crop_lm, intercal = "confidence"))
+# for CA:
+ca_crop_pred <- as.data.frame(predict(CA_crop_lm, interval = "confidence"))
+# for MW:
+mw_crop_pred <- as.data.frame(predict(MW_crop_lm, interval = "confidence"))
+
+## Set up 
