@@ -26,7 +26,7 @@ crop_types_layer <- "rasters/2021_30m_cdls/2021_30m_cdls.tif"
 
 # get Midwest region for cropping crop types raster:
 # tigris states:
-cornstates_sf <- tigris::states() %>%
+cornstates_sf <- tigris::states(year = 2021) %>%
   filter(NAME %in% c("Illinois", "Indiana", "Iowa"))
 cornstates <- vect(cornstates_sf)
 rm(cornstates_sf)
