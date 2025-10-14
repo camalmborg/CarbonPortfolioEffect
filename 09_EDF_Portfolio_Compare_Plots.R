@@ -55,4 +55,45 @@ ca_crop_pred <- as.data.frame(predict(CA_crop_lm, interval = "confidence"))
 # for MW:
 mw_crop_pred <- as.data.frame(predict(MW_crop_lm, interval = "confidence"))
 
-## Set up 
+## Preparing data for the plots
+# (1) for uncertainty ratio vs pixels by region:
+region_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, ratio_rev = port_df$ratio_rev, 
+                          model_fit = reg_pred$fit, upper = reg_pred$upr, lower = reg_pred$lwr)
+# (2) for uncertainty ratio vs pixels by crop in California:
+ca_crop_regr <- data.frame(n_pixels = ca_port_df$agg_n, crop = ca_port_df$crop, ratio_rev = ca_port_df$ratio_rev,
+                           model_fit = ca_crop_pred$fit, upper = ca_crop_pred$upr, lower = ca_crop_pred$lwr)
+# (3) for uncertainty ratio vs pixels by crop in the Midwest:
+mw_crop_regr <- data.frame(n_pixels = mw_port_df$agg_n, crop = mw_port_df$crop, ratio_rev = mw_port_df$ratio_rev,
+                           model_fit = mw_crop_pred$fit, upper = mw_crop_pred$upr, lower = mw_crop_pred$lwr)
+
+## Making plots
+# (1) regional differences:
+region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = n_pixels, y = model_fit, 
+                                                             group = region, color = region, fill = region)) +
+  geom_point() +
+  geom_line() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = region, group = region), alpha = 0.50, color = NA) +
+  scale_x_log10() +
+  #scale_y_log10() +
+  theme_bw()
+region_regr_plot
+
+# (2) California crops:
+ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
+                                                               group = crop, color = crop, fill = crop)) +
+  geom_point() +
+  geom_line() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
+  scale_x_log10() +
+  theme_bw()
+ca_crop_regr_plot
+
+# (3) Midwest crops:
+mw_crop_regr_plot <- ggplot(data = mw_crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
+                                                               group = crop, color = crop, fill = crop)) +
+  geom_point() +
+  geom_line() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
+  scale_x_log10() +
+  theme_bw()
+mw_crop_regr_plot
