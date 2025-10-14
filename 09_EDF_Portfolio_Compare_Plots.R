@@ -49,7 +49,7 @@ MW_crop_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(crop) + (log10(agg_
 # for region:
 reg_pred <- as.data.frame(predict(region_lm, interval = "confidence"))
 # for crop:
-crop_pred <- as.data.frame(predict(crop_lm, intercal = "confidence"))
+crop_pred <- as.data.frame(predict(crop_lm, interval = "confidence"))
 # for CA:
 ca_crop_pred <- as.data.frame(predict(CA_crop_lm, interval = "confidence"))
 # for MW:
@@ -65,6 +65,9 @@ ca_crop_regr <- data.frame(n_pixels = ca_port_df$agg_n, crop = ca_port_df$crop, 
 # (3) for uncertainty ratio vs pixels by crop in the Midwest:
 mw_crop_regr <- data.frame(n_pixels = mw_port_df$agg_n, crop = mw_port_df$crop, ratio_rev = mw_port_df$ratio_rev,
                            model_fit = mw_crop_pred$fit, upper = mw_crop_pred$upr, lower = mw_crop_pred$lwr)
+# (4) for uncertainty ratio vs pixels by all crops:
+crop_regr <- data.frame(n_pixels = port_df$agg_n, crop = port_df$crop, ratio_rev = port_df$ratio_rev,
+                        model_fit = crop_pred$fit, upper = crop_pred$upr, lower = crop_pred$lwr)
 
 ## Making plots
 # (1) regional differences:
@@ -97,3 +100,13 @@ mw_crop_regr_plot <- ggplot(data = mw_crop_regr, mapping = aes(x = n_pixels, y =
   scale_x_log10() +
   theme_bw()
 mw_crop_regr_plot
+
+# (4) all crops:
+all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
+                                                               group = crop, color = crop, fill = crop)) +
+  geom_point() +
+  geom_line() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
+  scale_x_log10() +
+  theme_bw()
+all_crop_regr_plot
