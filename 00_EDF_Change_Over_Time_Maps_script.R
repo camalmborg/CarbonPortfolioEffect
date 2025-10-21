@@ -49,8 +49,8 @@ writeRaster(delta, file = paste0(save_dir, var, "mean_diff_", yr_one, "_", yr_tw
 
 # SD:
 # load maps:
-old <- load_rast(dir, var, 2019, "std")
-new <- load_rast(dir, var, 2024, "std")
+old <- load_rast(dir, var, yr_one, "std")
+new <- load_rast(dir, var, yr_two, "std")
 # cellwise difference between sd's:
 diff_sd <- sqrt(old^2 + new^2)
 # save:
@@ -61,15 +61,14 @@ n_ens = 100
 for (i in 1:n_ens){
   print(i)
   # get ensemble number for grabbing file:
-  ens <- paste0("ensemble_", as.character(i))
+  ens <- paste0("ensemble_", as.character(i), "_")
   # load maps:
-  old <- load_rast(dir, var, 2019, ens)
+  old <- load_rast(dir, var, yr_one, ens)
   new <- load_rast(dir, var, yr_two, ens)
   # cellwise subtraction:
   delta <- new - old
   # save:
-  writeRaster(delta, file = paste0(save_dir, var, ens,"_diff_", yr_one, "_", yr_two, ".tiff"))
+  writeRaster(delta, file = paste0(save_dir, var, ens,"diff_", yr_one, "_", yr_two, ".tiff"))
 }
 
-# subtract year 2 from year 1 to get the change over time
-# save as a new geotiff 
+
