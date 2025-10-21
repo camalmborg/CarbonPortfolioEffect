@@ -110,3 +110,5 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   scale_x_log10() +
   theme_bw()
 all_crop_regr_plot
+
+
