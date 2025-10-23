@@ -7,7 +7,7 @@ source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Portfol
 source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/06_EDF_Simulated_Portfolios_California.R")
 
 # run the plotting script:
-source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/07_EDF_SD_vs_Area_Simulated_Portfolios_script.R")
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/07_EDF_SD_vs_Area_Simulated_Portfolios_Plots_script.R")
 
 ## Get all the California portfolios:
 n_pixels_citrus = c(1, 10, 100, 1000)
