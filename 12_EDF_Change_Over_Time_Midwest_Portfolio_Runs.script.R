@@ -1,0 +1,81 @@
+# Make portfolio plots and save:
+
+# run the functions script:
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Portfolio_Sampling_functions_script.R")
+
+# run the Midwest portfolios script:
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/10_EDF_Change_Over_Time_Midwest_analyses_script.R")
+
+# run the plotting script:
+source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/07_EDF_SD_vs_Area_Simulated_Portfolios_Plots_script.R")
+
+## Get all the MW portfolios
+# for corn and soybean:
+n_pixels = c(1, 10, 100, 1000, 10000, 100000)
+# for grass/pasture:
+n_pixels_grass = c(1, 10, 100, 1000, 10000)
+
+## Get crop portfolio for each run
+# task id from cluster run:
+task_id <- as.numeric(Sys.getenv("SGE_TASK_ID"))
+# portfolio:
+crop_portfolio <- crop_group_list[[task_id]]
+# name of group:
+portfolio_name <- names(crop_group_list)[task_id]
+# get n_pixels:
+if(portfolio_name == "grass_pasture"){
+  n_pixels = n_pixels_grass
+} else {
+  n_pixels = n_pixels
+}
+
+## Run portfolios
+crop_portfolios <- all_portfolios_runs(crop_group = crop_portfolio,
+                                       ens_rast = ens_rast,
+                                       n_pixels_vec = n_pixels,
+                                       n_reps = 100)
+
+## Save portfolios for making regressions
+# directory for saving:
+save_dir <- "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/Portfolios/"
+# make a single list from the list of lists:
+crop_port_list <- unlist(crop_portfolios, recursive = FALSE)
+# make into a single data frames:
+crop_port_list <- lapply(crop_port_list, as.data.frame)
+cp <- do.call(rbind, crop_port_list)
+cp$crop <- names(crop_group_list)[task_id]
+cp$region <- "MW"
+# save it:
+write.csv(cp, file = paste0(save_dir, Sys.Date(), "_COT_MW_crop_portfolio_", names(crop_group_list)[task_id], ".csv"))
+
+# pixel group names:
+pixel_groups <- names(crop_portfolios)
+
+## Make plots:
+SD_vs_area <- SD_vs_area_plot(portfolio_list = crop_portfolios,
+                              pixel_groups = pixel_groups)
+
+delta_vs_area <- delta_vs_area_plot(portfolio_list = crop_portfolios,
+                                    pixel_groups = pixel_groups)
+
+ratio_vs_area <- ratio_vs_area_plot(portfolio_list = crop_portfolios,
+                                    pixel_groups = pixel_groups)
+
+## Save the plots
+# save the plots and maps:
+save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
+# Save the plot to a PNG file:
+ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_MW_portfolio_", portfolio_name,"_SD_vs_pixels_plot.png"),
+       plot = SD_vs_area,
+       width = 10, height = 6,
+       dpi = 600)
+
+ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_MW_portfolio_", portfolio_name,"_delta_vs_pixels_plot.png"),
+       plot = delta_vs_area,
+       width = 10, height = 6,
+       dpi = 600)
+
+ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_MW_portfolio_", portfolio_name,"_ratio_vs_pixels_plot.png"),
+       plot = ratio_vs_area,
+       width = 10, height = 6,
+       dpi = 600)
