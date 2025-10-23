@@ -63,17 +63,17 @@ ratio_vs_area <- ratio_vs_area_plot(portfolio_list = crop_portfolios,
 # save the plots and maps:
 save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
 # Save the plot to a PNG file:
-ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_COT_CA_portfolio_", portfolio_name,"_SD_vs_pixels_plot.png"),
+ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_CA_portfolio_", portfolio_name,"_SD_vs_pixels_plot.png"),
        plot = SD_vs_area,
        width = 10, height = 6,
        dpi = 600)
 
-ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_COT_CA_portfolio_", portfolio_name,"_delta_vs_pixels_plot.png"),
+ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_CA_portfolio_", portfolio_name,"_delta_vs_pixels_plot.png"),
        plot = delta_vs_area,
        width = 10, height = 6,
        dpi = 600)
 
-ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_COT_CA_portfolio_", portfolio_name,"_ratio_vs_pixels_plot.png"),
+ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_CA_portfolio_", portfolio_name,"_ratio_vs_pixels_plot.png"),
        plot = ratio_vs_area,
        width = 10, height = 6,
        dpi = 600)
