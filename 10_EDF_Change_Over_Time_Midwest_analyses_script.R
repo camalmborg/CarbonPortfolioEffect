@@ -27,7 +27,7 @@ cell_size <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_
 crop_types_layer <- "rasters/2021_30m_cdls/2021_30m_cdls.tif"
 # get Midwest region for cropping crop types raster:
 # tigris states:
-cornstates_sf <- tigris::states(year = 2021) %>%
+cornstates_sf <- tigris::states(year = yr_two) %>%
   filter(NAME %in% c("Illinois", "Indiana", "Iowa"))
 cornstates <- vect(cornstates_sf)
 rm(cornstates_sf)
@@ -64,7 +64,7 @@ year <- yr_two
 dir <- cot
 ens_rast <- process_ensemble_members(dir = dir,
                                      var = var,
-                                     year = 2021,
+                                     year = yr_two,
                                      crops = crop_types_vec,
                                      cell_size = cell_size)
 
@@ -87,5 +87,4 @@ grass_pasture <- crops_sf |>
 crop_group_list <- list(corn = corn, 
                         soybeans = soybeans, 
                         grass_pasture = grass_pasture)
-
 
