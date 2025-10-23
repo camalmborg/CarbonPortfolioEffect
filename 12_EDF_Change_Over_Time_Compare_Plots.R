@@ -10,7 +10,7 @@ library(ggplot2)
 
 ## Load and prep crop portfolios
 # set working directory:
-dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Change_Over_Time/"
+dir <- "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/Portfolios/"
 setwd(dir)
 # portfolio files:
 port_df <- list.files(dir) %>%
