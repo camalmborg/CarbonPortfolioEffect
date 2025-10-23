@@ -40,4 +40,38 @@ ens_rast <- process_ensemble_members(dir = dir,
                                      crops = crops,
                                      cell_size = cell_size)
 
+## Make polygons of particular crop classes
+# convert terra vector to sf for easier separation:
+crops_sf <- st_as_sf(crops) 
+# separate some groups:
+# citrus crops:
+citrus <- crops_sf |>
+  # citrus crop type:
+  filter(CLASS2 == "C") |>
+  # choose parcels with 100% coverage:
+  filter(PCNT2 == "00")
+# deciduous fruits and nuts:
+decid <- crops_sf |>
+  filter(CLASS2 == "D") |>
+  filter(PCNT2 == "00")
+# pasture crops:
+pasture <- crops_sf |>
+  filter(CLASS2 == "P") |>
+  filter(PCNT2 == "00")
+# truck crops:
+truck_field_grain <- crops_sf |>
+  filter(CLASS2 == c("T", "F", "G")) |>
+  filter(PCNT2 == "00")
+# vineyards:
+vineyd <- crops_sf |>
+  filter(CLASS2 == "V")|>
+  filter(PCNT2 == "00")
+
+crop_group_list <- list(citrus = citrus, 
+                        decid = decid, 
+                        pasture = pasture, 
+                        truck_field_grain = truck_field_grain,
+                        vineyd = vineyd)
+
+
 

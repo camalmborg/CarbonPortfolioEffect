@@ -68,3 +68,23 @@ ens_rast <- process_ensemble_members(dir = dir,
                                      crops = crop_types_vec,
                                      cell_size = cell_size)
 
+## Make polygons of particular crop classes
+crop_types_vec <- project(crop_types_vec, ens_rast[[1]])
+# convert terra vector to sf for easier separation:
+crops_sf <- st_as_sf(crop_types_vec) 
+# separate some groups:
+# corn crops:
+corn <- crops_sf |>
+  filter(Class_Names == "Corn")
+# soybeans:
+soybeans <- crops_sf |>
+  filter(Class_Names == "Soybeans")
+# Grass/Pasture:
+grass_pasture <- crops_sf |>
+  filter(Class_Names == "Grassland/Pasture")
+
+# add to a list:
+crop_group_list <- list(corn = corn, 
+                        soybeans = soybeans, 
+                        grass_pasture = grass_pasture)
+
