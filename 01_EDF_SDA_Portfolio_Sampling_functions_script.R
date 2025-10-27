@@ -73,6 +73,7 @@ portfolio_naive <- function(ens_rast, portfolio_sample){
   RegCropMean <- terra::extract(ens_mean, Reg, fun = mean, na.rm = TRUE)
   Reg[["cropMean"]] <- RegCropMean$mean
   
+  
   # totals for area that is just cropland:
   RegCropTotMean <- terra::extract(ens_mean, Reg, fun = sum, na.rm = TRUE) 
   Reg[["cropTot"]] <- RegCropTotMean$mean
@@ -181,3 +182,9 @@ all_portfolios_runs <- function(crop_group, ens_rast, n_pixels_vec, n_reps){
 #                                as.points = TRUE,
 #                                #values = TRUE,
 #                                na.rm = TRUE)
+
+foo <- rep(NA,102)
+for(i in 1:102){
+  foo[i] <- terra::extract(ens_rast[[i]], Reg, fun = sum, na.rm = TRUE)[2]
+}
+foo = unlist(foo)
