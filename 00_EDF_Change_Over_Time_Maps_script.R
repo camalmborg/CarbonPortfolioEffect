@@ -25,7 +25,7 @@ yr_one <- 2019
 yr_two <- 2024
 dir <- paste0(ens, run)
 # for saving: (to be compatible with original functions and Dongchen's NA product directory naming conventions)
-save_dir <- paste0(getwd(), "/", var, as.character(yr_two), "/")
+save_dir <- paste0(getwd(), "/Change_Over_Time/", var, as.character(yr_two), "/")
 
 ## Functions
 # (1) for loading rasters:
@@ -45,7 +45,7 @@ new <- load_rast(dir, var, yr_two, "mean")
 # cellwise subtraction:
 delta <- new - old
 # save:
-writeRaster(delta, file = paste0(save_dir, var, "mean_diff_", yr_one, "_", yr_two, ".tiff"))
+writeRaster(delta, file = paste0(save_dir, var, "mean_diff_", yr_one, "_", yr_two, ".tiff"), overwrite = TRUE)
 
 # SD:
 # load maps:
@@ -54,7 +54,7 @@ new <- load_rast(dir, var, yr_two, "std")
 # cellwise difference between sd's:
 diff_sd <- sqrt(old^2 + new^2)
 # save:
-writeRaster(delta, file = paste0(save_dir, var, "std_diff_", yr_one, "_", yr_two, ".tiff"))
+writeRaster(diff_sd, file = paste0(save_dir, var, "std_diff_", yr_one, "_", yr_two, ".tiff"), overwrite = TRUE)
 
 #ENSEMBLES:
 n_ens = 100
@@ -68,7 +68,7 @@ for (i in 1:n_ens){
   # cellwise subtraction:
   delta <- new - old
   # save:
-  writeRaster(delta, file = paste0(save_dir, var, ens,"diff_", yr_one, "_", yr_two, ".tiff"))
+  writeRaster(delta, file = paste0(save_dir, var, ens,"diff_", yr_one, "_", yr_two, ".tiff"), overwrite = TRUE)
 }
 
 
