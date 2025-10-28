@@ -183,8 +183,31 @@ all_portfolios_runs <- function(crop_group, ens_rast, n_pixels_vec, n_reps){
 #                                #values = TRUE,
 #                                na.rm = TRUE)
 
-foo <- rep(NA,102)
-for(i in 1:102){
-  foo[i] <- terra::extract(ens_rast[[i]], Reg, fun = sum, na.rm = TRUE)[2]
-}
-foo = unlist(foo)
+# points <- xyFromCell(resample, cells)
+# points_vec <- vect(points, type="points", crs = "EPSG:9822")
+# points_vec <- project(points_vec, ens_rast[[1]])
+# 
+# foo_old <- rep(NA, 102)
+# foo_new <- rep(NA, 102)
+# #foo_sd <- rep(NA, 102)
+# for(i in 1:102){
+#   foo_old[i] <- terra::extract(old, points_vec, fun = sum, na.rm = TRUE)[2]
+#   foo_new[i] <- terra::extract(new, points_vec, fun = sum, na.rm = TRUE)[2]
+# }
+# foo_old = unlist(foo_old)
+# foo_new = unlist(foo_new)
+# 
+# 
+# #ENSEMBLES:
+# old_ens <- process_ensemble_members(dir, var, year = 2019, crops, cell_size)
+# new_ens <- process_ensemble_members(dir, var, year = 2024, crops, cell_size)
+# 
+# foo_old <- rep(NA, 102)
+# foo_new <- rep(NA, 102)
+# #foo_sd <- rep(NA, 102)
+# for(i in 1:102){
+#   foo_old[i] <- terra::extract(old_ens[[i]], points_vec, fun = sum, na.rm = TRUE)[2]
+#   foo_new[i] <- terra::extract(new_ens[[i]], points_vec, fun = sum, na.rm = TRUE)[2]
+# }
+# foo_old = unlist(foo_old)
+# foo_new = unlist(foo_new)
