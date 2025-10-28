@@ -9,7 +9,7 @@ library(terra)
 
 ## Load Functions
 # run the functions script:
-source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Portfolio_Sampling_functions_script.R")
+#source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/01_EDF_SDA_Portfolio_Sampling_functions_script.R")
 
 ## set working directory
 wd <- "/projectnb/dietzelab/malmborg/EDF/"
