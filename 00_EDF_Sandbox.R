@@ -69,12 +69,7 @@ load_rast <- function(dir, var, yr, nfile){
   return(rast)
 }
 
-## Make new GeoTIFF files with Y2-Y1 maps
-# load maps:
-# old <- load_rast(dir, var, yr_one, "mean")
-# new <- load_rast(dir, var, yr_two, "mean")
-
-#ENSEMBLES:
+## Testing between years:
 n_ens = 100
 old_samp <- rep(NA, n_ens)
 new_samp <- rep(NA, n_ens)
