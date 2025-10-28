@@ -19,7 +19,7 @@ setwd(wd)
 # navigate to Dongchen's North America runs:
 ens <- "/projectnb/dietzelab/dongchen/anchorSites/NA_runs/"
 # choose run:
-run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_rf/"
+run <- "SDA_8k_site/downscale_maps_analysis_lc_ts_noGEDI_debias_rf/"
 # load raster cell sizes:
 cell_size <- terra::rast("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_8k_site/cell_size.tif")
 
