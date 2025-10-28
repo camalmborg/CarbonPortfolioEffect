@@ -87,3 +87,15 @@ for (i in 1:n_ens){
 # unlist:
 old_samp <- unlist(old_samp)
 new_samp <- unlist(new_samp)
+
+# old mean:
+old <- load_rast(dir, var, yr_one, "mean")
+old_mean <- terra::extract(old, sample_point, fun = sum, na.rm = TRUE)[2] 
+new <- load_rast(dir, var, yr_two, "mean")
+new_mean <- terra::extract(new, sample_point, fun = sum, na.rm = TRUE)[2] 
+
+# old std:
+old <- load_rast(dir, var, yr_one, "std")
+old_std <- terra::extract(old, sample_point, fun = sum, na.rm = TRUE)[2] 
+new <- load_rast(dir, var, yr_two, "std")
+new_std <- terra::extract(new, sample_point, fun = sum, na.rm = TRUE)[2] 
