@@ -26,7 +26,7 @@ crop_types_layer <- "rasters/2021_30m_cdls/2021_30m_cdls.tif"
 
 # get Midwest region for cropping crop types raster:
 # tigris states:
-cornstates_sf <- tigris::states(year = 2021) %>%
+cornstates_sf <- tigris::states(year = 2023) %>%
   filter(NAME %in% c("Illinois", "Indiana", "Iowa"))
 cornstates <- vect(cornstates_sf)
 rm(cornstates_sf)
@@ -65,11 +65,11 @@ soc <- "TotSoilCarb_"
 
 # choose analysis run variables:
 var <- soc
-year <- 2021
+year <- 2023
 dir <- paste0(ens, run)
 ens_rast <- process_ensemble_members(dir = dir,
                                      var = var,
-                                     year = 2021,
+                                     year = year,
                                      crops = crop_types_vec,
                                      cell_size = cell_size)
 
