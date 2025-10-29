@@ -40,7 +40,7 @@ soc <- "TotSoilCarb_"
 
 # choose analysis run variables:
 var <- soc
-year <- 2021
+year <- 2024
 dir <- paste0(ens, run)
 
 ## Areas for calculating carbon uncertainty
@@ -101,7 +101,7 @@ agg_state <- terra::project(agg_state, agg_counties)
 
 ens_rast <- process_ensemble_members(dir = dir,
                                      var = var,
-                                     year = 2021,
+                                     year = year,
                                      crops = crops,
                                      cell_size = cell_size)
 

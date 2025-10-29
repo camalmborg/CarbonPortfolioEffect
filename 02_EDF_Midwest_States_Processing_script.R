@@ -60,7 +60,7 @@ soc <- "TotSoilCarb_"
 
 # choose analysis run variables:
 var <- soc
-year <- 2021
+year <- 2024
 dir <- paste0(ens, run)
 
 ## Areas for calculating carbon uncertainty
@@ -85,7 +85,7 @@ crops <- terra::vect("shapefiles/midwest_crops_vec.shp")
 ## Running to get plot and map vectors:
 ens_rast <- process_ensemble_members(dir = dir,
                                      var = var,
-                                     year = 2021,
+                                     year = year,
                                      crops = crops,
                                      cell_size = cell_size)
 

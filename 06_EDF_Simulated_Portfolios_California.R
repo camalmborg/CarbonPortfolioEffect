@@ -35,7 +35,7 @@ soc <- "TotSoilCarb_"
 
 # choose analysis run variables:
 var <- soc
-year <- 2023
+year <- 2024
 dir <- paste0(ens, run)
 ens_rast <- process_ensemble_members(dir = dir,
                                      var = var,
