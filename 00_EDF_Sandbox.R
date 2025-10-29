@@ -29,7 +29,7 @@ soc <- "TotSoilCarb_"
 
 # choose analysis run variables:
 var <- soc
-yr_one <- 2019
+yr_one <- 2015
 yr_two <- 2024
 dir <- paste0(ens, run)
 
@@ -88,15 +88,19 @@ for (i in 1:n_ens){
 old_samp <- unlist(old_samp)
 new_samp <- unlist(new_samp)
 
+# making into a csv for Mike:
+compare_2019_2024 <- data.frame("2019" = old_samp, "2024" = new_samp)
+write.csv(compare_2019_2024, file = "/projectnb/dietzelab/malmborg/EDF/compare_2019_2024.csv")
+
 # IF NEEDED
-# # old mean:
-# old <- load_rast(dir, var, yr_one, "mean")
-# old_mean <- terra::extract(old, sample_point, fun = sum, na.rm = TRUE)[2] 
-# new <- load_rast(dir, var, yr_two, "mean")
-# new_mean <- terra::extract(new, sample_point, fun = sum, na.rm = TRUE)[2] 
-# 
-# # old std:
-# old <- load_rast(dir, var, yr_one, "std")
-# old_std <- terra::extract(old, sample_point, fun = sum, na.rm = TRUE)[2] 
-# new <- load_rast(dir, var, yr_two, "std")
-# new_std <- terra::extract(new, sample_point, fun = sum, na.rm = TRUE)[2] 
+# old mean:
+old <- load_rast(dir, var, yr_one, "mean")
+old_mean <- terra::extract(old, sample_point, fun = sum, na.rm = TRUE)[2]
+new <- load_rast(dir, var, yr_two, "mean")
+new_mean <- terra::extract(new, sample_point, fun = sum, na.rm = TRUE)[2]
+
+# old std:
+old <- load_rast(dir, var, yr_one, "std")
+old_std <- terra::extract(old, sample_point, fun = sum, na.rm = TRUE)[2]
+new <- load_rast(dir, var, yr_two, "std")
+new_std <- terra::extract(new, sample_point, fun = sum, na.rm = TRUE)[2]
