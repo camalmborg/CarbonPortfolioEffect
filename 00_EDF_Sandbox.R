@@ -29,7 +29,7 @@ soc <- "TotSoilCarb_"
 
 # choose analysis run variables:
 var <- soc
-yr_one <- 2015
+yr_one <- 2019
 yr_two <- 2024
 dir <- paste0(ens, run)
 
@@ -88,9 +88,9 @@ for (i in 1:n_ens){
 old_samp <- unlist(old_samp)
 new_samp <- unlist(new_samp)
 
-# making into a csv for Mike:
-compare_2019_2024 <- data.frame("2019" = old_samp, "2024" = new_samp)
-write.csv(compare_2019_2024, file = "/projectnb/dietzelab/malmborg/EDF/compare_2019_2024.csv")
+# # making into a csv for Mike:
+# compare_2019_2024 <- data.frame("2019" = old_samp, "2024" = new_samp)
+# write.csv(compare_2019_2024, file = "/projectnb/dietzelab/malmborg/EDF/compare_2019_2024.csv")
 
 # IF NEEDED
 # old mean:
@@ -104,3 +104,8 @@ old <- load_rast(dir, var, yr_one, "std")
 old_std <- terra::extract(old, sample_point, fun = sum, na.rm = TRUE)[2]
 new <- load_rast(dir, var, yr_two, "std")
 new_std <- terra::extract(new, sample_point, fun = sum, na.rm = TRUE)[2]
+
+# naive sd:
+naive <- sqrt(var(new_samp) + var(old_samp))
+# ensemble sd:
+ensemble <- sd(new_samp - old_samp)
