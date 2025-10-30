@@ -60,7 +60,7 @@ soc <- "TotSoilCarb_"
 
 # choose analysis run variables:
 var <- soc
-year <- 2024
+year <- 2021
 dir <- paste0(ens, run)
 
 ## Areas for calculating carbon uncertainty
