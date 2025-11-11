@@ -40,6 +40,14 @@ crops <- vect("/projectnb/dietzelab/dietze/CARB/i15_Crop_Mapping_2021_SHP/i15_Cr
 cali <- tigris::states() %>%
   filter(NAME %in% c("California"))
 cali <- vect(cali)
+# midwest extent:
+mw <- tigris::states() %>%
+  filter(NAME %in% c("Illinois", "Indiana", "Iowa"))
+mw <- vect(mw)
+# get total area:
+cali_sf <- st_as_sf(cali)
+mw_sf <- st_as_sf(mw)
+
 # convert terra vector to sf for easier separation:
 crops_sf <- st_as_sf(crops) 
 # deciduous fruits and nuts:
@@ -109,3 +117,15 @@ new_std <- terra::extract(new, sample_point, fun = sum, na.rm = TRUE)[2]
 naive <- sqrt(var(new_samp) + var(old_samp))
 # ensemble sd:
 ensemble <- sd(new_samp - old_samp)
+
+
+### Looking at raw SDA product
+# load:
+load("/projectnb/dietzelab/dongchen/anchorSites/NA_runs/SDA_8k_site/sda.all.forecast.analysis.Rdata")
+# get SOC
+soc <- which(names(analysis.all[["2024-07-15"]]) == "TotSoilCarb")
+cors <- mapply(cor, 
+               as.data.frame(analysis.all[["2024-07-15"]][,soc]),
+               as.data.frame(analysis.all[["2019-07-15"]][,soc]))
+summary(cors)
+
