@@ -79,9 +79,11 @@ plot_data <- as.data.frame(vec) %>%
 SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25) +
   geom_smooth(method = "lm", se = TRUE, linewidth = 0.5, alpha = 0.15) +
-  ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name)) +
+  # stat_poly_line() +
+  # stat_poly_eq(use_label(c("eq", "R2"))) +
+  ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name, " - ", plot_loc)) +
   labs(x = "Area (square meters)",
-       y = "SD", 
+       y = "Log(SD)", 
        color = "SD Calculation",
        fill = "SD Calculation",
        shape = "Geographic Boundary") +
@@ -99,9 +101,9 @@ SD_vs_area
 delta_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(delta), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-  ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
-  labs(x = "Area (square meters)",
-       y = "Ensemble SD - Naive SD",
+  ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name, " - ", plot_loc)) +
+  labs(x = "Log(Area sq m)",
+       y = "Log(Ensemble SD - Naive SD)",
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
@@ -114,9 +116,9 @@ delta_vs_area
 ratio_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(ratio_rev), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-  ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
-  labs(x = "Area (square meters)",
-       y = "Ratio of Total SD:Ensemble SD",
+  ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name, " - ", plot_loc)) +
+  labs(x = "Log(Area sq m)",
+       y = "Log(Ratio of Ensemble SD : Naive SD)",
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +

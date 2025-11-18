@@ -38,6 +38,9 @@ lai <- "LAI_"
 smf <- "SoilMoistFrac_"
 soc <- "TotSoilCarb_"
 
+# Location:
+plot_loc <- "California"
+
 # choose analysis run variables:
 var <- soc
 year <- 2021
