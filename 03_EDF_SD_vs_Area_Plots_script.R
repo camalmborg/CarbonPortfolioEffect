@@ -4,10 +4,11 @@ library(terra)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
+library(ggpmisc)
 
 # variable names for plots:
 var_names <- c("AGB", "SOC", "LAI", "SMF")
-types <- c("Town", "County", "Region", "State")
+types <- c("Town", "County", "Region", "State(s)")
 
 # function for preparing plot data:
 #'@param agg_vector = aggregate area vector product with SD calculations
@@ -88,7 +89,7 @@ SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value), color 
                                 "crop_ensVar_SD" = "Ensemble")) +
   scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
                                   "crop_ensVar_SD" = "Ensemble")) +
-  scale_shape_discrete(breaks = c("Town", "County", "Region", "State")) +
+  scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   #scale_x_log10() +
   #scale_y_log10() +
   theme_bw()
@@ -102,7 +103,7 @@ delta_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(delta), col
   labs(x = "Area (square meters)",
        y = "Ensemble SD - Naive SD",
        shape = "Geographic Boundary") +
-  scale_shape_discrete(breaks = c("Town", "County", "Region", "State")) +
+  scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
   #scale_x_log10() +
   #scale_y_log10() +
@@ -117,7 +118,7 @@ ratio_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(ratio_rev),
   labs(x = "Area (square meters)",
        y = "Ratio of Total SD:Ensemble SD",
        shape = "Geographic Boundary") +
-  scale_shape_discrete(breaks = c("Town", "County", "Region", "State")) +
+  scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
   #scale_x_log10() +
   #scale_y_log10() +
