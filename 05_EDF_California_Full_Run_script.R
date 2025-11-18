@@ -14,7 +14,7 @@ source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/04_EDF_SD_Maps_scr
 save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
 
 # save inventory data:
-write.csv(plot_data, "/projectnb/dietzelab/malmborg/EDF/CA_MW_runs/CA_inventory_data.csv")
+write.csv(plot_data, "/projectnb/dietzelab/malmborg/EDF/CA_MW_runs/", Sys.Date(), "_CA_inventory_data.csv")
 
 # Save the plot to a PNG file:
 ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_CA_aggregate_regions_plot.png"),
@@ -40,6 +40,8 @@ ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_CA_aggregate_regions_RATIO_plot.
 ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_county_maps.png"), 
        plot = county_maps,
        dpi = 600)
+# also save county map for combining maps later:
+save(county_maps, file = "CA_county_map.RData")
 
 ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_region_maps.png"), 
        plot = region_maps,

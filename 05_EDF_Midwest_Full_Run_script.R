@@ -40,6 +40,8 @@ ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_MW_aggregate_regions_RATIO_REV_p
 ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_MW_county_maps.png"), 
        plot = county_maps,
        dpi = 600)
+# also save county map for combining maps later:
+save(county_maps, file = "MW_county_map.RData")
 
 # ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_MW_region_maps.png"), 
 #        plot = region_maps,
