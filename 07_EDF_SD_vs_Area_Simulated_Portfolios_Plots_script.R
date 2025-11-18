@@ -69,7 +69,7 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
   # color palette:
   plot_palette <- c("orchid4", "chocolate3")
   
-  SD_vs_area <- ggplot(plot_data, aes(x = agg_n, y = value, color = variable, fill = variable)) +
+  SD_vs_area <- ggplot(plot_data, aes(x = agg_n, y = log10(value), color = variable, fill = variable)) +
     geom_point(size = 1) +
     geom_smooth(method = "lm", se = TRUE, linewidth = 0.5, alpha = 0.15) +
     ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name)) +
@@ -81,8 +81,8 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
                        labels = c("Naive", "Ensemble")) +
     scale_fill_manual(values = plot_palette, 
                       labels = c("Naive", "Ensemble")) +
-    scale_x_log10() +
-    scale_y_log10() +
+    #scale_x_log10() +
+    #scale_y_log10() +
     theme_bw()
   
   # return:
@@ -108,14 +108,14 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
     arrange(factor(group))
   
   ## Plot
-  delta_vs_area <- ggplot(plot_data, aes(x = agg_n, y = delta, color = variable, fill = variable)) +
+  delta_vs_area <- ggplot(plot_data, aes(x = agg_n, y = log10(delta), color = variable, fill = variable)) +
     geom_point(size = 1.25, color = "navy") +
     geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
     ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
     labs(x = "Number of 1km Pixels",
          y = "Ensemble SD - Naive SD") +
-    scale_x_log10() +
-    scale_y_log10() +
+    #scale_x_log10() +
+    #scale_y_log10() +
     theme_bw() +
     theme(legend.position = "none")
   
@@ -140,14 +140,14 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
     arrange(factor(group))
   
   ## Plot
-  ratio_vs_area <- ggplot(plot_data, aes(x = agg_n, y = ratio_rev, color = variable, fill = variable)) +
+  ratio_vs_area <- ggplot(plot_data, aes(x = agg_n, y = log10(ratio_rev), color = variable, fill = variable)) +
     geom_point(size = 1.25, color = "navy") +
     geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
     ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
     labs(x = "Number of 1km pixels",
          y = "Ratio of Total SD:Ensemble SD") +
-    scale_x_log10() +
-    scale_y_log10() +
+    #scale_x_log10() +
+    #scale_y_log10() +
     theme_bw() +
     theme(legend.position = "none")
   

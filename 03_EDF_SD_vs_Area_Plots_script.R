@@ -75,7 +75,7 @@ plot_data <- as.data.frame(vec) %>%
 # color palette:
 plot_palette <- c("orchid4", "chocolate3")
 
-SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value, color = variable, fill = variable, shape = type)) +
+SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = log10(value), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25) +
   geom_smooth(method = "lm", se = TRUE, linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name)) +
@@ -87,33 +87,33 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value, color = variable, fi
                      labels = c("Naive", "Ensemble")) +
   scale_fill_manual(values = plot_palette, 
                     labels = c("Naive", "Ensemble")) +
-  scale_x_log10() +
-  scale_y_log10() +
+  #scale_x_log10() +
+  #scale_y_log10() +
   theme_bw()
 # view:
 #SD_vs_area
 
-delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta, color = variable, fill = variable, shape = type)) +
+delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = log10(delta), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
        y = "Ensemble SD - Naive SD") +
-  scale_x_log10() +
-  scale_y_log10() +
+  #scale_x_log10() +
+  #scale_y_log10() +
   theme_bw() +
   theme(legend.position = "none")
 
 #delta_vs_area
 
-ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev, color = variable, fill = variable, shape = type)) +
+ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = log10(ratio_rev), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
        y = "Ratio of Total SD:Ensemble SD") +
-  scale_x_log10() +
-  scale_y_log10() +
+  #scale_x_log10() +
+  #scale_y_log10() +
   theme_bw() +
   theme(legend.position = "none")
 
