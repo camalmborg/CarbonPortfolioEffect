@@ -73,7 +73,7 @@ plot_data <- as.data.frame(vec) %>%
   arrange(factor(type, levels = c("Town", "County", "Region", "State")))
 
 # color palette:
-plot_palette <- c("orchid4", "chocolate3")
+#plot_palette <- c("orchid4", "chocolate3")
 
 SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25) +
@@ -82,48 +82,48 @@ SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value), color 
   labs(x = "Area (square meters)",
        y = "SD", 
        color = "SD Calculation",
-       fill = "SD Calculation") +
-  scale_color_manual(values = plot_palette, 
-                     labels = c("Naive", "Ensemble")) +
-  scale_fill_manual(values = plot_palette, 
-                    labels = c("Naive", "Ensemble")) +
+       fill = "SD Calculation",
+       shape = "Geographic Boundary") +
+  scale_color_discrete(labels = c("crop_Tot_SD" = "Naive", 
+                                "crop_ensVar_SD" = "Ensemble")) +
+  scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
+                                  "crop_ensVar_SD" = "Ensemble")) +
+  scale_shape_discrete(breaks = c("Town", "County", "Region", "State")) +
   #scale_x_log10() +
   #scale_y_log10() +
   theme_bw()
 # view:
-#SD_vs_area
+SD_vs_area
 
 delta_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(delta), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
-       y = "Ensemble SD - Naive SD") +
+       y = "Ensemble SD - Naive SD",
+       shape = "Geographic Boundary") +
+  scale_shape_discrete(breaks = c("Town", "County", "Region", "State")) +
+  guides(fill = "none") +
   #scale_x_log10() +
   #scale_y_log10() +
   theme_bw() +
-  theme(legend.position = "none")
-
-#delta_vs_area
+  theme(legend.position = "right")
+delta_vs_area
 
 ratio_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(ratio_rev), color = variable, fill = variable, shape = type)) +
   geom_point(size = 1.25, color = "navy") +
   geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
   labs(x = "Area (square meters)",
-       y = "Ratio of Total SD:Ensemble SD") +
+       y = "Ratio of Total SD:Ensemble SD",
+       shape = "Geographic Boundary") +
+  scale_shape_discrete(breaks = c("Town", "County", "Region", "State")) +
+  guides(fill = "none") +
   #scale_x_log10() +
   #scale_y_log10() +
   theme_bw() +
-  theme(legend.position = "none")
-
-#ratio_vs_area
-
-# plot(cty$crops_area_m2, cty$crop_ensVar_SD, pch = 16, col = "blue",
-#      xlab = "total crop area per county (m^2)", ylab = "SD")
-# points(cty$crops_area_m2, cty$crop_Tot_SD, pch = 16, col = "red")
-
-
+  theme(legend.position = "right")
+ratio_vs_area
 
 
 ### ARCHIVE ###
