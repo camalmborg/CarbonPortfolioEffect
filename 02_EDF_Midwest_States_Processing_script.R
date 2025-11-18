@@ -100,12 +100,12 @@ county <- carbon_uncertainty_wrapper(ens_rast,
                                      agg_reg = agg_counties, 
                                      n_regions = n_counties)
 # run for state:
-state <- carbon_uncertainty_wrapper(ens_rast,
+reg <- carbon_uncertainty_wrapper(ens_rast,
                                     crops = crops,
                                     agg_reg = agg_states,
                                     n_regions = n_states)
 # run for region:
-reg <- carbon_uncertainty_wrapper(ens_rast,
+state <- carbon_uncertainty_wrapper(ens_rast,
                                   crops = crops,
                                   agg_reg = agg_region,
                                   n_regions = n_reg)

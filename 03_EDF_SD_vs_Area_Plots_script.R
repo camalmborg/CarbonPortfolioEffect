@@ -70,7 +70,7 @@ plot_data <- as.data.frame(vec) %>%
     names_to = "variable",
     values_to = "value"
   ) %>%
-  arrange(factor(type, levels = c("Town", "County", "Region", "State")))
+  arrange(factor(type, levels = c("Town", "County", "Region", "State(s)")))
 
 # color palette:
 #plot_palette <- c("orchid4", "chocolate3")
