@@ -66,21 +66,21 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
     ) %>%
     arrange(factor(group))
   
-  # color palette:
-  plot_palette <- c("orchid4", "chocolate3")
+  # # color palette:
+  # plot_palette <- c("orchid4", "chocolate3")
   
   SD_vs_area <- ggplot(plot_data, aes(x = log10(agg_n), y = log10(value), color = variable, fill = variable)) +
     geom_point(size = 1) +
     geom_smooth(method = "lm", se = TRUE, linewidth = 0.5, alpha = 0.15) +
     ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name)) +
-    labs(x = "Number of 1km Pixels",
-         y = "SD", 
+    labs(x = "Log(Number of 1km Pixels)",
+         y = "Log(SD)", 
          color = "SD Calculation",
          fill = "SD Calculation") +
-    scale_color_manual(values = plot_palette, 
-                       labels = c("Naive", "Ensemble")) +
-    scale_fill_manual(values = plot_palette, 
-                      labels = c("Naive", "Ensemble")) +
+    scale_color_discrete(labels = c("crop_Tot_SD" = "Naive", 
+                                    "crop_ensVar_SD" = "Ensemble")) +
+    scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
+                                   "crop_ensVar_SD" = "Ensemble")) +
     #scale_x_log10() +
     #scale_y_log10() +
     theme_bw()
@@ -112,8 +112,8 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
     geom_point(size = 1.25, color = "navy") +
     geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
     ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
-    labs(x = "Number of 1km Pixels",
-         y = "Ensemble SD - Naive SD") +
+    labs(x = "Log(Number of 1km Pixels)",
+         y = "Log(Ensemble SD - Naive SD)") +
     #scale_x_log10() +
     #scale_y_log10() +
     theme_bw() +
@@ -144,8 +144,8 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
     geom_point(size = 1.25, color = "navy") +
     geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
     ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
-    labs(x = "Number of 1km pixels",
-         y = "Ratio of Total SD:Ensemble SD") +
+    labs(x = "Log(Number of 1km pixels)",
+         y = "Log(Ratio of Ensemble SD : Total SD)") +
     #scale_x_log10() +
     #scale_y_log10() +
     theme_bw() +
