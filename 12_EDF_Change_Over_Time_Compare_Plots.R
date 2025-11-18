@@ -66,47 +66,88 @@ ca_crop_regr <- data.frame(n_pixels = ca_port_df$agg_n, crop = ca_port_df$crop, 
 mw_crop_regr <- data.frame(n_pixels = mw_port_df$agg_n, crop = mw_port_df$crop, ratio_rev = mw_port_df$ratio_rev,
                            model_fit = mw_crop_pred$fit, upper = mw_crop_pred$upr, lower = mw_crop_pred$lwr)
 # (4) for uncertainty ratio vs pixels by all crops:
-crop_regr <- data.frame(n_pixels = port_df$agg_n, crop = port_df$crop, ratio_rev = port_df$ratio_rev,
+crop_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, crop = port_df$crop, ratio_rev = port_df$ratio_rev,
                         model_fit = crop_pred$fit, upper = crop_pred$upr, lower = crop_pred$lwr)
 
 ## Making plots
 # (1) regional differences:
-region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = n_pixels, y = model_fit, 
+region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
                                                              group = region, color = region, fill = region)) +
   geom_point() +
   geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = region, group = region), alpha = 0.50, color = NA) +
-  scale_x_log10() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = region, group = region), alpha = 0.25, color = NA) +
+  #scale_x_log10() +
   #scale_y_log10() +
+  labs(color = "Region",
+       x = "Log Number of 1km Pixels in Portfolio", 
+       y = "Model Fit") +
+  guides(fill = "none") +
   theme_bw()
 region_regr_plot
 
 # (2) California crops:
-ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
+ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
                                                                group = crop, color = crop, fill = crop)) +
   geom_point() +
-  geom_line() +
+  geom_line(size = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
-  scale_x_log10() +
+  #scale_x_log10() +
+  labs(color = "Crop",
+       x = "Log Number of 1km Pixels in Portfolio", 
+       y = "Model Fit") +
+  scale_color_discrete(
+    labels = c("aa_decid" = "Deciduous Tree Crops", 
+               "citrus" = "Citrus", 
+               "pasture" = "Pasture",
+               "truck_field_grain" = "Field/Row Crops",
+               "vineyd" = "Vineyards")
+  ) + 
+  guides(fill = "none") +
   theme_bw()
 ca_crop_regr_plot
 
 # (3) Midwest crops:
-mw_crop_regr_plot <- ggplot(data = mw_crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
+mw_crop_regr_plot <- ggplot(data = mw_crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
                                                                group = crop, color = crop, fill = crop)) +
   geom_point() +
-  geom_line() +
+  geom_line(size = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
-  scale_x_log10() +
+  #scale_x_log10() +
+  labs(color = "Crop",
+       x = "Log Number of 1km Pixels in Portfolio", 
+       y = "Model Fit") +
+  scale_color_discrete(
+    labels = c("aa_corn" = "Corn", 
+               "grass_pasture" = "Grassland/Pasture", 
+               "soybeans" = "Soybeans")
+  ) + 
+  guides(fill = "none") +
   theme_bw()
 mw_crop_regr_plot
 
 # (4) all crops:
-all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
-                                                             group = crop, color = crop, fill = crop)) +
+all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
+                                                             group = crop, color = crop, fill = crop, shape = region)) +
   geom_point() +
-  geom_line() +
+  geom_line(size = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
-  scale_x_log10() +
+  #scale_x_log10() +
+  labs(color = "Crop",
+       shape = "Region",
+       x = "Log Number of 1km Pixels in Portfolio", 
+       y = "Model Fit") +
+  scale_color_discrete(
+    labels = c("aa_decid" = "Deciduous Tree Crops", 
+               "citrus" = "Citrus", 
+               "pasture" = "Pasture",
+               "truck_field_grain" = "Field/Row Crops",
+               "vineyd" = "Vineyards",
+               "aa_corn" = "Corn", 
+               "grass_pasture" = "Grassland/Pasture", 
+               "soybeans" = "Soybeans")
+  ) +
+  guides(fill = "none") +
   theme_bw()
 all_crop_regr_plot
+
+
