@@ -14,7 +14,7 @@ source("/projectnb/dietzelab/malmborg/EDF_C_Portfolio_Project/04_EDF_SD_Maps_scr
 save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
 
 # save inventory data:
-write.csv(plot_data, "/projectnb/dietzelab/malmborg/EDF/CA_MW_runs/", Sys.Date(), "_MW_inventory_data.csv")
+write.csv(plot_data, paste0("/projectnb/dietzelab/malmborg/EDF/CA_MW_runs/", Sys.Date(), "_MW_inventory_plot_data.csv"))
 
 # Save the plot to a PNG file:
 ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_MW_aggregate_regions_plot.png"),
