@@ -113,10 +113,18 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
     arrange(factor(group))
   
   ## Plot
-  delta_vs_area <- ggplot(plot_data, aes(x = log10(agg_n), y = log10(delta), color = variable, fill = variable)) +
+  delta_vs_area <- ggplot(plot_data, aes(x = log10(agg_n), y = log10(delta))) +
+    geom_point(size = 2.5, color = "navy") +
+    geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+    stat_poly_eq(
+      aes(label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = "")),
+      color = "navy",
+      formula = y ~ x,
+      parse = TRUE,
+      size = 5) +
     geom_point(size = 1.25, color = "navy") +
     geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-    ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name)) +
+    ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name, " - ", plot_loc)) +
     labs(x = "Log(Number of 1km Pixels)",
          y = "Log(Ensemble SD - Naive SD)") +
     #scale_x_log10() +
@@ -145,10 +153,16 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
     arrange(factor(group))
   
   ## Plot
-  ratio_vs_area <- ggplot(plot_data, aes(x = log10(agg_n), y = log10(ratio_rev), color = variable, fill = variable)) +
-    geom_point(size = 1.25, color = "navy") +
-    geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-    ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name)) +
+  ratio_vs_area <- ggplot(plot_data, aes(x = log10(agg_n), y = log10(ratio_rev))) +
+    geom_point(size = 2.5, color = "navy") +  
+    geom_smooth(aes(group = variable), method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+    stat_poly_eq(
+      aes(label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = "")),
+      color = "navy",
+      formula = y ~ x,
+      parse = TRUE,
+      size = 5) +
+    ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name, " - ", plot_loc)) +
     labs(x = "Log(Number of 1km pixels)",
          y = "Log(Ratio of Ensemble SD : Total SD)") +
     #scale_x_log10() +
