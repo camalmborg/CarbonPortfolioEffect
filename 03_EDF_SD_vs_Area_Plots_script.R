@@ -76,13 +76,18 @@ plot_data <- as.data.frame(vec) %>%
 # color palette:
 #plot_palette <- c("orchid4", "chocolate3")
 
-SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value), color = variable, fill = variable, shape = type)) +
-  geom_point(size = 1.25) +
-  geom_smooth(method = "lm", se = TRUE, linewidth = 0.5, alpha = 0.15) +
-  # stat_poly_line() +
-  # stat_poly_eq(use_label(c("eq", "R2"))) +
+SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value))) +
+  geom_point(aes(color = variable, fill = variable, shape = type), size = 2.5) +
+  geom_smooth(aes(group = variable, fill = variable, color = variable), method = "lm", formula = y ~ x , se = TRUE, linewidth = 0.5, alpha = 0.15) +
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = ""),
+        color = variable,
+        group = variable),
+    formula = y ~ x,
+    parse = TRUE,
+    size = 5) +
   ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name, " - ", plot_loc)) +
-  labs(x = "Area (square meters)",
+  labs(x = "Log(Area (square meters))",
        y = "Log(SD)", 
        color = "SD Calculation",
        fill = "SD Calculation",
@@ -92,15 +97,20 @@ SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value), color 
   scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
                                   "crop_ensVar_SD" = "Ensemble")) +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
-  #scale_x_log10() +
-  #scale_y_log10() +
   theme_bw()
 # view:
 SD_vs_area
 
-delta_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(delta), color = variable, fill = variable, shape = type)) +
-  geom_point(size = 1.25, color = "navy") +
-  geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+
+delta_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(delta))) +
+  geom_point(aes(shape = type), size = 2.5, color = "navy") +
+  geom_smooth(aes(group = variable), method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = "")),
+    color = "navy",
+    formula = y ~ x,
+    parse = TRUE,
+    size = 5) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name, " - ", plot_loc)) +
   labs(x = "Log(Area sq m)",
        y = "Log(Ensemble SD - Naive SD)",
@@ -113,9 +123,16 @@ delta_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(delta), col
   theme(legend.position = "right")
 delta_vs_area
 
-ratio_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(ratio_rev), color = variable, fill = variable, shape = type)) +
-  geom_point(size = 1.25, color = "navy") +
-  geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+
+ratio_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(ratio_rev))) +
+  geom_point(aes(shape = type), size = 2.5, color = "navy") +  
+  geom_smooth(aes(group = variable), method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = "")),
+    color = "navy",
+    formula = y ~ x,
+    parse = TRUE,
+    size = 5) +
   ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name, " - ", plot_loc)) +
   labs(x = "Log(Area sq m)",
        y = "Log(Ratio of Ensemble SD : Naive SD)",
