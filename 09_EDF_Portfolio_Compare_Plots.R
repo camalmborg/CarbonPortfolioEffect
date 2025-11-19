@@ -71,16 +71,13 @@ crop_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, crop 
 
 ## Making plots
 # (1) regional differences:
-region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
-                                                             group = region, color = region, fill = region)) +
-  geom_point() +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = region, group = region), alpha = 0.25, color = NA) +
-  #scale_x_log10() +
-  #scale_y_log10() +
+region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = log10(n_pixels), y = model_fit)) +
+  geom_point(aes(group = region, color = region, fill = region), size = 2) +
+  geom_line(aes(color = region)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = region), alpha = 0.25, color = NA) +
   labs(color = "Region",
        x = "Log Number of 1km Pixels in Portfolio", 
-       y = "Model Fit") +
+       y = "Log(Ratio of Ensemble SD : Naive SD)") +
   guides(fill = "none") +
   theme_bw()
 region_regr_plot
@@ -94,7 +91,7 @@ ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = log10(n_pixel
   #scale_x_log10() +
   labs(color = "Crop",
        x = "Log Number of 1km Pixels in Portfolio", 
-       y = "Model Fit") +
+       y = "Log(Ratio of Ensemble SD : Naive SD)") +
   scale_color_discrete(
     labels = c("aa_decid" = "Deciduous Tree Crops", 
                "citrus" = "Citrus", 
@@ -115,7 +112,7 @@ mw_crop_regr_plot <- ggplot(data = mw_crop_regr, mapping = aes(x = log10(n_pixel
   #scale_x_log10() +
   labs(color = "Crop",
        x = "Log Number of 1km Pixels in Portfolio", 
-       y = "Model Fit") +
+       y = "Log(Ratio of Ensemble SD : Naive SD)") +
   scale_color_discrete(
     labels = c("aa_corn" = "Corn", 
                "grass_pasture" = "Grassland/Pasture", 
@@ -128,14 +125,14 @@ mw_crop_regr_plot
 # (4) all crops:
 all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
                                                                group = crop, color = crop, fill = crop, shape = region)) +
-  geom_point() +
+  geom_point(size = 2) +
   geom_line(size = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
   #scale_x_log10() +
   labs(color = "Crop",
        shape = "Region",
        x = "Log Number of 1km Pixels in Portfolio", 
-       y = "Model Fit") +
+       y = "Log(Ratio of Ensemble SD : Naive SD)") +
   scale_color_discrete(
     labels = c("aa_decid" = "Deciduous Tree Crops", 
                "citrus" = "Citrus", 
