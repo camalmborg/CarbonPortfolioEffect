@@ -4,6 +4,7 @@ library(terra)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
+library(ggpmisc)
 
 # variable names for plots:
 var_names <- c("AGB", "SOC", "LAI", "SMF")

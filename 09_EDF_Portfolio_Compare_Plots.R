@@ -7,6 +7,7 @@ library(tidyverse)
 library(sf)
 library(terra)
 library(ggplot2)
+library(ggpmisc)
 
 ## Load and prep crop portfolios
 # set working directory:
