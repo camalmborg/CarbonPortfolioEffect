@@ -50,6 +50,8 @@ write.csv(cp, file = paste0(save_dir, Sys.Date(), "_COT_MW_crop_portfolio_", nam
 
 # pixel group names:
 pixel_groups <- names(crop_portfolios)
+# plot location:
+plot_loc <- "Midwest"
 
 ## Make plots:
 SD_vs_area <- SD_vs_area_plot(portfolio_list = crop_portfolios,
