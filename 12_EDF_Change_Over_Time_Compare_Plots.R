@@ -25,6 +25,7 @@ port_df <- list.files(dir) %>%
   mutate(crop = case_when(crop == "decid" ~ "aa_decid",
                           crop == "corn" ~ "aa_corn",
                           TRUE ~ crop)) %>%
+  mutate(analysis = "static") %>%
   filter(complete.cases(.))
 
 # set COT working directory:
@@ -43,42 +44,69 @@ cot_port_df <- list.files(dir) %>%
   mutate(crop = case_when(crop == "decid" ~ "aa_decid",
                           crop == "corn" ~ "aa_corn",
                           TRUE ~ crop)) %>%
+  mutate(analysis = "cot") %>%
   filter(complete.cases(.))
+
+# combining these for region regression plot:
+stat_cot_comb <- rbind(port_df, cot_port_df)
 
 
 ## Regressions
 # region:
-region_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(region) + (log10(agg_n)*as.factor(region)), data = port_df)
+region_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(region) + (log10(agg_n)*as.factor(region)), data = cot_port_df)
+static_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(region) + (log10(agg_n)*as.factor(region)), data = port_df)
 
 # for crop types:
-crop_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(crop) + (log10(agg_n)*as.factor(crop)), data = port_df)
+crop_lm <- lm(log10(ratio_rev) ~ log10(agg_n) + as.factor(crop) + (log10(agg_n)*as.factor(crop)), data = cot_port_df)
 
 
 ## Add predicting values back to datasets for plots
 # for region:
 reg_pred <- as.data.frame(predict(region_lm, interval = "confidence"))
+# for static:
+stat_pred <- as.data.frame(predict(static_lm, interval = "confidence"))
 # for crop:
 crop_pred <- as.data.frame(predict(crop_lm, interval = "confidence"))
 
 
 ## Preparing data for the plots
 # (1) for uncertainty ratio vs pixels by region:
-region_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, ratio_rev = port_df$ratio_rev, 
+region_regr <- data.frame(n_pixels = cot_port_df$agg_n, region = cot_port_df$region, ratio_rev = cot_port_df$ratio_rev, analysis = cot_port_df$analysis,
                           model_fit = reg_pred$fit, upper = reg_pred$upr, lower = reg_pred$lwr)
+stat_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, ratio_rev = port_df$ratio_rev, analysis = port_df$analysis,
+                          model_fit = stat_pred$fit, upper = stat_pred$upr, lower = stat_pred$lwr)
 # (4) for uncertainty ratio vs pixels by all crops:
-crop_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, crop = port_df$crop, ratio_rev = port_df$ratio_rev,
+crop_regr <- data.frame(n_pixels = cot_port_df$agg_n, region = cot_port_df$region, crop = cot_port_df$crop, ratio_rev = cot_port_df$ratio_rev,
                         model_fit = crop_pred$fit, upper = crop_pred$upr, lower = crop_pred$lwr)
 
 ## Making plots
 # (1) regional differences:
-region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
-                                                             group = region, color = region, fill = region)) +
-  geom_point() +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = region, group = region), alpha = 0.25, color = NA) +
-  #scale_x_log10() +
-  #scale_y_log10() +
+region_regr_plot <- ggplot(data = region_regr) +
+  # plotting the sections with the cot portfolios:
+  geom_point(mapping = aes(x = n_pixels, y = model_fit, 
+                           group = region, 
+                           color = region, 
+                           fill = region)) +
+  geom_line(mapping = aes(x = n_pixels, y = model_fit, 
+                          group = region, 
+                          color = region, 
+                          linetype = "Change Over Time Portfolio"), 
+            size = 0.5) +
+  geom_ribbon(aes(x = n_pixels, ymin = lower, ymax = upper, 
+                  fill = region, group = region), 
+              alpha = 0.25, 
+              color = NA) +
+  # adding the plot for the static portfolios:
+  geom_line(data = stat_regr, mapping = aes(x = n_pixels, y = model_fit,
+                                            group = region, 
+                                            color = region,
+                                            linetype = "Static Portfolio")) + #,
+            #linetype = "dashed") +
+  scale_x_log10() +
+  scale_linetype_manual(values = c("Change Over Time Portfolio" = "solid",
+                                   "Static Portfolio" = "dashed")) +
   labs(color = "Region",
+       linetype = "Portfolio Type",
        x = "Log Number of 1km Pixels in Portfolio", 
        y = "Model Fit") +
   guides(fill = "none") +
