@@ -76,7 +76,7 @@ plot_data <- as.data.frame(vec) %>%
 # color palette:
 #plot_palette <- c("orchid4", "chocolate3")
 
-SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value))) +
+SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
   geom_point(aes(color = variable, fill = variable, shape = type), size = 2.5) +
   geom_smooth(aes(group = variable, fill = variable, color = variable), method = "lm", formula = y ~ x , se = TRUE, linewidth = 0.5, alpha = 0.15) +
   stat_poly_eq(
@@ -97,12 +97,14 @@ SD_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(value))) +
   scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
                                   "crop_ensVar_SD" = "Ensemble")) +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
+  scale_x_log10() +
+  scale_y_log10() +
   theme_bw()
 # view:
 SD_vs_area
 
 
-delta_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(delta))) +
+delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta)) +
   geom_point(aes(shape = type), size = 2.5, color = "navy") +
   geom_smooth(aes(group = variable), method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   stat_poly_eq(
@@ -117,14 +119,14 @@ delta_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(delta))) +
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
-  #scale_x_log10() +
-  #scale_y_log10() +
+  scale_x_log10() +
+  scale_y_log10() +
   theme_bw() +
   theme(legend.position = "right")
 delta_vs_area
 
 
-ratio_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(ratio_rev))) +
+ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev)) +
   geom_point(aes(shape = type), size = 2.5, color = "navy") +  
   geom_smooth(aes(group = variable), method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   stat_poly_eq(
@@ -139,8 +141,8 @@ ratio_vs_area <- ggplot(plot_data, aes(x = log10(area_m2), y = log10(ratio_rev))
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
-  #scale_x_log10() +
-  #scale_y_log10() +
+  scale_x_log10() +
+  scale_y_log10() +
   theme_bw() +
   theme(legend.position = "right")
 ratio_vs_area
