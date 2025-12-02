@@ -87,8 +87,8 @@ region_regr_plot
 # (4) all crops:
 all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
                                                                group = crop, color = crop, fill = crop, shape = region)) +
-  geom_point(size = 2) +
-  geom_line(size = 0.5) +
+  geom_point(size = 2.75) +
+  geom_line(linewidth = 0.15) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
   #scale_x_log10() +
   labs(color = "Crop",
@@ -109,6 +109,34 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = log10(n_pixels)
   theme_bw()
 all_crop_regr_plot
 
+
+## Region Regression Tables
+
+make_reg_tables <- function(lm){
+  # get summary:
+  summ <- summary(lm)
+  # get r2:
+  rs <- round(summ$r.squared, digits = 3)
+  # get p-vals:
+  pvs <- signif(summ$coefficients[,4], digits = 3)
+  # coefficients for intercept and terms:
+  coeffs <- lm$coefficients
+  
+}
+
+
+# model summary:
+summ <- summary(region_lm)
+# r2:
+r2 <- round(summ$r.squared, digits = 3)
+# p values:
+pvs <- signif(summ$coefficients[,4], digits = 3)
+# coefficients:
+coeffs <- region_lm$coefficients
+
+# make data frame:
+table_data <- t(data.frame(coeffs, pvs))
+colnames(table_data) <- c("Intercept", "Size (N pixels)", "Region", "Size x Region")
 
 # # (2) California crops:
 # ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
