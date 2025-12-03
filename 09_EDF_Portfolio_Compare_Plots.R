@@ -8,6 +8,7 @@ library(sf)
 library(terra)
 library(ggplot2)
 library(ggpmisc)
+library(gt)
 
 ## Load and prep crop portfolios
 # set working directory:
@@ -72,12 +73,20 @@ crop_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, crop 
 
 ## Making plots
 # (1) regional differences:
-region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = log10(n_pixels), y = model_fit)) +
-  geom_point(aes(group = region, color = region, fill = region), size = 2) +
-  geom_line(aes(color = region)) +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = region), alpha = 0.25, color = NA) +
+region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = log10(n_pixels), y = model_fit, color = region)) +
+  geom_point(aes(fill = region), size = 2) +
+  geom_line() +
+  stat_poly_eq(aes(label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = ""),
+                   group = region,
+                   color = region),
+    formula = y ~ x, 
+    parse = TRUE, 
+    size = 5) +
+  geom_ribbon(
+    aes(ymin = lower, ymax = upper, fill = region),
+    alpha = 0.25, color = NA) +
   labs(color = "Region",
-       x = "Log Number of 1km Pixels in Portfolio", 
+       x = "Log Number of 1km Pixels in Portfolio",
        y = "Log(Ratio of Ensemble SD : Naive SD)") +
   guides(fill = "none") +
   theme_bw()
@@ -85,12 +94,12 @@ region_regr_plot
 
 
 # (4) all crops:
-all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
+all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
                                                                group = crop, color = crop, fill = crop, shape = region)) +
   geom_point(size = 2.75) +
   geom_line(linewidth = 0.15) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
-  #scale_x_log10() +
+  scale_x_log10() +
   labs(color = "Crop",
        shape = "Region",
        x = "Log Number of 1km Pixels in Portfolio", 
@@ -135,8 +144,35 @@ pvs <- signif(summ$coefficients[,4], digits = 3)
 coeffs <- region_lm$coefficients
 
 # make data frame:
-table_data <- t(data.frame(coeffs, pvs))
+table_data <- as.data.frame(t(data.frame(coeffs, pvs)))
 colnames(table_data) <- c("Intercept", "Size (N pixels)", "Region", "Size x Region")
+rownames(table_data) <- c("Coefficients", "P-Value")
+gt(table_data)
+
+
+## Tables for reporting
+library(emmeans)
+
+# Compute slopes (trends) for each crop
+crop_slopes <- emtrends(crop_lm, ~ crop, var = "log10(agg_n)")
+# get p-values:
+crop_slopes_summary <- as.data.frame(summary(crop_slopes, infer = TRUE))
+# convert to data frame to make table:
+crop_slopes <- as.data.frame(crop_slopes)
+# Compute intercepts (predicted value when log10(agg_n) = 0)
+crop_intercepts <- as.data.frame(emmeans(crop_lm, ~ crop))
+
+# Combine into a single tidy table
+regr_table <- data.frame(
+  "Crop" = c("Corn", "Deciduous Tree Crops", "Citrus", "Grassland/Pasture (MW)", "Pasture (CA)", "Soybeans", "Field/Row Crops", "Vineyards"),
+  "Slope" = crop_slopes$`log10(agg_n).trend`,
+  "Slope SE" = crop_slopes$SE,
+  "P.value" = crop_slopes_summary$p.value,
+  "Intercept" = crop_intercepts$emmean,
+  "Intercept SE" = crop_intercepts$SE
+  ) %>%
+  mutate(across(where(is.numeric) & !matches("P.value"), ~ round(., 3))) %>%
+  mutate(`P.value` = ifelse(`P.value` < 0.001, ">.001", round(`P.value`, 3)))
 
 # # (2) California crops:
 # ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
