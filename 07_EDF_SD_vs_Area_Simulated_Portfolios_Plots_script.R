@@ -167,7 +167,7 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
       size = 5) +
     ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name, " - ", plot_loc)) +
     labs(x = "Log(Number of 1km pixels)",
-         y = "Log(Ratio of Ensemble SD : Total SD)") +
+         y = "Log(Ratio of Ensemble SD : Naive SD)") +
     scale_x_log10() +
     scale_y_log10() +
     theme_bw() +
