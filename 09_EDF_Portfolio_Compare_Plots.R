@@ -153,26 +153,77 @@ gt(table_data)
 ## Tables for reporting
 library(emmeans)
 
-# Compute slopes (trends) for each crop
+## For Regions
+# slopes for each region:
+reg_slopes <- emtrends(region_lm, ~ region, var = "log10(agg_n)")
+# get p-values:
+reg_slopes_summary <- as.data.frame(summary(reg_slopes, infer = TRUE))
+# convert to data frame to make table:
+reg_slopes <- as.data.frame(reg_slopes)
+# compute intercepts:
+reg_intercepts <- as.data.frame(emmeans(region_lm, ~ region))
+
+# Combine into table
+reg_regr_table <- data.frame(
+  region = c("California", "Midwest"),
+  slope = reg_slopes$`log10(agg_n).trend`,
+  slope_se = reg_slopes$SE,
+  p_value = reg_slopes_summary$p.value,
+  int = reg_intercepts$emmean,
+  int_se = reg_intercepts$SE
+) %>%
+  # round to third digit:
+  mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
+  # add nicer p-value reporting:
+  mutate(p_value = ifelse(p_value < 0.001, ">.001", round(p_value, 3)))
+
+rrt <- reg_regr_table %>%
+  select(region, slope, p_value, int) %>%
+  gt() %>%
+  cols_label(
+    region = md("**Region**"),
+    slope = md("**Slope**"),
+    p_value = md("**P-value**"),
+    int = md("**Intercept**")
+  )
+rrt
+
+gt(reg_regr_table)
+
+## For Crop Types
+# slopes for each crop:
 crop_slopes <- emtrends(crop_lm, ~ crop, var = "log10(agg_n)")
 # get p-values:
 crop_slopes_summary <- as.data.frame(summary(crop_slopes, infer = TRUE))
 # convert to data frame to make table:
 crop_slopes <- as.data.frame(crop_slopes)
-# Compute intercepts (predicted value when log10(agg_n) = 0)
+# compute intercepts:
 crop_intercepts <- as.data.frame(emmeans(crop_lm, ~ crop))
 
-# Combine into a single tidy table
-regr_table <- data.frame(
-  "Crop" = c("Corn", "Deciduous Tree Crops", "Citrus", "Grassland/Pasture (MW)", "Pasture (CA)", "Soybeans", "Field/Row Crops", "Vineyards"),
-  "Slope" = crop_slopes$`log10(agg_n).trend`,
-  "Slope SE" = crop_slopes$SE,
-  "P.value" = crop_slopes_summary$p.value,
-  "Intercept" = crop_intercepts$emmean,
-  "Intercept SE" = crop_intercepts$SE
+# Combine into table
+crop_regr_table <- data.frame(
+  crop = c("Corn", "Deciduous Tree Crops", "Citrus", "Grassland/Pasture (MW)", "Pasture (CA)", "Soybeans", "Field/Row Crops", "Vineyards"),
+  slope = crop_slopes$`log10(agg_n).trend`,
+  slope_se = crop_slopes$SE,
+  p_value = crop_slopes_summary$p.value,
+  int = crop_intercepts$emmean,
+  int_SE = crop_intercepts$SE
   ) %>%
-  mutate(across(where(is.numeric) & !matches("P.value"), ~ round(., 3))) %>%
-  mutate(`P.value` = ifelse(`P.value` < 0.001, ">.001", round(`P.value`, 3)))
+  # round to third digit:
+  mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
+  # add nicer p-value reporting:
+  mutate(p_value = ifelse(p_value < 0.001, ">.001", round(p_value, 3)))
+
+crt <- crop_regr_table %>%
+  select(crop, slope, p_value, int) %>%
+  gt() %>%
+  cols_label(
+    crop = md("**Crop**"),
+    slope = md("**Slope**"),
+    p_value = md("**P-value**"),
+    int = md("**Intercept**")
+    )
+crt
 
 # # (2) California crops:
 # ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
