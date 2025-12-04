@@ -122,6 +122,14 @@ region_regr_plot <- ggplot(data = region_regr) +
   theme_bw()
 region_regr_plot
 
+# save the plot:
+save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
+# Save the plot to a PNG file:
+ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_region_regression_plot.png"),
+       plot = region_regr_plot,
+       width = 10, height = 6,
+       dpi = 600)
+
 
 # (4) all crops:
 all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
