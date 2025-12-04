@@ -7,6 +7,8 @@ library(tidyverse)
 library(sf)
 library(terra)
 library(ggplot2)
+library(ggpmisc)
+library(gt)
 
 ## Load and prep crop portfolios
 # set static portfolios working directory:
@@ -96,6 +98,13 @@ region_regr_plot <- ggplot(data = region_regr) +
                   fill = region, group = region), 
               alpha = 0.25, 
               color = NA) +
+  # adding the line equations:
+  stat_poly_eq(aes(x = n_pixels, y = model_fit, label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = ""),
+                   group = region,
+                   color = region),
+               formula = y ~ x, 
+               parse = TRUE, 
+               size = 5) +
   # adding the plot for the static portfolios:
   geom_line(data = stat_regr, mapping = aes(x = n_pixels, y = model_fit,
                                             group = region, 
@@ -107,24 +116,24 @@ region_regr_plot <- ggplot(data = region_regr) +
                                    "Static Portfolio" = "dashed")) +
   labs(color = "Region",
        linetype = "Portfolio Type",
-       x = "Log Number of 1km Pixels in Portfolio", 
-       y = "Model Fit") +
+       x = "Number of 1km Pixels in Portfolio", 
+       y = "Log(Ratio of Ensemble SD:Naive SD)") +
   guides(fill = "none") +
   theme_bw()
 region_regr_plot
 
 
 # (4) all crops:
-all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
+all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
                                                              group = crop, color = crop, fill = crop, shape = region)) +
   geom_point() +
   geom_line(size = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
-  #scale_x_log10() +
+  scale_x_log10() +
   labs(color = "Crop",
        shape = "Region",
-       x = "Log Number of 1km Pixels in Portfolio", 
-       y = "Model Fit") +
+       x = "Number of 1km Pixels in Portfolio", 
+       y = "Log(Ratio of Ensemble SD:Naive SD") +
   scale_color_discrete(
     labels = c("aa_decid" = "Deciduous Tree Crops", 
                "citrus" = "Citrus", 
@@ -140,3 +149,109 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = log10(n_pixels)
 all_crop_regr_plot
 
 
+## Tables for Reporting Results
+library(emmeans)
+library(webshot2)
+
+## For Regions
+# slopes for each region:
+reg_slopes <- emtrends(region_lm, ~ region, var = "log10(agg_n)")
+stat_slopes <- emtrends(static_lm, ~region, var = "log10(agg_n)")
+# get p-values:
+reg_slopes_summary <- as.data.frame(summary(reg_slopes, infer = TRUE))
+stat_slopes_summary <- as.data.frame(summary(stat_slopes, infer = TRUE))
+# convert to data frame to make table:
+reg_slopes <- as.data.frame(reg_slopes)
+stat_slopes <- as.data.frame(stat_slopes)
+# compute intercepts:
+reg_intercepts <- as.data.frame(emmeans(region_lm, ~ region))
+stat_intercepts <- as.data.frame(emmeans(static_lm, ~ region))
+
+# Combine into table
+reg_regr_table <- data.frame(
+  region = c("California", "Midwest"),
+  slope = reg_slopes$`log10(agg_n).trend`,
+  slope_se = reg_slopes$SE,
+  p_value = reg_slopes_summary$p.value,
+  int = reg_intercepts$emmean,
+  int_se = reg_intercepts$SE
+) %>%
+  # round to third digit:
+  mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
+  # add nicer p-value reporting:
+  mutate(p_value = ifelse(p_value < 0.001, ">.001", round(p_value, 3)))
+
+stat_regr_table <- data.frame(
+  region = c("California", "Midwest"),
+  slope = stat_slopes$`log10(agg_n).trend`,
+  slope_se = stat_slopes$SE,
+  p_value = stat_slopes_summary$p.value,
+  int = stat_intercepts$emmean,
+  int_se = stat_intercepts$SE
+) %>%
+  # round to third digit:
+  mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
+  # add nicer p-value reporting:
+  mutate(p_value = ifelse(p_value < 0.001, ">.001", round(p_value, 3)))
+
+full_table <- rbind(reg_regr_table, stat_regr_table)
+
+rrt <- full_table %>%
+  select(region, slope, p_value, int) %>%
+  gt() %>%
+  cols_label(
+    region = md("**Region**"),
+    slope = md("**Slope**"),
+    p_value = md("**P-value**"),
+    int = md("**Intercept**")
+  ) %>%
+  tab_row_group(
+    group = "2019-2024 Change Over Time Portfolios",
+    rows = 1:2
+  ) %>%
+  tab_row_group(
+    group = "2021 Static Portfolios",
+    rows = 3:4
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "grey85"),
+    locations = cells_row_groups(groups = c("2019-2024 Change Over Time Portfolios", "2021 Static Portfolios"))
+  )
+rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/cot_and_stat_region_reg_table.docx")
+
+
+## For Crop Types
+# slopes for each crop:
+crop_slopes <- emtrends(crop_lm, ~ crop, var = "log10(agg_n)")
+# get p-values:
+crop_slopes_summary <- as.data.frame(summary(crop_slopes, infer = TRUE))
+# convert to data frame to make table:
+crop_slopes <- as.data.frame(crop_slopes)
+# compute intercepts:
+crop_intercepts <- as.data.frame(emmeans(crop_lm, ~ crop))
+
+# Combine into table
+crop_regr_table <- data.frame(
+  crop = c("Corn", "Deciduous Tree Crops", "Citrus", "Grassland/Pasture (MW)", "Pasture (CA)", "Soybeans", "Field/Row Crops", "Vineyards"),
+  slope = crop_slopes$`log10(agg_n).trend`,
+  slope_se = crop_slopes$SE,
+  p_value = crop_slopes_summary$p.value,
+  int = crop_intercepts$emmean,
+  int_SE = crop_intercepts$SE
+) %>%
+  # round to third digit:
+  mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
+  # add nicer p-value reporting:
+  mutate(p_value = ifelse(p_value < 0.001, ">.001", round(p_value, 3)))
+
+crt <- crop_regr_table %>%
+  select(crop, slope, p_value, int) %>%
+  gt() %>%
+  cols_label(
+    crop = md("**Crop**"),
+    slope = md("**Slope**"),
+    p_value = md("**P-value**"),
+    int = md("**Intercept**")
+  )
+
+crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/cot_crop_reg_table.html")
