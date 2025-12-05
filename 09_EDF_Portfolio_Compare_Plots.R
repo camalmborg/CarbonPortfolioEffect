@@ -182,7 +182,6 @@ crt <- crop_regr_table %>%
     locations = cells_body(columns = crop, rows = 1),
     placement = c("right")
   )
-  
 crt
 # save:
 crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/crop_reg_table.html")
