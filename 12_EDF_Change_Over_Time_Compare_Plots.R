@@ -213,11 +213,12 @@ region_regr_plot <- ggplot(data = region_regr) +
   geom_point(mapping = aes(x = n_pixels, y = model_fit, 
                            group = region, 
                            color = region, 
-                           fill = region)) +
+                           fill = region),
+             size = 3) +
   geom_line(mapping = aes(x = n_pixels, y = model_fit, 
                           group = region, 
                           color = region, 
-                          linetype = "Change Over Time Portfolio"), 
+                          linetype = "Change Over Time Portfolio"),
             linewidth = 0.5) +
   geom_ribbon(aes(x = n_pixels, ymin = lower, ymax = upper, 
                   fill = region, group = region), 
@@ -229,14 +230,14 @@ region_regr_plot <- ggplot(data = region_regr) +
                    color = region),
                formula = y ~ x, 
                parse = TRUE, 
-               size = 5) +
+               size = 7) +
   # adding the plot for the static portfolios:
   geom_line(data = stat_regr, mapping = aes(x = n_pixels, y = model_fit,
                                             group = region, 
                                             color = region,
-                                            linetype = "Static Portfolio")) + #,
-            #linetype = "dashed") +
-  scale_x_log10() +
+                                            linetype = "Static Portfolio"),
+            linewidth = 0.75, alpha = 0.5) + 
+  scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
   scale_linetype_manual(values = c("Change Over Time Portfolio" = "solid",
                                    "Static Portfolio" = "dashed")) +
   labs(color = "Region",
@@ -244,7 +245,11 @@ region_regr_plot <- ggplot(data = region_regr) +
        x = "Number of 1km Pixels in Portfolio", 
        y = "Log(Ratio of Ensemble SD:Naive SD)") +
   guides(fill = "none") +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text=element_text(size = 12))
 region_regr_plot
 
 # save the plot:
@@ -259,14 +264,14 @@ ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_region_regr
 # (4) all crops:
 all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
                                                              group = crop, color = crop, fill = crop, shape = region)) +
-  geom_point() +
-  geom_line(size = 0.5) +
+  geom_point(size = 2.5) +
+  geom_line(linewidth = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
-  scale_x_log10() +
+  scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
   labs(color = "Crop",
        shape = "Region",
        x = "Number of 1km Pixels in Portfolio", 
-       y = "Log(Ratio of Ensemble SD:Naive SD") +
+       y = "Log(Ratio of Ensemble SD:Naive SD)") +
   scale_color_discrete(
     labels = c("aa_decid" = "Deciduous Tree Crops", 
                "citrus" = "Citrus", 
@@ -278,5 +283,17 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
                "soybeans" = "Soybeans")
   ) +
   guides(fill = "none") +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text=element_text(size = 12))
 all_crop_regr_plot
+
+# save the plot:
+save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
+# Save the plot to a PNG file:
+ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_crop_regression_plot.png"),
+       plot = region_regr_plot,
+       width = 10, height = 6,
+       dpi = 600)

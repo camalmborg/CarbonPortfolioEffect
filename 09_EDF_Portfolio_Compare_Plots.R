@@ -190,23 +190,28 @@ crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_run
 
 ## Making plots
 # (1) regional differences:
-region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = log10(n_pixels), y = model_fit, color = region)) +
-  geom_point(aes(fill = region), size = 2) +
+region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = n_pixels, y = model_fit, color = region)) +
+  geom_point(aes(fill = region), size = 3) +
   geom_line(linewidth = 0.5) +
   stat_poly_eq(aes(label = paste(..eq.label..),#, "*\",  \"*", ..rr.label.., sep = ""),
                    group = region,
                    color = region),
     formula = y ~ x, 
     parse = TRUE, 
-    size = 5) +
+    size = 7) +
   geom_ribbon(
     aes(ymin = lower, ymax = upper, fill = region),
     alpha = 0.25, color = NA) +
+  scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
   labs(color = "Region",
-       x = "Log Number of 1km Pixels in Portfolio",
+       x = "Number of 1km Pixels in Portfolio",
        y = "Log(Ratio of Ensemble SD : Naive SD)") +
   guides(fill = "none") +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text=element_text(size = 12))
 region_regr_plot
 
 # save the plot:
@@ -217,14 +222,13 @@ ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_region_regr
        width = 10, height = 6,
        dpi = 600)
 
-
 # (4) all crops:
 all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
                                                                group = crop, color = crop, fill = crop, shape = region)) +
-  geom_point(size = 2.75) +
-  geom_line(linewidth = 0.15) +
+  geom_point(size = 2.5) +
+  geom_line(linewidth = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
-  scale_x_log10() +
+  scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
   labs(color = "Crop",
        shape = "Region",
        x = "Log Number of 1km Pixels in Portfolio", 
@@ -240,7 +244,11 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
                "soybeans" = "Soybeans")
   ) +
   guides(fill = "none") +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text=element_text(size = 12))
 all_crop_regr_plot
 
 # Save the plot to a PNG file:
