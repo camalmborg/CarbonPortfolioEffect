@@ -93,7 +93,7 @@ region_regr_plot <- ggplot(data = region_regr) +
                           group = region, 
                           color = region, 
                           linetype = "Change Over Time Portfolio"), 
-            size = 0.5) +
+            linewidth = 0.5) +
   geom_ribbon(aes(x = n_pixels, ymin = lower, ymax = upper, 
                   fill = region, group = region), 
               alpha = 0.25, 
@@ -214,11 +214,11 @@ rrt <- full_table %>%
     int = md("**Intercept**")
   ) %>%
   tab_row_group(
-    group = "2019-2024 Change Over Time Portfolios",
+    label = "2019-2024 Change Over Time Portfolios",
     rows = 1:2
   ) %>%
   tab_row_group(
-    group = "2021 Static Portfolios",
+    label = "2021 Static Portfolios",
     rows = 3:4
   ) %>%
   tab_style(

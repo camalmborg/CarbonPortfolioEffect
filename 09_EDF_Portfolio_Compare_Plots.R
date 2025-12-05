@@ -75,7 +75,7 @@ crop_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, crop 
 # (1) regional differences:
 region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = log10(n_pixels), y = model_fit, color = region)) +
   geom_point(aes(fill = region), size = 2) +
-  geom_line() +
+  geom_line(linewidth = 0.5) +
   stat_poly_eq(aes(label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = ""),
                    group = region,
                    color = region),
@@ -126,36 +126,11 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   theme_bw()
 all_crop_regr_plot
 
-
-## Region Regression Tables
-
-make_reg_tables <- function(lm){
-  # get summary:
-  summ <- summary(lm)
-  # get r2:
-  rs <- round(summ$r.squared, digits = 3)
-  # get p-vals:
-  pvs <- signif(summ$coefficients[,4], digits = 3)
-  # coefficients for intercept and terms:
-  coeffs <- lm$coefficients
-  
-}
-
-
-# model summary:
-summ <- summary(region_lm)
-# r2:
-r2 <- round(summ$r.squared, digits = 3)
-# p values:
-pvs <- signif(summ$coefficients[,4], digits = 3)
-# coefficients:
-coeffs <- region_lm$coefficients
-
-# make data frame:
-table_data <- as.data.frame(t(data.frame(coeffs, pvs)))
-colnames(table_data) <- c("Intercept", "Size (N pixels)", "Region", "Size x Region")
-rownames(table_data) <- c("Coefficients", "P-Value")
-gt(table_data)
+# Save the plot to a PNG file:
+ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regression_plot.png"),
+       plot = region_regr_plot,
+       width = 10, height = 6,
+       dpi = 600)
 
 
 ## Tables for reporting
@@ -196,7 +171,8 @@ rrt <- reg_regr_table %>%
   )
 rrt
 
-gt(reg_regr_table)
+rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/region_reg_table.html")
+
 
 ## For Crop Types
 # slopes for each crop:
@@ -216,7 +192,7 @@ crop_regr_table <- data.frame(
   p_value = crop_slopes_summary$p.value,
   int = crop_intercepts$emmean,
   int_SE = crop_intercepts$SE
-  ) %>%
+) %>%
   # round to third digit:
   mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
   # add nicer p-value reporting:
@@ -230,8 +206,40 @@ crt <- crop_regr_table %>%
     slope = md("**Slope**"),
     p_value = md("**P-value**"),
     int = md("**Intercept**")
-    )
+  )
 crt
+
+crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/crop_reg_table.docx")
+
+# make_reg_tables <- function(lm){
+#   # get summary:
+#   summ <- summary(lm)
+#   # get r2:
+#   rs <- round(summ$r.squared, digits = 3)
+#   # get p-vals:
+#   pvs <- signif(summ$coefficients[,4], digits = 3)
+#   # coefficients for intercept and terms:
+#   coeffs <- lm$coefficients
+#   
+# }
+# 
+# 
+# # model summary:
+# summ <- summary(region_lm)
+# # r2:
+# r2 <- round(summ$r.squared, digits = 3)
+# # p values:
+# pvs <- signif(summ$coefficients[,4], digits = 3)
+# # coefficients:
+# coeffs <- region_lm$coefficients
+# 
+# # make data frame:
+# table_data <- as.data.frame(t(data.frame(coeffs, pvs)))
+# colnames(table_data) <- c("Intercept", "Size (N pixels)", "Region", "Size x Region")
+# rownames(table_data) <- c("Coefficients", "P-Value")
+# gt(table_data)
+
+
 
 # # (2) California crops:
 # ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
