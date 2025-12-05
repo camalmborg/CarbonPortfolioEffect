@@ -129,7 +129,7 @@ rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_run
 rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/region_reg_table.docx")
 
 
-# For Crop Types ---
+# For Crop Types:
 crop_summ <- make_reg_tables(crop_lm)
 # slopes:
 crop_slopes <- crop_summ[["coef"]][grep("agg_n", names(crop_summ[["coef"]]))]

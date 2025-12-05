@@ -81,6 +81,131 @@ stat_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, ratio
 crop_regr <- data.frame(n_pixels = cot_port_df$agg_n, region = cot_port_df$region, crop = cot_port_df$crop, ratio_rev = cot_port_df$ratio_rev,
                         model_fit = crop_pred$fit, upper = crop_pred$upr, lower = crop_pred$lwr)
 
+
+## Tables for Reporting Results
+# For Regions:
+reg_summ <- make_reg_tables(region_lm)
+# Combine into table
+reg_regr_table <- data.frame(
+  region = c("California", "Midwest"),
+  slope = c(reg_summ[["coef"]][2], (reg_summ[["coef"]][2] + reg_summ[["coef"]][4])),
+  int = c(reg_summ[["coef"]][1], (reg_summ[["coef"]][1] + reg_summ[["coef"]][3])),
+  p_value_slopes = c(reg_summ[["p"]][2], reg_summ[["p"]][4]),
+  p_value_int = c(reg_summ[["p"]][1], reg_summ[["p"]][3]),
+  se_slope = c(reg_summ[["se"]][2], reg_summ[["se"]][4]),
+  se_int = c(reg_summ[["se"]][1], reg_summ[["se"]][3])
+) %>%
+  # round to third digit:
+  mutate(across(where(is.numeric) & !matches("p_value_slopes") & !matches("p_value_int"), ~ round(., 3))) %>%
+  # add nicer p-value reporting:
+  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, ">.001", round(p_value_slopes, 3))) %>%
+  mutate(p_value_int = ifelse(p_value_int < 0.001, ">.001", round(p_value_int, 3)))
+
+reg_summ <- make_reg_tables(static_lm)
+# Combine into table
+stat_regr_table <- data.frame(
+  region = c("California", "Midwest"),
+  slope = c(reg_summ[["coef"]][2], (reg_summ[["coef"]][2] + reg_summ[["coef"]][4])),
+  int = c(reg_summ[["coef"]][1], (reg_summ[["coef"]][1] + reg_summ[["coef"]][3])),
+  p_value_slopes = c(reg_summ[["p"]][2], reg_summ[["p"]][4]),
+  p_value_int = c(reg_summ[["p"]][1], reg_summ[["p"]][3]),
+  se_slope = c(reg_summ[["se"]][2], reg_summ[["se"]][4]),
+  se_int = c(reg_summ[["se"]][1], reg_summ[["se"]][3])
+) %>%
+  # round to third digit:
+  mutate(across(where(is.numeric) & !matches("p_value_slopes") & !matches("p_value_int"), ~ round(., 3))) %>%
+  # add nicer p-value reporting:
+  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, ">.001", round(p_value_slopes, 3))) %>%
+  mutate(p_value_int = ifelse(p_value_int < 0.001, ">.001", round(p_value_int, 3)))
+
+full_table <- rbind(reg_regr_table, stat_regr_table)
+
+rrt <- full_table %>%
+  select(region, slope, p_value_slopes, int, p_value_int) %>%
+  gt() %>%
+  cols_label(
+    region = md("**Region**"),
+    slope = md("**Slope**"),
+    p_value_slopes = md("P-value"),
+    int = md("**Intercept**"),
+    p_value_int = md("P-value")
+  ) %>%
+  tab_row_group(
+    label = "2019-2024 Change Over Time Portfolios",
+    rows = 1:2
+  ) %>%
+  tab_row_group(
+    label = "2021 Static Portfolios",
+    rows = 3:4
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "grey85"),
+    locations = cells_row_groups(groups = c("2019-2024 Change Over Time Portfolios", "2021 Static Portfolios"))
+  )
+rrt
+# save:
+rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/cot_and_stat_region_reg_table.html")
+rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/cot_and_stat_region_reg_table.docx")
+
+
+# For Crop Types:
+crop_summ <- make_reg_tables(crop_lm)
+# slopes:
+crop_slopes <- crop_summ[["coef"]][grep("agg_n", names(crop_summ[["coef"]]))]
+crop_slopes <- c(crop_slopes[1], crop_slopes[-1] + crop_slopes[1])
+# intercepts:
+crop_int <- crop_summ[["coef"]][grep("agg_n", names(crop_summ[["coef"]]), invert = TRUE)]
+crop_int <- c(crop_int[1], crop_int[-1] + crop_int[1])
+# p-values:
+slope_p <- crop_summ[["p"]][grep("agg_n", names(crop_summ[["p"]]))]
+int_p <- crop_summ[["p"]][grep("agg_n", names(crop_summ[["p"]]), invert = TRUE)]
+# se:
+slope_se <- crop_summ[["se"]][grep("agg_n", names(crop_summ[["se"]]))]
+int_se <- crop_summ[["se"]][grep("agg_n", names(crop_summ[["se"]]), invert = TRUE)]
+
+# Combine into table
+crop_regr_table <- data.frame(
+  crop = c("Corn", "Deciduous Tree Crops", "Citrus", "Grassland/Pasture (MW)", "Pasture (CA)", "Soybeans", "Field/Row Crops", "Vineyards"),
+  slope = crop_slopes,
+  p_value_slopes = slope_p,
+  slope_se = slope_se,
+  int = crop_int,
+  p_value_int = int_p,
+  int_se = int_se
+) %>%
+  # round to third digit:
+  mutate(across(where(is.numeric) & !matches("p_value_slopes") & !matches("p_value_int"), ~ round(., 3))) %>%
+  # add nicer p-value reporting:
+  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, ">.001", round(p_value_slopes, 3))) %>%
+  mutate(p_value_int = ifelse(p_value_int < 0.001, ">.001", round(p_value_int, 3)))
+
+crt <- crop_regr_table %>%
+  select(crop, slope, p_value_slopes, int, p_value_int) %>%
+  gt() %>%
+  cols_label(
+    crop = md("**Crop**"),
+    slope = md("**Slope**"),
+    p_value_slopes = md("P-value"),
+    int = md("**Intercept**"),
+    p_value_int = md("P-value")
+  ) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "grey85")
+    ),
+    locations = cells_body(
+      rows = 1)
+  ) %>%
+  tab_footnote(
+    footnote = "Reference Crop Class",
+    locations = cells_body(columns = crop, rows = 1),
+    placement = c("right")
+  )
+crt
+crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/cot_crop_reg_table.html")
+crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/cot_crop_reg_table.docx")
+
+
 ## Making plots
 # (1) regional differences:
 region_regr_plot <- ggplot(data = region_regr) +
@@ -99,7 +224,7 @@ region_regr_plot <- ggplot(data = region_regr) +
               alpha = 0.25, 
               color = NA) +
   # adding the line equations:
-  stat_poly_eq(aes(x = n_pixels, y = model_fit, label = paste(..eq.label.., "*\",  \"*", ..rr.label.., sep = ""),
+  stat_poly_eq(aes(x = n_pixels, y = model_fit, label = paste(..eq.label..),#, "*\",  \"*", ..rr.label.., sep = ""),
                    group = region,
                    color = region),
                formula = y ~ x, 
@@ -155,111 +280,3 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   guides(fill = "none") +
   theme_bw()
 all_crop_regr_plot
-
-
-## Tables for Reporting Results
-library(emmeans)
-library(webshot2)
-
-## For Regions
-# slopes for each region:
-reg_slopes <- emtrends(region_lm, ~ region, var = "log10(agg_n)")
-stat_slopes <- emtrends(static_lm, ~region, var = "log10(agg_n)")
-# get p-values:
-reg_slopes_summary <- as.data.frame(summary(reg_slopes, infer = TRUE))
-stat_slopes_summary <- as.data.frame(summary(stat_slopes, infer = TRUE))
-# convert to data frame to make table:
-reg_slopes <- as.data.frame(reg_slopes)
-stat_slopes <- as.data.frame(stat_slopes)
-# compute intercepts:
-reg_intercepts <- as.data.frame(emmeans(region_lm, ~ region))
-stat_intercepts <- as.data.frame(emmeans(static_lm, ~ region))
-
-# Combine into table
-reg_regr_table <- data.frame(
-  region = c("California", "Midwest"),
-  slope = reg_slopes$`log10(agg_n).trend`,
-  slope_se = reg_slopes$SE,
-  p_value = reg_slopes_summary$p.value,
-  int = reg_intercepts$emmean,
-  int_se = reg_intercepts$SE
-) %>%
-  # round to third digit:
-  mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
-  # add nicer p-value reporting:
-  mutate(p_value = ifelse(p_value < 0.001, ">.001", round(p_value, 3)))
-
-stat_regr_table <- data.frame(
-  region = c("California", "Midwest"),
-  slope = stat_slopes$`log10(agg_n).trend`,
-  slope_se = stat_slopes$SE,
-  p_value = stat_slopes_summary$p.value,
-  int = stat_intercepts$emmean,
-  int_se = stat_intercepts$SE
-) %>%
-  # round to third digit:
-  mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
-  # add nicer p-value reporting:
-  mutate(p_value = ifelse(p_value < 0.001, ">.001", round(p_value, 3)))
-
-full_table <- rbind(reg_regr_table, stat_regr_table)
-
-rrt <- full_table %>%
-  select(region, slope, p_value, int) %>%
-  gt() %>%
-  cols_label(
-    region = md("**Region**"),
-    slope = md("**Slope**"),
-    p_value = md("**P-value**"),
-    int = md("**Intercept**")
-  ) %>%
-  tab_row_group(
-    label = "2019-2024 Change Over Time Portfolios",
-    rows = 1:2
-  ) %>%
-  tab_row_group(
-    label = "2021 Static Portfolios",
-    rows = 3:4
-  ) %>%
-  tab_style(
-    style = cell_fill(color = "grey85"),
-    locations = cells_row_groups(groups = c("2019-2024 Change Over Time Portfolios", "2021 Static Portfolios"))
-  )
-rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/cot_and_stat_region_reg_table.docx")
-
-
-## For Crop Types
-# slopes for each crop:
-crop_slopes <- emtrends(crop_lm, ~ crop, var = "log10(agg_n)")
-# get p-values:
-crop_slopes_summary <- as.data.frame(summary(crop_slopes, infer = TRUE))
-# convert to data frame to make table:
-crop_slopes <- as.data.frame(crop_slopes)
-# compute intercepts:
-crop_intercepts <- as.data.frame(emmeans(crop_lm, ~ crop))
-
-# Combine into table
-crop_regr_table <- data.frame(
-  crop = c("Corn", "Deciduous Tree Crops", "Citrus", "Grassland/Pasture (MW)", "Pasture (CA)", "Soybeans", "Field/Row Crops", "Vineyards"),
-  slope = crop_slopes$`log10(agg_n).trend`,
-  slope_se = crop_slopes$SE,
-  p_value = crop_slopes_summary$p.value,
-  int = crop_intercepts$emmean,
-  int_SE = crop_intercepts$SE
-) %>%
-  # round to third digit:
-  mutate(across(where(is.numeric) & !matches("p_value"), ~ round(., 3))) %>%
-  # add nicer p-value reporting:
-  mutate(p_value = ifelse(p_value < 0.001, ">.001", round(p_value, 3)))
-
-crt <- crop_regr_table %>%
-  select(crop, slope, p_value, int) %>%
-  gt() %>%
-  cols_label(
-    crop = md("**Crop**"),
-    slope = md("**Slope**"),
-    p_value = md("**P-value**"),
-    int = md("**Intercept**")
-  )
-
-crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/cot_crop_reg_table.html")
