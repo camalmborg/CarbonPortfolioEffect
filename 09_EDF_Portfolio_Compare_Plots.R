@@ -253,7 +253,7 @@ all_crop_regr_plot
 
 # Save the plot to a PNG file:
 ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regression_plot.png"),
-       plot = region_regr_plot,
+       plot = all_crop_regr_plot,
        width = 10, height = 6,
        dpi = 600)
 

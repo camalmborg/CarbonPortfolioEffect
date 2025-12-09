@@ -294,6 +294,6 @@ all_crop_regr_plot
 save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
 # Save the plot to a PNG file:
 ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_crop_regression_plot.png"),
-       plot = region_regr_plot,
+       plot = all_crop_regr_plot,
        width = 10, height = 6,
        dpi = 600)

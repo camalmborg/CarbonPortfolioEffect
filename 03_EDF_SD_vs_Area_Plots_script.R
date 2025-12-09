@@ -5,6 +5,7 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(ggpmisc)
+library(common)
 
 # variable names for plots:
 var_names <- c("AGB", "SOC", "LAI", "SMF")
@@ -87,7 +88,7 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
     parse = TRUE,
     size = 5) +
   ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name, " - ", plot_loc)) +
-  labs(x = "Log(Area (square meters))",
+  labs(x = paste0("Log(Area ", "m" %p% supsc("2"), ")"),
        y = "Log(SD)", 
        color = "SD Calculation",
        fill = "SD Calculation",
@@ -134,9 +135,9 @@ ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev)) +
     color = "navy",
     formula = y ~ x,
     parse = TRUE,
-    size = 5) +
+    size = 6) +
   ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name, " - ", plot_loc)) +
-  labs(x = "Log(Area sq m)",
+  labs(x = paste0("Log(Area ", "m" %p% supsc("2"), ")"),
        y = "Log(Ratio of Ensemble SD : Naive SD)",
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
@@ -144,7 +145,11 @@ ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev)) +
   scale_x_log10() +
   scale_y_log10() +
   theme_bw() +
-  theme(legend.position = "right")
+  theme(legend.position = "right") +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text=element_text(size = 12))
 ratio_vs_area
 
 
