@@ -238,6 +238,10 @@ region_regr_plot <- ggplot(data = region_regr) +
                                             linetype = "Static Portfolio"),
             linewidth = 0.75, alpha = 0.5) + 
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
+  scale_y_continuous(
+    breaks = log10(c(1, 10, 100, 1000)),  
+    labels = c(1, 10, 100, 1000)          
+  ) +
   scale_linetype_manual(values = c("Change Over Time Portfolio" = "solid",
                                    "Static Portfolio" = "dashed")) +
   labs(color = "Region",
@@ -257,7 +261,7 @@ save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
 # Save the plot to a PNG file:
 ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_region_regression_plot.png"),
        plot = region_regr_plot,
-       width = 10, height = 6,
+       width = 12, height = 6,
        dpi = 600)
 
 
@@ -268,6 +272,10 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   geom_line(linewidth = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
+  scale_y_continuous(
+    breaks = log10(c(1, 10, 100, 1000)),  
+    labels = c(1, 10, 100, 1000)          
+  ) +
   labs(color = "Crop",
        shape = "Region",
        x = "Number of 1km Pixels in Portfolio", 
@@ -295,5 +303,5 @@ save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
 # Save the plot to a PNG file:
 ggsave(paste0(save_dir, "Change_Over_Time_Plots/", Sys.Date(), "_COT_crop_regression_plot.png"),
        plot = all_crop_regr_plot,
-       width = 10, height = 6,
+       width = 11, height = 6,
        dpi = 600)

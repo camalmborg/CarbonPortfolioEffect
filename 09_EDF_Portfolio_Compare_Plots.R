@@ -203,6 +203,10 @@ region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = n_pixels, y = m
     aes(ymin = lower, ymax = upper, fill = region),
     alpha = 0.25, color = NA) +
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
+  scale_y_continuous(
+    breaks = log10(c(1, 10, 100, 1000)),  
+    labels = c(1, 10, 100, 1000)          
+  ) +
   labs(color = "Region",
        x = "Number of 1km Pixels in Portfolio",
        y = "Log(Ratio of Ensemble SD : Naive SD)") +
@@ -229,9 +233,13 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   geom_line(linewidth = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
+  scale_y_continuous(
+    breaks = log10(c(1, 10, 100, 1000)),  
+    labels = c(1, 10, 100, 1000)          
+  ) +
   labs(color = "Crop",
        shape = "Region",
-       x = "Log Number of 1km Pixels in Portfolio", 
+       x = "Number of 1km Pixels in Portfolio", 
        y = "Log(Ratio of Ensemble SD : Naive SD)") +
   scale_color_discrete(
     labels = c("aa_decid" = "Deciduous Tree Crops", 
@@ -254,7 +262,7 @@ all_crop_regr_plot
 # Save the plot to a PNG file:
 ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regression_plot.png"),
        plot = all_crop_regr_plot,
-       width = 10, height = 6,
+       width = 11, height = 6,
        dpi = 600)
 
 
