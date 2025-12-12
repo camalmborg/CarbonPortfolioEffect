@@ -98,8 +98,8 @@ reg_regr_table <- data.frame(
   # round to third digit:
   mutate(across(where(is.numeric) & !matches("p_value_slopes") & !matches("p_value_int"), ~ round(., 3))) %>%
   # add nicer p-value reporting:
-  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, ">.001", round(p_value_slopes, 3))) %>%
-  mutate(p_value_int = ifelse(p_value_int < 0.001, ">.001", round(p_value_int, 3)))
+  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, "< 0.001", round(p_value_slopes, 3))) %>%
+  mutate(p_value_int = ifelse(p_value_int < 0.001, "< 0.001", round(p_value_int, 3)))
 
 reg_summ <- make_reg_tables(static_lm)
 # Combine into table
@@ -115,8 +115,8 @@ stat_regr_table <- data.frame(
   # round to third digit:
   mutate(across(where(is.numeric) & !matches("p_value_slopes") & !matches("p_value_int"), ~ round(., 3))) %>%
   # add nicer p-value reporting:
-  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, ">.001", round(p_value_slopes, 3))) %>%
-  mutate(p_value_int = ifelse(p_value_int < 0.001, ">.001", round(p_value_int, 3)))
+  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, "< 0.001", round(p_value_slopes, 3))) %>%
+  mutate(p_value_int = ifelse(p_value_int < 0.001, "< 0.001", round(p_value_int, 3)))
 
 full_table <- rbind(reg_regr_table, stat_regr_table)
 
@@ -176,8 +176,8 @@ crop_regr_table <- data.frame(
   # round to third digit:
   mutate(across(where(is.numeric) & !matches("p_value_slopes") & !matches("p_value_int"), ~ round(., 3))) %>%
   # add nicer p-value reporting:
-  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, ">.001", round(p_value_slopes, 3))) %>%
-  mutate(p_value_int = ifelse(p_value_int < 0.001, ">.001", round(p_value_int, 3)))
+  mutate(p_value_slopes = ifelse(p_value_slopes < 0.001, "< 0.001", round(p_value_slopes, 3))) %>%
+  mutate(p_value_int = ifelse(p_value_int < 0.001, "< 0.001", round(p_value_int, 3)))
 
 crt <- crop_regr_table %>%
   select(crop, slope, p_value_slopes, int, p_value_int) %>%
