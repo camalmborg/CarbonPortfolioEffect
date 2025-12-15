@@ -6,6 +6,8 @@ library(readr)
 library(tidyverse)
 library(sf)
 library(terra)
+library(ggplot2)
+library(ggridges)
 
 ## Load Functions
 # run the functions script:
@@ -129,3 +131,73 @@ cors <- mapply(cor,
                as.data.frame(analysis.all[["2019-07-15"]][,soc]))
 summary(cors)
 
+
+### Working with inventory data ###
+# directory:
+dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_runs/"
+setwd(dir)
+
+# open file with inventory data:
+ca_inv <- read.csv(paste0(dir, "2025-11-26_CA_inventory_plot_data.csv"))
+mw_inv <- read.csv(paste0(dir, "2025-11-26_MW_inventory_plot_data.csv"))
+# split into groups:
+ca_naive <- ca_inv[ca_inv$variable == "crop_Tot_SD",]
+ca_ens <- ca_inv[ca_inv$variable == "crop_ensVar_SD",]
+mw_naive <- mw_inv[mw_inv$variable == "crop_Tot_SD",]
+mw_ens <- mw_inv[mw_inv$variable == "crop_ensVar_SD",]
+
+# learn about them:
+ca_del_pc <- (ca_ens$delta/ca_naive$value)*100
+
+# ca inventory data ranges of SDs
+ca_naive_range <- ca_naive$value[which(ca_naive$type == "State(s)")]
+ca_ens_range <- ca_ens$value[which(ca_naive$type == "State(s)")]
+#  mw inventory data ranges of SDs
+mw_naive_range <- mw_naive$value[which(mw_naive$value > 0 & mw_naive$type == "State(s)")]
+mw_ens_range <- mw_ens$value[which(mw_ens$value > 0 & mw_ens$type == "State(s)")]
+
+# factor off for largest spatial scale (state(s)):
+ca_ens_range/ca_naive_range
+mw_ens_range/mw_naive_range
+
+
+### Working with portfolio data ###
+# set working directory for static (single year) portfolios:
+# dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
+# setwd(dir)
+# set COT portfolios working directory:
+dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
+setwd(dir)
+# portfolio files:
+port_df <- list.files(dir) %>%
+  # open:
+  lapply(read_csv, show_col_types = FALSE) %>%
+  # row bind:
+  bind_rows() %>%
+  # add ratios:
+  mutate(ratio = crop_Tot_SD/crop_ensVar_SD) %>%
+  mutate(ratio_rev = crop_ensVar_SD/crop_Tot_SD) %>%
+  # change names to make most abundant crops for each region reference classes for their regions:
+  mutate(crop = case_when(crop == "decid" ~ "aa_decid",
+                          crop == "corn" ~ "aa_corn",
+                          TRUE ~ crop)) %>%
+  filter(complete.cases(.))
+
+# make one for California:
+ca_port_df <- port_df %>%
+  filter(region == "CA")
+# one for the midwest:
+mw_port_df <- port_df %>%
+  filter(region == "MW")
+
+# for largest spatial scales:
+ca_naive_big_port <- ca_port_df[ca_port_df$agg_n == 10000,]$crop_Tot_SD
+ca_ens_big_port <- ca_port_df[ca_port_df$agg_n == 10000,]$crop_ensVar_SD
+mw_naive_big_port <- mw_port_df[mw_port_df$agg_n == 10000,]$crop_Tot_SD
+mw_ens_big_port <- mw_port_df[mw_port_df$agg_n == 10000,]$crop_ensVar_SD
+# divide:
+fac_off_ca <- ca_ens_big_port/ca_naive_big_port
+fac_off_mw <- mw_ens_big_port/mw_naive_big_port
+# ranges:
+range(fac_off_ca)
+range(fac_off_mw)
