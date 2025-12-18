@@ -81,7 +81,7 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
       parse = TRUE,
       size = 5) +
     ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name, " - ", plot_loc)) +
-    labs(x = "Log(Number of 1km Pixels)",
+    labs(x = "Number of 1km Pixels",
          y = "Log(SD)", 
          color = "Calculation Method",
          fill = "Calculation Method") +
