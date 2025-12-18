@@ -5,6 +5,7 @@ library(terra)
 library(sf)
 library(ggplot2)
 library(patchwork)
+library(stringr)
 
 # variable names for plots:
 var_names <- c("AGB", "SOC", "LAI", "SMF")
