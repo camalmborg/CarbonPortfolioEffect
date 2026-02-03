@@ -203,13 +203,11 @@ region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = n_pixels, y = m
     aes(ymin = lower, ymax = upper, fill = region),
     alpha = 0.25, color = NA) +
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
-  scale_y_continuous(
-    breaks = log10(c(1, 10, 100, 1000)),  
-    labels = c(1, 10, 100, 1000)          
-  ) +
+  scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
+                     labels = function(x) parse(text = paste0("10^", x))) +
   labs(color = "Region",
        x = "Number of 1km Pixels in Portfolio",
-       y = "Log(Ratio of Ensemble SD : Naive SD)") +
+       y = "Ensemble SD : Naive SD") +
   guides(fill = "none") +
   theme_bw() +
   theme(axis.text.x = element_text(size = 12),
@@ -233,14 +231,12 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   geom_line(linewidth = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
-  scale_y_continuous(
-    breaks = log10(c(1, 10, 100, 1000)),  
-    labels = c(1, 10, 100, 1000)          
-  ) +
+  scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
+                     labels = function(x) parse(text = paste0("10^", x))) +
   labs(color = "Crop",
        shape = "Region",
        x = "Number of 1km Pixels in Portfolio", 
-       y = "Log(Ratio of Ensemble SD : Naive SD)") +
+       y = "Ensemble SD : Naive SD") +
   scale_color_discrete(
     labels = c("aa_decid" = "Deciduous Tree Crops", 
                "citrus" = "Citrus", 
