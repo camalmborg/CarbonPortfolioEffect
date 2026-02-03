@@ -39,6 +39,9 @@ ggsave(paste0(save_dir, "Plots/", Sys.Date(), "_CA_aggregate_regions_RATIO_plot.
 
 ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_county_maps.png"), 
        plot = county_maps,
+       height = 8,
+       width = 12,
+       units = "in",
        dpi = 600)
 # also save county map for combining maps later:
 save(county_maps, file = "CA_county_map.RData")

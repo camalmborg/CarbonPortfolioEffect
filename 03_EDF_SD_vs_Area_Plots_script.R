@@ -74,9 +74,7 @@ plot_data <- as.data.frame(vec) %>%
   ) %>%
   arrange(factor(type, levels = c("Town", "County", "Region", "State(s)")))
 
-# color palette:
-#plot_palette <- c("orchid4", "chocolate3")
-
+# SD vs area:
 SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
   geom_point(aes(color = variable, fill = variable, shape = type), size = 2.5) +
   geom_smooth(aes(group = variable, fill = variable, color = variable), method = "lm", formula = y ~ x , se = TRUE, linewidth = 0.5, alpha = 0.15) +
@@ -87,9 +85,9 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
     formula = y ~ x,
     parse = TRUE,
     size = 5) +
-  ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name, " - ", plot_loc)) +
-  labs(x = paste0("Log(Area ", "m" %p% supsc("2"), ")"),
-       y = "Log(SD)", 
+  ggtitle(paste0("Naive vs. Ensemble SD - ", plot_loc)) +
+  labs(x = paste0("Area ", "(m" %p% supsc("2"), ")"),
+       y = "SD", 
        color = "SD Calculation",
        fill = "SD Calculation",
        shape = "Geographic Boundary") +
@@ -98,9 +96,12 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
   scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
                                   "crop_ensVar_SD" = "Ensemble")) +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
-  scale_x_log10() +
-  scale_y_log10() +
-  theme_bw()
+  scale_x_log10(breaks =  c(10^seq(5, 12))) +
+  scale_y_log10(breaks = c(1, 10, 100, 1000, 10000)) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        legend.text = element_text(size = 12))
 # view:
 SD_vs_area
 
@@ -115,15 +116,19 @@ delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta)) +
     parse = TRUE,
     size = 5) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name, " - ", plot_loc)) +
-  labs(x = "Log(Area sq m)",
-       y = "Log(Ensemble SD - Naive SD)",
+  labs(x = paste0("Area ", "(m" %p% supsc("2"), ")"),
+       y = "Ensemble SD - Naive SD",
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
-  scale_x_log10() +
-  scale_y_log10() +
+  scale_x_log10(breaks =  c(10^seq(5, 12))) +
+  scale_y_log10(breaks = c(-0.1, 0, 1, 10, 100, 1000, 10000)) +
   theme_bw() +
-  theme(legend.position = "right")
+  theme(legend.position = "right") +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text=element_text(size = 12))
 delta_vs_area
 
 
@@ -136,14 +141,14 @@ ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev)) +
     formula = y ~ x,
     parse = TRUE,
     size = 6) +
-  ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name, " - ", plot_loc)) +
-  labs(x = paste0("Log(Area ", "m" %p% supsc("2"), ")"),
-       y = "Log(Ratio of Ensemble SD : Naive SD)",
+  ggtitle(paste0("Ensemble SD to Naive SD Ratio - ", plot_loc)) +
+  labs(x = paste0("Area ", "(m" %p% supsc("2"), ")"),
+       y = "Ensemble SD : Naive SD",
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
-  scale_x_log10() +
-  scale_y_log10() +
+  scale_x_log10(breaks =  c(10^seq(5, 12))) +
+  scale_y_log10(breaks = c(0, 1, 5, 10, 25, 50, 100)) +
   theme_bw() +
   theme(legend.position = "right") +
   theme(axis.text.x = element_text(size = 12),

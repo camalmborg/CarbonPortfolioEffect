@@ -166,7 +166,7 @@ mw_ens_range/mw_naive_range
 # dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
 # setwd(dir)
 # set COT portfolios working directory:
-dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
+dir <- "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/Portfolios/"
 setwd(dir)
 # portfolio files:
 port_df <- list.files(dir) %>%
