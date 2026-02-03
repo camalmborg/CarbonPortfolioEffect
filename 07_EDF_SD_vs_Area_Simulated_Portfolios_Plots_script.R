@@ -91,7 +91,11 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
                                    "crop_ensVar_SD" = "Ensemble")) +
     scale_x_log10() +
     scale_y_log10(breaks = c(1, 10, 100, 1000, 10000)) +
-    theme_bw()
+    theme_bw() +
+    theme(axis.text.x = element_text(size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.title = element_text(size = 14),
+          legend.text=element_text(size = 12))
   
   # return:
   return(SD_vs_area)
@@ -133,7 +137,11 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
     scale_x_log10() +
     scale_y_log10() +
     theme_bw() +
-    theme(legend.position = "none")
+    theme(legend.position = "none",
+          axis.text.x = element_text(size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.title = element_text(size = 14),
+          legend.text=element_text(size = 12))
   
   return(delta_vs_area)
 }
@@ -171,7 +179,11 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
     scale_x_log10() +
     scale_y_log10(breaks = c(0, 1, 5, 10, 25, 50, 100)) +
     theme_bw() +
-    theme(legend.position = "none")
+    theme(legend.position = "none",
+          axis.text.x = element_text(size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.title = element_text(size = 14),
+          legend.text=element_text(size = 12))
   
   return(ratio_vs_area)
 }
