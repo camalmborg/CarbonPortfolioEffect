@@ -80,9 +80,9 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
       formula = y ~ x,
       parse = TRUE,
       size = 5) +
-    ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name, " - ", plot_loc)) +
+    ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_loc)) +
     labs(x = "Number of 1km Pixels",
-         y = "Log(SD)", 
+         y = "SD", 
          color = "Calculation Method",
          fill = "Calculation Method") +
     scale_color_discrete(labels = c("crop_Tot_SD" = "Naive", 
@@ -90,7 +90,7 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
     scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
                                    "crop_ensVar_SD" = "Ensemble")) +
     scale_x_log10() +
-    scale_y_log10() +
+    scale_y_log10(breaks = c(1, 10, 100, 1000, 10000)) +
     theme_bw()
   
   # return:
@@ -127,9 +127,9 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
       size = 5) +
     geom_point(size = 1.25, color = "navy") +
     geom_smooth(method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
-    ggtitle(paste0("Naive vs. Ensemble SD calculations: ", plot_var_name, " - ", plot_loc)) +
-    labs(x = "Log(Number of 1km Pixels)",
-         y = "Log(Ensemble SD - Naive SD)") +
+    ggtitle(paste0("Naive - Ensemble SD calculations: ", plot_loc)) +
+    labs(x = "Number of 1km Pixels",
+         y = "Ensemble SD - Naive SD") +
     scale_x_log10() +
     scale_y_log10() +
     theme_bw() +
@@ -165,11 +165,11 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
       formula = y ~ x,
       parse = TRUE,
       size = 5) +
-    ggtitle(paste0("Ensemble - Naive (Ratio Plot): ", plot_var_name, " - ", plot_loc)) +
+    ggtitle(paste0("Ensemble:Naive (Ratio Plot) - ", plot_loc)) +
     labs(x = "Log(Number of 1km pixels)",
          y = "Log(Ratio of Ensemble SD : Naive SD)") +
     scale_x_log10() +
-    scale_y_log10() +
+    scale_y_log10(breaks = c(0, 1, 5, 10, 25, 50, 100)) +
     theme_bw() +
     theme(legend.position = "none")
   
