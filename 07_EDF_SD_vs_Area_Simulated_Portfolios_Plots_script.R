@@ -89,7 +89,8 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
                                     "crop_ensVar_SD" = "Ensemble")) +
     scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
                                    "crop_ensVar_SD" = "Ensemble")) +
-    scale_x_log10(breaks = c(1, 10, 100, 1000, 10000, 100000)) +
+    #scale_x_log10(breaks = c(1, 10, 100, 1000, 10000, 100000)) +
+    scale_x_log10() + 
     scale_y_log10(breaks = c(1, 10, 100, 1000, 10000)) +
     theme_bw() +
     theme(axis.text.x = element_text(size = 12),
@@ -133,7 +134,8 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
     ggtitle(paste0("Naive - Ensemble SD calculations: ", plot_loc)) +
     labs(x = "Number of 1km Pixels",
          y = "Ensemble SD - Naive SD") +
-    scale_x_log10(breaks = c(1, 10, 100, 1000, 10000, 100000)) +
+    scale_x_log10() + 
+    #scale_x_log10(breaks = c(1, 10, 100, 1000, 10000, 100000)) +
     scale_y_log10() +
     theme_bw() +
     theme(legend.position = "none",
@@ -175,7 +177,8 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
     ggtitle(paste0("Ensemble:Naive (Ratio Plot) - ", plot_loc)) +
     labs(x = "Number of 1km pixels",
          y = "Ensemble SD : Naive SD") +
-    scale_x_log10(breaks = c(1, 10, 100, 100, 1000, 10000, 100000)) +
+    #scale_x_log10(breaks = c(1, 10, 100, 100, 1000, 10000, 100000)) +
+    scale_x_log10() + 
     scale_y_log10(breaks = c(0, 1, 5, 10, 25, 50, 100)) +
     theme_bw() +
     theme(legend.position = "none",
