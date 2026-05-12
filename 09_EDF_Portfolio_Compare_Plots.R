@@ -261,7 +261,19 @@ ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regre
        width = 11, height = 6,
        dpi = 600)
 
+### saving plots 2/20 - fixing aspect ratios
+save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
+png(filename = paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_region_regression_plot.png"),
+    width = 9, height = 6, units = "in",
+    res = 600)
+region_regr_plot
+dev.off()
 
+png(filename = paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regression_plot.png"),
+    width = 10, height = 6, units = "in",
+    res = 600)
+all_crop_regr_plot
+dev.off()
 
 # # (2) California crops:
 # ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 

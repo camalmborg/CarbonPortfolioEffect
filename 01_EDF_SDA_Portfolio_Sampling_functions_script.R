@@ -46,7 +46,7 @@ portfolio_sampler <- function(crop_group, ens_rast, n_pixels){
   # disaggregate to separate:
   portfolio_poly <- disagg(portfolio_poly)
   # add expanse of region column:
-  portfolio_poly[["area_m2"]] <- expanse(portfolio_poly, unit = "m")
+  portfolio_poly[["area_km2"]] <- expanse(portfolio_poly, unit = "km")
   # add name to portfolio:
   portfolio_poly[["group"]] <- paste0(as.character(n_pixels), "_pixel_group")
   # aggregate into one portfolio:

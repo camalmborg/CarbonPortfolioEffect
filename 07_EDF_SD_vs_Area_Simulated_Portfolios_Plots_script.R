@@ -58,7 +58,7 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
   # coerce to data.frame for plot:
   plot_data <- as.data.frame(vec) %>%
     # select columns:
-    select(c(group, agg_n, mean_area_m2, crop_Tot_SD, crop_ensVar_SD, delta, ratio, ratio_rev)) %>%
+    select(c(group, agg_n, mean_area_km2, crop_Tot_SD, crop_ensVar_SD, delta, ratio, ratio_rev)) %>%
     # pivot longer:
     pivot_longer(
       cols = c(crop_Tot_SD, crop_ensVar_SD),
@@ -89,7 +89,7 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
                                     "crop_ensVar_SD" = "Ensemble")) +
     scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
                                    "crop_ensVar_SD" = "Ensemble")) +
-    scale_x_log10() +
+    scale_x_log10(breaks = c(1, 10, 100, 1000, 10000, 100000)) +
     scale_y_log10(breaks = c(1, 10, 100, 1000, 10000)) +
     theme_bw() +
     theme(axis.text.x = element_text(size = 12),
@@ -100,8 +100,7 @@ SD_vs_area_plot <- function(portfolio_list, pixel_groups) {
   # return:
   return(SD_vs_area)
 }
-# view:
-#SD_vs_area
+
 
 delta_vs_area_plot <- function(portfolio_list, pixel_groups){
   # compile data:
@@ -110,7 +109,7 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
   # coerce to data.frame for plot:
   plot_data <- as.data.frame(vec) %>%
     # select columns:
-    select(c(group, agg_n, mean_area_m2, crop_Tot_SD, crop_ensVar_SD, delta, ratio, ratio_rev)) %>%
+    select(c(group, agg_n, mean_area_km2, crop_Tot_SD, crop_ensVar_SD, delta, ratio, ratio_rev)) %>%
     # pivot longer:
     pivot_longer(
       cols = c(crop_Tot_SD, crop_ensVar_SD),
@@ -134,7 +133,7 @@ delta_vs_area_plot <- function(portfolio_list, pixel_groups){
     ggtitle(paste0("Naive - Ensemble SD calculations: ", plot_loc)) +
     labs(x = "Number of 1km Pixels",
          y = "Ensemble SD - Naive SD") +
-    scale_x_log10() +
+    scale_x_log10(breaks = c(1, 10, 100, 1000, 10000, 100000)) +
     scale_y_log10() +
     theme_bw() +
     theme(legend.position = "none",
@@ -154,7 +153,7 @@ ratio_vs_area_plot <- function(portfolio_list, pixel_groups){
   # coerce to data.frame for plot:
   plot_data <- as.data.frame(vec) %>%
     # select columns:
-    select(c(group, agg_n, mean_area_m2, crop_Tot_SD, crop_ensVar_SD, delta, ratio, ratio_rev)) %>%
+    select(c(group, agg_n, mean_area_km2, crop_Tot_SD, crop_ensVar_SD, delta, ratio, ratio_rev)) %>%
     # pivot longer:
     pivot_longer(
       cols = c(crop_Tot_SD, crop_ensVar_SD),

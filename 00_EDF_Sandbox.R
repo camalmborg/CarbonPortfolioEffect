@@ -163,10 +163,10 @@ mw_ens_range/mw_naive_range
 
 ### Working with portfolio data ###
 # set working directory for static (single year) portfolios:
-# dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
+dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
 # setwd(dir)
 # set COT portfolios working directory:
-dir <- "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/Portfolios/"
+#dir <- "/projectnb/dietzelab/malmborg/EDF/Change_Over_Time/Portfolios/"
 setwd(dir)
 # portfolio files:
 port_df <- list.files(dir) %>%
@@ -193,8 +193,8 @@ mw_port_df <- port_df %>%
 # for largest spatial scales:
 ca_naive_big_port <- ca_port_df[ca_port_df$agg_n == 10000,]$crop_Tot_SD
 ca_ens_big_port <- ca_port_df[ca_port_df$agg_n == 10000,]$crop_ensVar_SD
-mw_naive_big_port <- mw_port_df[mw_port_df$agg_n == 10000,]$crop_Tot_SD
-mw_ens_big_port <- mw_port_df[mw_port_df$agg_n == 10000,]$crop_ensVar_SD
+mw_naive_big_port <- mw_port_df[mw_port_df$agg_n == 100000,]$crop_Tot_SD
+mw_ens_big_port <- mw_port_df[mw_port_df$agg_n == 100000,]$crop_ensVar_SD
 # divide:
 fac_off_ca <- ca_ens_big_port/ca_naive_big_port
 fac_off_mw <- mw_ens_big_port/mw_naive_big_port

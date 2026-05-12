@@ -17,7 +17,7 @@ types <- c("Town", "County", "Region", "State(s)")
 prepare_plot_data <- function(agg_vector, type, crops){
   vec <- agg_vector
   # get areas of each polygon:
-  vec$area_m2 <- terra::expanse(vec, unit = "m")
+  vec$area_km2 <- terra::expanse(vec, unit = "km")
   # add column for type of aggregate region:
   vec$type <- type
   # reproject crops to match regional vector:
@@ -25,7 +25,7 @@ prepare_plot_data <- function(agg_vector, type, crops){
   # calculate overlap:
   overlap <- terra::intersect(vec, crop_vec)
   # calculate expanse of overlap in each regional unit:
-  vec$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+  vec$crops_area_km2 <- terra::expanse(overlap, unit = "km")
   # calculate the delta between naive and ensemble calculations:
   vec$delta <- vec$crop_ensVar_SD - vec$crop_Tot_SD
   # calculate ratio between naive and ensemble calculations:
@@ -55,7 +55,7 @@ state <- prepare_plot_data(agg_vector = state,
 # combine data for the plots:
 #same_cols <- intersect(names(county), names(towns))
 same_cols <- c("mean","cropMean", "cropTot", "crop_Tot_CV", "crop_Tot_SD", "crop_ensVar_SD",
-               "area_m2", "type", "crops_area_m2", "delta", "ratio", "ratio_rev")
+               "area_km2", "type", "crops_area_km2", "delta", "ratio", "ratio_rev")
 vec <- rbind(towns[same_cols], county[same_cols], reg[same_cols], state[same_cols])
 
 # set name for labeling plots:
@@ -65,7 +65,7 @@ plot_var_name <- var_names[2]
 # coerce to data.frame for plot:
 plot_data <- as.data.frame(vec) %>%
   # select columns:
-  select(c(area_m2, crop_Tot_SD, crop_ensVar_SD, crops_area_m2, delta, ratio, ratio_rev, type)) %>%
+  select(c(area_km2, crop_Tot_SD, crop_ensVar_SD, crops_area_km2, delta, ratio, ratio_rev, type)) %>%
   # pivot longer:
   pivot_longer(
     cols = c(crop_Tot_SD, crop_ensVar_SD),
@@ -75,7 +75,7 @@ plot_data <- as.data.frame(vec) %>%
   arrange(factor(type, levels = c("Town", "County", "Region", "State(s)")))
 
 # SD vs area:
-SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
+SD_vs_area <- ggplot(plot_data, aes(x = area_km2, y = value)) +
   geom_point(aes(color = variable, fill = variable, shape = type), size = 2.5) +
   geom_smooth(aes(group = variable, fill = variable, color = variable), method = "lm", formula = y ~ x , se = TRUE, linewidth = 0.5, alpha = 0.15) +
   stat_poly_eq(
@@ -86,7 +86,7 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
     parse = TRUE,
     size = 5) +
   ggtitle(paste0("Naive vs. Ensemble SD - ", plot_loc)) +
-  labs(x = paste0("Area ", "(m" %p% supsc("2"), ")"),
+  labs(x = paste0("Area ", "(km" %p% supsc("2"), ")"),
        y = "SD", 
        color = "SD Calculation",
        fill = "SD Calculation",
@@ -96,7 +96,9 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
   scale_fill_discrete(labels = c("crop_Tot_SD" = "Naive", 
                                   "crop_ensVar_SD" = "Ensemble")) +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
-  scale_x_log10(breaks =  c(10^seq(5, 12))) +
+  #scale_x_log10(breaks =  c(10^seq(5, 12))) +
+  scale_x_log10(labels = function(x) format(x, scientific = FALSE),
+                breaks =c(1, 10, 100, 1000, 10000, 100000)) +
   scale_y_log10(breaks = c(1, 10, 100, 1000, 10000)) +
   theme_bw() +
   theme(axis.title = element_text(size = 14),
@@ -106,7 +108,7 @@ SD_vs_area <- ggplot(plot_data, aes(x = area_m2, y = value)) +
 SD_vs_area
 
 
-delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta)) +
+delta_vs_area <- ggplot(plot_data, aes(x = area_km2, y = delta)) +
   geom_point(aes(shape = type), size = 2.5, color = "navy") +
   geom_smooth(aes(group = variable), method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   stat_poly_eq(
@@ -116,12 +118,13 @@ delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta)) +
     parse = TRUE,
     size = 5) +
   ggtitle(paste0("Ensemble - Naive (Delta Plot): ", plot_var_name, " - ", plot_loc)) +
-  labs(x = paste0("Area ", "(m" %p% supsc("2"), ")"),
+  labs(x = paste0("Area ", "(km" %p% supsc("2"), ")"),
        y = "Ensemble SD - Naive SD",
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
-  scale_x_log10(breaks =  c(10^seq(5, 12))) +
+  scale_x_log10(labels = function(x) format(x, scientific = FALSE),
+                breaks =c(1, 10, 100, 1000, 10000, 100000)) +
   scale_y_log10(breaks = c(-0.1, 0, 1, 10, 100, 1000, 10000)) +
   theme_bw() +
   theme(legend.position = "right") +
@@ -132,7 +135,7 @@ delta_vs_area <- ggplot(plot_data, aes(x = area_m2, y = delta)) +
 delta_vs_area
 
 
-ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev)) +
+ratio_vs_area <- ggplot(plot_data, aes(x = area_km2, y = ratio_rev)) +
   geom_point(aes(shape = type), size = 2.5, color = "navy") +  
   geom_smooth(aes(group = variable), method = "lm", se = TRUE, color = "navy", linewidth = 0.5, alpha = 0.15) +
   stat_poly_eq(
@@ -142,12 +145,13 @@ ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev)) +
     parse = TRUE,
     size = 6) +
   ggtitle(paste0("Ensemble SD to Naive SD Ratio - ", plot_loc)) +
-  labs(x = paste0("Area ", "(m" %p% supsc("2"), ")"),
+  labs(x = paste0("Area ", "(km" %p% supsc("2"), ")"),
        y = "Ensemble SD : Naive SD",
        shape = "Geographic Boundary") +
   scale_shape_discrete(breaks = c("Town", "County", "Region", "State(s)")) +
   guides(fill = "none") +
-  scale_x_log10(breaks =  c(10^seq(5, 12))) +
+  scale_x_log10(labels = function(x) format(x, scientific = FALSE),
+                breaks =c(1, 10, 100, 1000, 10000, 100000)) +
   scale_y_log10(breaks = c(0, 1, 5, 10, 25, 50, 100)) +
   theme_bw() +
   theme(legend.position = "right") +
@@ -156,6 +160,12 @@ ratio_vs_area <- ggplot(plot_data, aes(x = area_m2, y = ratio_rev)) +
         axis.title = element_text(size = 14),
         legend.text=element_text(size = 12))
 ratio_vs_area
+
+## save copies of the ggplot objects so you can reload them and combine later with formatting:
+plots_save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/Plots/"
+saveRDS(SD_vs_area, paste0(plots_save_dir, Sys.Date(), "_SD_vs_area_", plot_loc, ".rds"))
+saveRDS(delta_vs_area, paste0(plots_save_dir, Sys.Date(), "_delta_vs_area_", plot_loc, ".rds"))
+saveRDS(ratio_vs_area, paste0(plots_save_dir, Sys.Date(), "_ratio_vs_area_", plot_loc, ".rds"))
 
 
 ### ARCHIVE ###
@@ -198,3 +208,7 @@ ratio_vs_area
 # # calculate overlap areas:
 # cty$crops_area_m2 <- terra::expanse(overlap, unit = "m")
 # #twn$crops_area_m2 <- terra::expanse(overlap, unit = "m")
+
+# saveRDS(SD_vs_area_CA, paste0(plots_save_dir, Sys.Date(), "_SD_vs_area_", "California", ".rds"))
+# saveRDS(delta_vs_area_CA, paste0(plots_save_dir, Sys.Date(), "_delta_vs_area_", "California", ".rds"))
+# saveRDS(ratio_vs_area_CA, paste0(plots_save_dir, Sys.Date(), "_ratio_vs_area_", "California", ".rds"))

@@ -53,3 +53,12 @@ ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_region_maps.png"),
 # ggsave(paste0(save_dir, "Maps/", Sys.Date(), "_CA_state_maps.png"), 
 #        plot = state_maps,
 #        dpi = 600)
+
+
+### saving plots with correct dimensions:
+# save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
+# png(filename = paste0(save_dir, "Plots/", Sys.Date(), "_MW_aggregate_regions_RATIO_plot.png"),
+#     width = 9, height = 6, units = "in",
+#     res = 600)
+# ratio_vs_area_MW
+# dev.off()
