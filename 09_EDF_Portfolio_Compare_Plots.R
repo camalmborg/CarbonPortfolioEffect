@@ -60,16 +60,16 @@ mw_crop_pred <- as.data.frame(predict(MW_crop_lm, interval = "confidence"))
 ## Preparing data for the plots
 # (1) for uncertainty ratio vs pixels by region:
 region_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, ratio_rev = port_df$ratio_rev, 
-                          model_fit = reg_pred$fit, upper = reg_pred$upr, lower = reg_pred$lwr)
+                          model_fit = 10^reg_pred$fit, upper = 10^reg_pred$upr, lower = 10^reg_pred$lwr)
 # (2) for uncertainty ratio vs pixels by crop in California:
 ca_crop_regr <- data.frame(n_pixels = ca_port_df$agg_n, crop = ca_port_df$crop, ratio_rev = ca_port_df$ratio_rev,
-                           model_fit = ca_crop_pred$fit, upper = ca_crop_pred$upr, lower = ca_crop_pred$lwr)
+                           model_fit = 10^ca_crop_pred$fit, upper = 10^ca_crop_pred$upr, lower = 10^ca_crop_pred$lwr)
 # (3) for uncertainty ratio vs pixels by crop in the Midwest:
 mw_crop_regr <- data.frame(n_pixels = mw_port_df$agg_n, crop = mw_port_df$crop, ratio_rev = mw_port_df$ratio_rev,
-                           model_fit = mw_crop_pred$fit, upper = mw_crop_pred$upr, lower = mw_crop_pred$lwr)
+                           model_fit = 10^mw_crop_pred$fit, upper = 10^mw_crop_pred$upr, lower = 10^mw_crop_pred$lwr)
 # (4) for uncertainty ratio vs pixels by all crops:
 crop_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, crop = port_df$crop, ratio_rev = port_df$ratio_rev,
-                        model_fit = crop_pred$fit, upper = crop_pred$upr, lower = crop_pred$lwr)
+                        model_fit = 10^crop_pred$fit, upper = 10^crop_pred$upr, lower = 10^crop_pred$lwr)
 
 
 ## Tables for reporting
@@ -203,8 +203,9 @@ region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = n_pixels, y = m
     aes(ymin = lower, ymax = upper, fill = region),
     alpha = 0.25, color = NA) +
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
-  scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
-                     labels = function(x) parse(text = paste0("10^", x))) +
+  scale_y_log10(breaks = c(0, 1, 5, 10, 50, 100)) +
+  # scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
+  #                    labels = function(x) parse(text = paste0("10^", x))) +
   labs(color = "Region",
        x = "Number of 1km Pixels in Portfolio",
        y = "Ensemble SD : Naive SD") +
@@ -231,8 +232,9 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   geom_line(linewidth = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
-  scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
-                     labels = function(x) parse(text = paste0("10^", x))) +
+  scale_y_log10(breaks = c(0, 1, 5, 10, 50, 100)) +
+  # scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
+  #                    labels = function(x) parse(text = paste0("10^", x))) +
   labs(color = "Crop",
        shape = "Region",
        x = "Number of 1km Pixels in Portfolio", 

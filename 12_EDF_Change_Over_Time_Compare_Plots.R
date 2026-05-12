@@ -74,12 +74,12 @@ crop_pred <- as.data.frame(predict(crop_lm, interval = "confidence"))
 ## Preparing data for the plots
 # (1) for uncertainty ratio vs pixels by region:
 region_regr <- data.frame(n_pixels = cot_port_df$agg_n, region = cot_port_df$region, ratio_rev = cot_port_df$ratio_rev, analysis = cot_port_df$analysis,
-                          model_fit = reg_pred$fit, upper = reg_pred$upr, lower = reg_pred$lwr)
+                          model_fit = 10^reg_pred$fit, upper = 10^reg_pred$upr, lower = 10^reg_pred$lwr)
 stat_regr <- data.frame(n_pixels = port_df$agg_n, region = port_df$region, ratio_rev = port_df$ratio_rev, analysis = port_df$analysis,
-                          model_fit = stat_pred$fit, upper = stat_pred$upr, lower = stat_pred$lwr)
+                          model_fit = 10^stat_pred$fit, upper = 10^stat_pred$upr, lower = 10^stat_pred$lwr)
 # (4) for uncertainty ratio vs pixels by all crops:
 crop_regr <- data.frame(n_pixels = cot_port_df$agg_n, region = cot_port_df$region, crop = cot_port_df$crop, ratio_rev = cot_port_df$ratio_rev,
-                        model_fit = crop_pred$fit, upper = crop_pred$upr, lower = crop_pred$lwr)
+                        model_fit = 10^crop_pred$fit, upper = 10^crop_pred$upr, lower = 10^crop_pred$lwr)
 
 
 ## Tables for Reporting Results
@@ -262,8 +262,11 @@ region_regr_plot <- ggplot(data = region_regr) +
   # scale_y_continuous(breaks = c(seq((round((min(stat_regr$model_fit) * 2)/2)-0.5), 
   #                                   (round((max(stat_regr$model_fit) * 2)/2)+0.5),
   #                                   length = 5))) +
-  scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
-                     labels = function(x) parse(text = paste0("10^", x))) +
+  scale_y_log10(breaks = c(0, 1, 5, 10, 50, 100)) +
+  # scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
+  #                    labels = c(-0.5, 0, 0.5, 1, 1.5, 2)) +
+  #scale_y_continuous() + #breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
+                     #labels = function(x) round(10^x, 2)) +
   scale_linetype_manual(values = c("Change Over Time Portfolio" = "solid",
                                    "Static Portfolio" = "dashed")) +
   labs(color = "Region",
@@ -294,8 +297,9 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   geom_line(linewidth = 0.5) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = crop), alpha = 0.25, color = NA) +
   scale_x_log10(breaks = c(unique(region_regr$n_pixels)), labels = scales::comma) +
-  scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
-                     labels = function(x) parse(text = paste0("10^", x))) +
+  scale_y_log10(breaks = c(0, 1, 5, 10, 50, 100)) +
+  # scale_y_continuous(breaks = c(-0.5, 0, 0.5, 1, 1.5, 2),
+  #                    labels = function(x) parse(text = paste0("10^", x))) +
   labs(color = "Crop",
        shape = "Region",
        x = "Number of 1km Pixels in Portfolio", 
