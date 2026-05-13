@@ -15,7 +15,7 @@ library(gt)
 dir <- "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/Portfolios/"
 setwd(dir)
 # portfolio files:
-port_df <- list.files(dir) %>%
+port_df <- list.files(dir)[grep("^2", list.files(dir))] %>%
   # open:
   lapply(read_csv, show_col_types = FALSE) %>%
   # row bind:
@@ -208,22 +208,26 @@ region_regr_plot <- ggplot(data = region_regr, mapping = aes(x = n_pixels, y = m
   #                    labels = function(x) parse(text = paste0("10^", x))) +
   labs(color = "Region",
        x = "Number of 1km Pixels in Portfolio",
-       y = "Ensemble SD : Naive SD") +
+       y = "Ensemble SD : Naive SD",
+       title = "Region") +
   guides(fill = "none") +
   theme_bw() +
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
+  theme(axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 14),
         axis.title = element_text(size = 14),
-        legend.text=element_text(size = 12))
+        legend.title = element_text(size = 14), 
+        legend.text=element_text(size = 12),
+        legend.position = c(0.85,0.15),
+        legend.background = element_rect(color = "black", linewidth = 0.25))
 region_regr_plot
 
-# save the plot:
-save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
-# Save the plot to a PNG file:
-ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_region_regression_plot.png"),
-       plot = region_regr_plot,
-       width = 10, height = 6,
-       dpi = 600)
+# # save the plot:
+# save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
+# # Save the plot to a PNG file:
+# ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_region_regression_plot.png"),
+#        plot = region_regr_plot,
+#        width = 10, height = 6,
+#        dpi = 600)
 
 # (4) all crops:
 all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = model_fit, 
@@ -238,7 +242,8 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
   labs(color = "Crop",
        shape = "Region",
        x = "Number of 1km Pixels in Portfolio", 
-       y = "Ensemble SD : Naive SD") +
+       y = "Ensemble SD : Naive SD",
+       title = "Crop Types") +
   scale_color_discrete(
     labels = c("aa_decid" = "Deciduous Tree Crops", 
                "citrus" = "Citrus", 
@@ -247,35 +252,49 @@ all_crop_regr_plot <- ggplot(data = crop_regr, mapping = aes(x = n_pixels, y = m
                "vineyd" = "Vineyards",
                "aa_corn" = "Corn", 
                "grass_pasture" = "Grassland/Pasture", 
-               "soybeans" = "Soybeans")
-  ) +
+               "soybeans" = "Soybeans")) +
   guides(fill = "none") +
   theme_bw() +
   theme(axis.text.x = element_text(size = 12),
         axis.text.y = element_text(size = 12),
         axis.title = element_text(size = 14),
-        legend.text=element_text(size = 12))
+        legend.text = element_text(size = 12),
+        legend.position = c(0.85, 0.30),
+        legend.box.margin = margin(0.5, 0.5, 0.5, 0.5),
+        legend.box.background = element_rect(color = "black", linewidth = 0.25))
 all_crop_regr_plot
 
-# Save the plot to a PNG file:
-ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regression_plot.png"),
-       plot = all_crop_regr_plot,
-       width = 11, height = 6,
-       dpi = 600)
+# # Save the plot to a PNG file:
+# ggsave(paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regression_plot.png"),
+#        plot = all_crop_regr_plot,
+#        width = 11, height = 6,
+#        dpi = 600)
 
 ### saving plots 2/20 - fixing aspect ratios
-save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
-png(filename = paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_region_regression_plot.png"),
-    width = 9, height = 6, units = "in",
-    res = 600)
-region_regr_plot
+# save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/"
+# png(filename = paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_region_regression_plot.png"),
+#     width = 9, height = 6, units = "in",
+#     res = 600)
+# region_regr_plot
+# dev.off()
+# 
+# png(filename = paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regression_plot.png"),
+#     width = 10, height = 6, units = "in",
+#     res = 600)
+# all_crop_regr_plot
+# dev.off()
+
+### saving plots 5/13 
+crops_regr_combine <- ((region_regr_plot + theme(axis.text.x = element_blank(), axis.title.x = element_blank())) / all_crop_regr_plot)
+crops_regr_combine
+
+# saving:
+save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/Z_final_paper_figures/"
+png(filename = paste0(save_dir, Sys.Date(), "_region_regr_portfolio_plots_CA_MW_combined.png"),
+    height = 15, width = 10, units = "in", res = 600)
+crops_regr_combine
 dev.off()
 
-png(filename = paste0(save_dir, "Portfolio_Plots/", Sys.Date(), "_portfolios_crops_regression_plot.png"),
-    width = 10, height = 6, units = "in",
-    res = 600)
-all_crop_regr_plot
-dev.off()
 
 # # (2) California crops:
 # ca_crop_regr_plot <- ggplot(data = ca_crop_regr, mapping = aes(x = log10(n_pixels), y = model_fit, 
