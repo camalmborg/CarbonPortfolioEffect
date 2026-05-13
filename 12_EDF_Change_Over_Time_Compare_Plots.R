@@ -359,9 +359,9 @@ crops_regr_cot_combine
 
 # saving:
 save_dir <- "/projectnb/dietzelab/malmborg/EDF/Figures/Z_final_paper_figures/"
-png(filename = paste0(save_dir, Sys.Date(), "_region_regr_portfolio_plots_CA_MW_combined.png"),
+png(filename = paste0(save_dir, Sys.Date(), "_region_regr_portfolio_plots_cot_CA_MW_combined.png"),
     height = 15, width = 10, units = "in", res = 600)
-crops_regr_combine
+crops_regr_cot_combine
 dev.off()
 
 
