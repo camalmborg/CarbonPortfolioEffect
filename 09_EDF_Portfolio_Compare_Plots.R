@@ -97,6 +97,7 @@ make_reg_tables <- function(lm){
 
 # For Regions:
 reg_summ <- make_reg_tables(region_lm)
+reg_ci <- confint(region_lm)
 # Combine into table
 reg_regr_table <- data.frame(
   region = c("California", "Midwest"),
@@ -105,8 +106,12 @@ reg_regr_table <- data.frame(
   p_value_slopes = c(reg_summ[["p"]][2], reg_summ[["p"]][4]),
   p_value_int = c(reg_summ[["p"]][1], reg_summ[["p"]][3]),
   se_slope = c(reg_summ[["se"]][2], reg_summ[["se"]][4]),
-  se_int = c(reg_summ[["se"]][1], reg_summ[["se"]][3])
-) %>%
+  se_int = c(reg_summ[["se"]][1], reg_summ[["se"]][3]),
+  low_ci_slopes = c(reg_ci[2], (reg_ci[2] + reg_ci[4])),
+  high_ci_slopes = c(reg_ci[6], (reg_ci[6] + reg_ci[8])),
+  low_ci_int = c(reg_ci[1], (reg_ci[1] + reg_ci[5])),
+  high_ci_int = c(reg_ci[5], (reg_ci[5] + reg_ci[7]))
+  ) %>%
   # round to third digit:
   mutate(across(where(is.numeric) & !matches("p_value_slopes") & !matches("p_value_int"), ~ round(., 3))) %>%
   # add nicer p-value reporting:
@@ -114,19 +119,23 @@ reg_regr_table <- data.frame(
   mutate(p_value_int = ifelse(p_value_int < 0.001, "< 0.001", round(p_value_int, 3)))
 
 rrt <- reg_regr_table %>%
-  select(region, slope, p_value_slopes, int, p_value_int) %>%
+  select(region, slope, p_value_slopes, low_ci_slopes, high_ci_slopes, int, p_value_int, low_ci_int, high_ci_int) %>%
   gt() %>%
   cols_label(
     region = md("**Region**"),
     slope = md("**Slope**"),
     p_value_slopes = md("P-value"),
+    low_ci_slopes = md("Slope 2.5%"),
+    high_ci_slopes = md("Slope 97.5%"),
     int = md("**Intercept**"),
-    p_value_int = md("P-value")
-  )
+    p_value_int = md("P-value"),
+    low_ci_int = md("Int. 2.5%"),
+    high_ci_int = md("Int. 97.5%")
+    )
 rrt
 # save:
-rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/region_reg_table.html")
-rrt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/region_reg_table.docx")
+rrt %>% gtsave(filename = paste0("/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/", Sys.Date(), "_region_reg_table.html"))
+rrt %>% gtsave(filename = paste0("/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/", Sys.Date(), "_region_reg_table.docx"))
 
 
 # For Crop Types:
@@ -143,15 +152,25 @@ int_p <- crop_summ[["p"]][grep("agg_n", names(crop_summ[["p"]]), invert = TRUE)]
 # se:
 slope_se <- crop_summ[["se"]][grep("agg_n", names(crop_summ[["se"]]))]
 int_se <- crop_summ[["se"]][grep("agg_n", names(crop_summ[["se"]]), invert = TRUE)]
+# ci:
+crop_ci <- as.data.frame(confint(crop_lm))
+crop_slope_low <- c(crop_ci$`2.5 %`[2], (crop_ci$`2.5 %`[2] + crop_ci$`2.5 %`[10:16]))
+crop_slope_high <- c(crop_ci$`97.5 %`[2], (crop_ci$`97.5 %`[2] + crop_ci$`97.5 %`[10:16]))
+crop_int_low <- c(crop_ci$`2.5 %`[1], (crop_ci$`2.5 %`[1] + crop_ci$`2.5 %`[3:9]))
+crop_int_high <- c(crop_ci$`97.5 %`[1], (crop_ci$`97.5 %`[1] + crop_ci$`97.5 %`[3:9]))
 
 # Combine into table
 crop_regr_table <- data.frame(
   crop = c("Corn", "Deciduous Tree Crops", "Citrus", "Grassland/Pasture (MW)", "Pasture (CA)", "Soybeans", "Field/Row Crops", "Vineyards"),
   slope = crop_slopes,
   p_value_slopes = slope_p,
+  low_ci_slopes = crop_slope_low,
+  high_ci_slopes = crop_slope_high,
   slope_se = slope_se,
   int = crop_int,
   p_value_int = int_p,
+  low_ci_int = crop_int_low,
+  high_ci_int = crop_int_high,
   int_se = int_se
 ) %>%
   # round to third digit:
@@ -161,14 +180,18 @@ crop_regr_table <- data.frame(
   mutate(p_value_int = ifelse(p_value_int < 0.001, "< .001", round(p_value_int, 3)))
 
 crt <- crop_regr_table %>%
-  select(crop, slope, p_value_slopes, int, p_value_int) %>%
+  select(crop, slope, p_value_slopes, low_ci_slopes, high_ci_slopes, int, p_value_int, low_ci_int, high_ci_int) %>%
   gt() %>%
   cols_label(
     crop = md("**Crop**"),
     slope = md("**Slope**"),
     p_value_slopes = md("P-value"),
+    low_ci_slopes = md("Slope 2.5%"),
+    high_ci_slopes = md("Slope 97.5%"),
     int = md("**Intercept**"),
-    p_value_int = md("P-value")
+    p_value_int = md("P-value"),
+    low_ci_int = md("Int. 2.5%"),
+    high_ci_int = md("Int. 97.5%")
   ) %>%
   tab_style(
     style = list(
@@ -184,8 +207,8 @@ crt <- crop_regr_table %>%
   )
 crt
 # save:
-crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/crop_reg_table.html")
-crt %>% gtsave(filename = "/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/crop_reg_table.docx")
+crt %>% gtsave(filename = paste0("/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/", Sys.Date(), "crop_reg_table.html"))
+crt %>% gtsave(filename = paste0("/projectnb/dietzelab/malmborg/EDF/CA_MW_portfolio_runs/", Sys.Date(), "crop_reg_table.docx"))
 
 
 ## Making plots
