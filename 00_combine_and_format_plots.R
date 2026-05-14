@@ -99,12 +99,11 @@ for (i in 1:length(cot_list)){
 crops <- names(port_plots)
 for (i in 1:length(crops)){
   # load matching plots:
-  port <- port_plots[[crops[i]]] + theme(axis.title = element_blank(), axis.text.x = element_blank()) 
-  cot <- cot_plots[[crops[i]]] + theme(legend.position = c(0.85, 0.15), legend.background = element_rect(color = "black", linewidth = 0.25))
+  port <- port_plots[[crops[i]]] + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), legend.position = "none")
+  cot <- cot_plots[[crops[i]]] 
   
   # combine plots:
-  crop_combine <- (port / cot) +
-    plot_layout(guides = "collect")
+  crop_combine <- (port / cot) + theme(legend.position = c(0.85, 0.15), legend.background = element_rect(color = "black", linewidth = 0.25))
   
   # name plots:
   name <- crops[i]

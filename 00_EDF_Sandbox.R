@@ -201,3 +201,51 @@ fac_off_mw <- mw_ens_big_port/mw_naive_big_port
 # ranges:
 range(fac_off_ca)
 range(fac_off_mw)
+
+
+## getting CI/SE
+# standard error calculated by dividing [sample sd] by [sqrt(sample size)]
+se_calc <- function(sample){
+  sample <- sample[which(!is.na(sample))]
+  length <- length(sample)
+  sd <- sd(sample)
+  se <- sd/sqrt(length)
+  return(se)
+}
+
+ci_calc <- function(sample){
+  sample <- sample[which(!is.na(sample))]
+  ci <- t.test(sample)$conf.int
+  return(ci)
+}
+
+# done with ca_inventories
+ca_se_inventory <- se_calc(plot_data$value)
+ca_ci_inventory <- ci_calc(plot_data$value)
+
+mw_se_inventory <- se_calc(plot_data$value)
+mw_ci_inventory <- ci_calc(plot_data$value)
+
+## for the slopes/intercepts:
+all <- ca_inv[!is.na(ca_inv$value) & ca_inv$value > 0,]
+naives <- all[all$variable == "crop_Tot_SD",]
+enss <- all[all$variable == "crop_ensVar_SD",]
+ca_lm_nv <- lm(log10(value)~log10(area_m2), naives)
+ca_lm_ens <- lm(log10(value)~log10(area_m2), enss)
+
+ratioca <- lm(log10(ratio_rev) ~ log10(area_m2), ca_inv)
+
+all <- mw_inv[!is.na(mw_inv$value) & mw_inv$value > 0,]
+naives <- all[all$variable == "crop_Tot_SD",]
+enss <- all[all$variable == "crop_ensVar_SD",]
+mw_lm_nv <- lm(log10(value)~log10(area_m2), naives)
+mw_lm_ens <- lm(log10(value)~log10(area_m2), enss)
+
+ratiomw <- lm(log10(ratio_rev) ~ log10(area_m2), mw_inv)
+
+confint(ca_lm_nv)
+confint(ca_lm_ens)
+confint(mw_lm_nv)
+confint(mw_lm_ens)
+confint(ratioca)
+confint(ratiomw)
