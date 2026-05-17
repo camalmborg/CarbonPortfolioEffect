@@ -249,3 +249,32 @@ confint(mw_lm_nv)
 confint(mw_lm_ens)
 confint(ratioca)
 confint(ratiomw)
+
+
+## figuring out how much temporal change matters:
+max_ca_static <- max(ca_port_df$crop_ensVar_SD, na.rm = T)
+max_mw_static <- max(mw_port_df$crop_ensVar_SD, na.rm = T)
+max_ca_cot <- max(cot_port_df$crop_ensVar_SD[cot_port_df$region == "CA"])
+max_mw_cot <- max(cot_port_df$crop_ensVar_SD[cot_port_df$region == "MW"])
+
+
+# making a plot with these:
+port_df$analysis <- "static"
+cot_port_df$analysis <- "cot"
+all_port <- rbind(port_df, cot_port_df)
+
+# ggplot:
+all_port_plot <- ggplot(data = all_port, mapping = aes(x = factor(agg_n), y = crop_ensVar_SD, color = region, linetype = analysis)) +
+  #geom_point(aes(fill = region), size = 2) +
+  #geom_violin(aes(fill = region), width = 5, alpha = 0.5, trim = FALSE, position = position_dodge(width = 0.5)) +
+  geom_boxplot(aes(fill = region), width = 0.75, alpha = 0.5, position = position_dodge(width = 0.75)) +
+  scale_x_discrete(labels = c("1", "10", "100", "1000", "10000", "100000")) +
+  scale_y_log10(breaks = c(1, 10, 100, 1000, 10000)) +
+  labs(title = " Regional Ensemble SD", x = "Number of pixels", y = "Ensemble SD") +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        axis.title = element_text(size = 14),
+        plot.title = element_text(size = 14))
+  
+all_port_plot
+
